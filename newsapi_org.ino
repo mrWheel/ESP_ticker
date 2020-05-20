@@ -40,8 +40,7 @@ void getNewsapiData() {
   delay(10);
   
   newsapiClient.setTimeout(5000);
-
-  while (newsapiClient.connected())
+  while (newsapiClient.connected() || newsapiClient.available())
   {
     yield();
     while(newsapiClient.available())
@@ -66,16 +65,20 @@ void getNewsapiData() {
         return;
       }
       //--- skip headers
-      String title;
-      int msgNr = 0;
-      //while (newsapiClient.find("\"title\":"))
-      while (newsapiClient.find("\"author\":"))
+      uint16_t  msgIdx  = 0;
+      int       msgNr   = 0;
+      while (newsapiClient.find("\"title\":\""))
       {
-        //newsapiClient.readBytesUntil('\0',  jsonResponse, sizeof(jsonResponse));
-        title = newsapiClient.readStringUntil('}');
-        parseJsonKey(title.c_str(), "title", newsMessage, NEWS_SIZE);
-        Debugf("[%2d] %s\r\n", msgNr, newsMessage);
-        if (!hasNoNoWord(newsMessage))
+        for (int i=0; i<NEWS_SIZE; i++) newsMessage[i] = 0;
+        msgIdx          = 0;
+        while( (strIndex(newsMessage, "\"description\":") == -1) && (msgIdx < (NEWS_SIZE - 2)) )
+        {
+          newsMessage[msgIdx++] = (char)newsapiClient.read();
+        }
+        newsMessage[msgIdx] = '\0';
+        if (msgIdx > 30)  newsMessage[msgIdx - 16] = 0;
+        Debugf("\t[%2d] %s\r\n", msgNr, newsMessage);
+        if (!hasNoNoWord(newsMessage) && strlen(newsMessage) > 15)
         {
           if (msgNr <= settingNewsMaxMsg)
           {
@@ -83,7 +86,7 @@ void getNewsapiData() {
           }
           msgNr++;
         }
-      }
+      } // while find(title)
     } // while available ..
     
   } // connected ..

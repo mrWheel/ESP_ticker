@@ -36,7 +36,7 @@ void processAPI()
 
   int8_t wc = splitString(URI, '/', words, 10);
   
-  if (Verbose2) 
+  if (Verbose) 
   {
     DebugT(">>");
     for (int w=0; w<wc; w++)
@@ -180,16 +180,17 @@ void sendDeviceSettings()
   sendStartJsonObj("settings");
   
   sendJsonSettingObj("hostname",          settingHostname,         "s", sizeof(settingHostname) -1);
-  sendJsonSettingObj("localMaxMsg",       settingLocalMaxMsg,      "i",  1, 20);
-  sendJsonSettingObj("textSpeed",         settingTextSpeed,        "i", 10, MAX_SPEED);
-  sendJsonSettingObj("LDRoffset",         settingLDRoffset,        "i",  0, 500);
-  sendJsonSettingObj("maxIntensity",      settingMaxIntensity,     "i",  0, 15);
+  sendJsonSettingObj("localMaxMsg",       settingLocalMaxMsg,      "i",   1,   20);
+  sendJsonSettingObj("textSpeed",         settingTextSpeed,        "i",  10, MAX_SPEED);
+  sendJsonSettingObj("LDRlowOffset",      settingLDRlowOffset,     "i",   0,  500);
+  sendJsonSettingObj("LDRhighOffset",     settingLDRhighOffset,    "i", 500, 1024);
+  sendJsonSettingObj("maxIntensity",      settingMaxIntensity,     "i",   0,   15);
   sendJsonSettingObj("weerliveAUTH",      settingWeerLiveAUTH,     "s", sizeof(settingWeerLiveAUTH) -1);
   sendJsonSettingObj("weerliveLocation",  settingWeerLiveLocation, "s", sizeof(settingWeerLiveLocation) -1);
-  sendJsonSettingObj("weerliveInterval",  settingWeerLiveInterval, "i", 15, 120);
+  sendJsonSettingObj("weerliveInterval",  settingWeerLiveInterval, "i",  15,  120);
   sendJsonSettingObj("newsapiAUTH",       settingNewsAUTH,         "s", sizeof(settingNewsAUTH) -1);
-  sendJsonSettingObj("newsapiMaxMsg",     settingNewsMaxMsg,       "i",  1, 20);
-  sendJsonSettingObj("newsapiInterval",   settingNewsInterval,     "i", 15, 120);
+  sendJsonSettingObj("newsapiMaxMsg",     settingNewsMaxMsg,       "i",   1,   20);
+  sendJsonSettingObj("newsapiInterval",   settingNewsInterval,     "i",  15,  120);
   sendJsonSettingObj("newsNoWords",       settingNewsNoWords,      "s", sizeof(settingNewsNoWords) -1);
 
   sendEndJsonObj();

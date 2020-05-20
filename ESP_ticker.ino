@@ -1,5 +1,5 @@
 
-#define _FW_VERSION "v1.3.1 (16-05-2020)"
+#define _FW_VERSION "v1.3.4 (20-05-2020)"
 
 
 // Use the Parola library to scroll text on the display
@@ -29,54 +29,76 @@ WiFiServer server(80);
 
 uint8_t  inFX, outFX;
 textEffect_t  effect[] =
-{
-  PA_PRINT,
-//PA_SCAN_HORIZ,
-  PA_SCROLL_LEFT,
-  PA_WIPE,
-  PA_SCROLL_UP_LEFT,
-  PA_SCROLL_UP,
-  PA_OPENING_CURSOR,
-  PA_GROW_UP,
-  PA_MESH,
-  PA_SCROLL_UP_RIGHT,
-//PA_BLINDS,
-  PA_CLOSING,
-  PA_RANDOM,
-  PA_GROW_DOWN,
-  PA_SCAN_VERT,
-  PA_SCROLL_DOWN_LEFT,
-  PA_WIPE_CURSOR,
-//PA_DISSOLVE,
-  PA_OPENING,
-  PA_CLOSING_CURSOR,
-  PA_SCROLL_DOWN_RIGHT,
-  PA_SCROLL_RIGHT,
-//PA_SLICE,
-  PA_SCROLL_DOWN,
-};
+  {
+    PA_PRINT,
+  //PA_SCAN_HORIZ,
+    PA_SCROLL_LEFT,
+    PA_WIPE,
+    PA_SCROLL_UP_LEFT,
+    PA_SCROLL_UP,
+    PA_OPENING_CURSOR,
+    PA_GROW_UP,
+    PA_MESH,
+    PA_SCROLL_UP_RIGHT,
+  //PA_BLINDS,
+    PA_CLOSING,
+    PA_RANDOM,
+    PA_GROW_DOWN,
+    PA_SCAN_VERT,
+    PA_SCROLL_DOWN_LEFT,
+    PA_WIPE_CURSOR,
+  //PA_DISSOLVE,
+    PA_OPENING,
+    PA_CLOSING_CURSOR,
+    PA_SCROLL_DOWN_RIGHT,
+    PA_SCROLL_RIGHT,
+  //PA_SLICE,
+    PA_SCROLL_DOWN,
+  };
 
 
 //---------------------------------------------------------------------
+int16_t lowAnalogRead = 9999, highAnalogRead = -100;
+int16_t lowIntensity  = 9999, highIntensity  = -100;
+int8_t  lastHour      = -1;
+int8_t  lastMinute    = -1;
+
 int16_t calculateIntensity()
 {
-  int aIn = 0;
+  int a0In = 0;
   for (int l=0; l<2; l++)
   {
     //--- read analog A0
-    aIn+= analogRead(A0);
+    a0In+= analogRead(A0);
     delay(200);
   }
-  aIn = aIn / 2;  //-- smooth things up a bit
-  DebugTf("analogRead[%d], ", aIn);
-  if (aIn < settingLDRoffset) aIn = settingLDRoffset;
-  Debugf(" LDRoffset corrected[%d], ", aIn);
-  valueLDR = (valueLDR + aIn) / 2;
+  a0In = a0In / 2;  //-- smooth things up a bit
+  
+  DebugTf("analogRead[%d], ", a0In);
+  //---test if (a0In < settingLDRlowOffset) a0In = settingLDRlowOffset;
+  Debugf(" LDRlowOffset[%d] LDRhighOffset[%d] ", settingLDRlowOffset, settingLDRhighOffset);
+  valueLDR = (valueLDR + a0In) / 2;
+  if (valueLDR < settingLDRlowOffset)   valueLDR = settingLDRlowOffset;
+  if (valueLDR > settingLDRhighOffset)  valueLDR = settingLDRhighOffset;
   Debugf(" ==> valueLDR[%d]\r\n", valueLDR);
 
   //--- map LDR to offset..1024 -> 0..settingMax
-  int intensity = map(valueLDR, settingLDRoffset, 1024, 0, settingMaxIntensity);
-  DebugTf("map(%d, %d, %d, 0, %d) => [%d]\r\n", valueLDR, settingLDRoffset, 1024, settingMaxIntensity, intensity);
+  int intensity = map(valueLDR, settingLDRlowOffset, settingLDRhighOffset,  0, settingMaxIntensity);
+  DebugTf("map(%d, %d, %d, 0, %d) => [%d]\r\n", valueLDR, settingLDRlowOffset, settingLDRhighOffset
+                                                        , 0                  , settingMaxIntensity);
+
+
+/*
+  if ( ((minute() % 15) == 0) && (lastMinute != minute()) ) 
+  {
+    lastHour = hour();
+    lastMinute = minute();
+    char line[50];
+    snprintf(line, sizeof(line), "valueLDR[%4d] intensity[%2d]", valueLDR, intensity);
+    writeToLog(line);
+  }
+*/
+  
   return intensity;
 
 } // calculateIntensity()
@@ -139,7 +161,7 @@ void nextNieuwsBericht()
     newsMsgID++;
     if (newsMsgID > settingNewsMaxMsg) newsMsgID = 0;
   }
-  snprintf(actMessage, NEWS_SIZE, "* %s **", fileMessage);
+  snprintf(actMessage, NEWS_SIZE, "** %s **", fileMessage);
   //DebugTf("newsMsgID[%d] %s\r\n", newsMsgID, actMessage);
   utf8Ascii(actMessage);
   P.displayScroll(actMessage, PA_LEFT, PA_SCROLL_LEFT, (MAX_SPEED - settingTextSpeed));
@@ -158,7 +180,7 @@ void nextLocalBericht()
     localMsgID++;
     if (localMsgID > (settingLocalMaxMsg -1)) localMsgID = 0;
   }
-  snprintf(actMessage, LOCAL_SIZE, "* %s **", fileMessage);
+  snprintf(actMessage, LOCAL_SIZE, "** %s **", fileMessage);
   //DebugTf("localMsgID[%d] %s\r\n", localMsgID, actMessage);
   utf8Ascii(actMessage);
   P.displayScroll(actMessage, PA_LEFT, PA_SCROLL_LEFT, (MAX_SPEED - settingTextSpeed));
@@ -185,9 +207,6 @@ void setup()
   P.displayScroll(actMessage, PA_LEFT, PA_SCROLL_LEFT, (MAX_SPEED - settingTextSpeed));
 
   actMessage[0]  = '\0';
-  valueIntensity = calculateIntensity(); // read analog input pin 0
-  P.setIntensity(valueIntensity);
-
   
 //================ SPIFFS ===========================================
   if (SPIFFS.begin()) 
@@ -198,6 +217,10 @@ void setup()
     DebugTln(F("SPIFFS Mount failed\r"));   // Serious problem with SPIFFS 
     SPIFFSmounted = false;
   }
+  //==========================================================//
+  // writeLastStatus();  // only for firsttime initialization //
+  //==========================================================//
+  readLastStatus(); // place it in actTimestamp
 
   readSettings(true);
   splitNewsNoWords(settingNewsNoWords);
@@ -206,7 +229,7 @@ void setup()
   int t = 0;
   while ((WiFi.status() != WL_CONNECTED) && (t < 25))
   {
-    delay(100);
+    delay(500);
     Serial.print(".");
     t++;
   }
@@ -225,8 +248,13 @@ void setup()
   startMDNS(settingHostname);
   startNTP();
 
-  snprintf(cMsg, sizeof(cMsg), "Last reset reason: [%s]\r", ESP.getResetReason().c_str());
+  nrReboots++;
+  writeLastStatus();
+  //writeToLog("=========REBOOT==========================");
+
+  snprintf(cMsg, sizeof(cMsg), "Last reset reason: [%s]", ESP.getResetReason().c_str());
   DebugTln(cMsg);
+  //writeToLog(cMsg);
 
   Serial.print("\nGebruik 'telnet ");
   Serial.print (WiFi.localIP());
@@ -252,7 +280,14 @@ void setup()
   DebugTf("\nAssigned IP[%s]\r\n", actMessage);
   P.displayScroll(actMessage, PA_LEFT, PA_NO_EFFECT, (MAX_SPEED - settingTextSpeed));
   P.setTextEffect(PA_SCROLL_LEFT, PA_NO_EFFECT);
+  
   valueIntensity = calculateIntensity(); // read analog input pin 0
+
+  lowAnalogRead  = 9999;
+  highAnalogRead = -100;
+  lowIntensity   = 9999;
+  highIntensity  = -100;
+
   P.setIntensity(valueIntensity);
   newsMsgID = 0;
   do { yield(); } while( !P.displayAnimate() );
@@ -305,19 +340,20 @@ void loop()
                 DebugTf("Animate IN[%d], OUT[%d] %s\r\n", inFX, outFX, actMessage);
                 break;
       case 3:
-      case 5:   nextLocalBericht();
+      case 6:   nextLocalBericht();
                 P.setTextEffect(PA_SCROLL_LEFT, PA_NO_EFFECT);
                 break;    
       case 4:            
-      case 6:            
-      case 7:   nextNieuwsBericht();
+      case 5:            
+      case 7:            
+      case 8:   nextNieuwsBericht();
                 P.setTextEffect(PA_SCROLL_LEFT, PA_NO_EFFECT);
                 break;
-      case 8:   snprintf(actMessage, LOCAL_SIZE, "* %s **", tempMessage);
+      case 9:   snprintf(actMessage, LOCAL_SIZE, "** %s **", tempMessage);
                 utf8Ascii(actMessage);
                 P.setTextEffect(PA_SCROLL_LEFT, PA_NO_EFFECT);
                 break;
-      case 9:   nextNieuwsBericht();
+      case 10:  nextNieuwsBericht();
                 break;
       default:  msgType = 0;
                 return;

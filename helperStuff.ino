@@ -341,9 +341,10 @@ void strTrimCntr(char *dest, int maxLen)
 //===========================================================================================
 int strIndex(const char *haystack, const char *needle, int start)
 {
-  char *p = strstr (haystack+start, needle);
+  // strindex(hay, needle) ????
+  char *p = strstr(haystack+start, needle);
   if (p) {
-    //DebugTf("found [%s] at position [%d]\r\n", needle, (p - haystack));
+    DebugTf("found [%s] at position [%d]\r\n", needle, (p - haystack));
     return (p - haystack);
   }
   return -1;

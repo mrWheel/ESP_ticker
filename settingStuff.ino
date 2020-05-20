@@ -27,7 +27,8 @@ void writeSettings(bool show)
   file.print("localMaxMsg = ");       file.println(settingLocalMaxMsg);         Debug(F("."));
   file.print("textSpeed = ");         file.println(settingTextSpeed);           Debug(F("."));
   file.print("maxIntensity = ");      file.println(settingMaxIntensity);        Debug(F("."));
-  file.print("LDRoffset = ");         file.println(settingLDRoffset);           Debug(F("."));
+  file.print("LDRlowOffset = ");      file.println(settingLDRlowOffset);        Debug(F("."));
+  file.print("LDRhighOffset = ");     file.println(settingLDRhighOffset);       Debug(F("."));
   file.print("weerLiveAUTH = ");      file.println(settingWeerLiveAUTH);        Debug(F("."));
   file.print("weerLiveLocatie = ");   file.println(settingWeerLiveLocation);    Debug(F("."));
   file.print("weerLiveInterval = ");  file.println(settingWeerLiveInterval);    Debug(F("."));
@@ -47,7 +48,8 @@ void writeSettings(bool show)
     DebugT(F("     newsNoWords = ")); Debugln(settingNewsNoWords);
     DebugT(F("     localMaxMsg = ")); Debugln(settingLocalMaxMsg);     
     DebugT(F("       textSpeed = ")); Debugln(settingTextSpeed);     
-    DebugT(F("       LDRoffset = ")); Debugln(settingLDRoffset);     
+    DebugT(F("    LDRlowOffset = ")); Debugln(settingLDRlowOffset);     
+    DebugT(F("   LDRhighOffset = ")); Debugln(settingLDRhighOffset);     
     DebugT(F("    maxIntensity = ")); Debugln(settingMaxIntensity);     
     DebugT(F("    weerLiveAUTH = ")); Debugln(settingWeerLiveAUTH);     
     DebugT(F(" weerLiveLocatie = ")); Debugln(settingWeerLiveLocation);     
@@ -56,7 +58,7 @@ void writeSettings(bool show)
     DebugT(F("      newsMaxMsg = ")); Debugln(settingNewsMaxMsg);    
     DebugT(F("    newsInterval = ")); Debugln(settingNewsInterval);    
 
-  } // Verbose1
+  } // Verbose
   
 } // writeSettings()
 
@@ -76,7 +78,8 @@ void readSettings(bool show)
   snprintf(settingNewsNoWords, sizeof(settingNewsNoWords),"Voetbal, show, UEFA, KNVB");
   settingLocalMaxMsg        =   5;
   settingTextSpeed          =  25;
-  settingLDRoffset          = 200;
+  settingLDRlowOffset       =  70;
+  settingLDRhighOffset      = 700;
   settingMaxIntensity       =   6;
   snprintf(settingWeerLiveAUTH,     50, "");
   snprintf(settingWeerLiveLocation, 50, "");
@@ -116,13 +119,14 @@ void readSettings(bool show)
     //DebugTf("cKey[%s], cVal[%s]\r\n", cKey, cVal);
     strTrim(cKey, sizeof(cKey), ' ');
     strTrim(cVal, sizeof(cVal), ' ');
-    DebugTf("cKey[%s], cVal[%s]\r\n", cKey, cVal);
+    //DebugTf("cKey[%s], cVal[%s]\r\n", cKey, cVal);
 
     //strToLower(cKey);
     if (stricmp(cKey, "hostname") == 0)         strCopy(settingHostname,         sizeof(settingHostname), cVal);
     if (stricmp(cKey, "localMaxMsg") == 0)      settingLocalMaxMsg      = atoi(cVal);
     if (stricmp(cKey, "textSpeed") == 0)        settingTextSpeed        = atoi(cVal);
-    if (stricmp(cKey, "LDRoffset") == 0)        settingLDRoffset        = atoi(cVal);
+    if (stricmp(cKey, "LDRlowOffset") == 0)     settingLDRlowOffset     = atoi(cVal);
+    if (stricmp(cKey, "LDRhighOffset") == 0)    settingLDRhighOffset    = atoi(cVal);
     if (stricmp(cKey, "maxIntensity") == 0)     settingMaxIntensity     = atoi(cVal);
     if (stricmp(cKey, "weerLiveAUTH") == 0)     strCopy(settingWeerLiveAUTH,     sizeof(settingWeerLiveAUTH), cVal);
     if (stricmp(cKey, "weerlivelocatie") == 0)  strCopy(settingWeerLiveLocation, sizeof(settingWeerLiveLocation), cVal);
@@ -139,21 +143,23 @@ void readSettings(bool show)
   //--- this will take some time to settle in
   //--- probably need a reboot before that to happen :-(
   MDNS.setHostname(settingHostname);    // start advertising with new(?) settingHostname
-  if (settingLocalMaxMsg > 20)        settingLocalMaxMsg      =  20;
-  if (settingLocalMaxMsg <  1)        settingLocalMaxMsg      =   1;
+  if (settingLocalMaxMsg > 20)        settingLocalMaxMsg      =   20;
+  if (settingLocalMaxMsg <  1)        settingLocalMaxMsg      =    1;
   if (settingTextSpeed > MAX_SPEED)   settingTextSpeed        =  MAX_SPEED;
-  if (settingTextSpeed < 10)          settingTextSpeed        =  10;
-  if (settingLDRoffset > 500)         settingLDRoffset        = 500;
-  if (settingLDRoffset <   1)         settingLDRoffset        =   0;
-  if (settingMaxIntensity > 15)       settingMaxIntensity     =  15;
-  if (settingMaxIntensity <  1)       settingMaxIntensity     =   1;
+  if (settingTextSpeed < 10)          settingTextSpeed        =   10;
+  if (settingLDRlowOffset  >  500)    settingLDRlowOffset     =  500;
+  if (settingLDRlowOffset  <    1)    settingLDRlowOffset     =    0;
+  if (settingLDRhighOffset <  500)    settingLDRhighOffset    =  500;
+  if (settingLDRhighOffset > 1024)    settingLDRhighOffset    = 1024;
+  if (settingMaxIntensity > 15)       settingMaxIntensity     =   15;
+  if (settingMaxIntensity <  1)       settingMaxIntensity     =    1;
   if (strlen(settingWeerLiveLocation) <  1)  sprintf(settingWeerLiveLocation, "Amsterdam");
-  if (settingWeerLiveInterval > 120)  settingWeerLiveInterval = 120;  // minuten!
-  if (settingWeerLiveInterval <  15)  settingWeerLiveInterval =  15;
-  if (settingNewsMaxMsg > 20)         settingNewsMaxMsg       =  20;
-  if (settingNewsMaxMsg <  1)         settingNewsMaxMsg       =   1;
-  if (settingNewsInterval > 120)      settingNewsInterval     = 120;
-  if (settingNewsInterval <  15)      settingNewsInterval     =  15;
+  if (settingWeerLiveInterval > 120)  settingWeerLiveInterval =  120;  // minuten!
+  if (settingWeerLiveInterval <  15)  settingWeerLiveInterval =   15;
+  if (settingNewsMaxMsg > 20)         settingNewsMaxMsg       =   20;
+  if (settingNewsMaxMsg <  1)         settingNewsMaxMsg       =    1;
+  if (settingNewsInterval > 120)      settingNewsInterval     =  120;
+  if (settingNewsInterval <  15)      settingNewsInterval     =   15;
 
   DebugTln(F(" .. done\r"));
 
@@ -163,7 +169,8 @@ void readSettings(bool show)
   Debugf("                 Hostname : %s\r\n",  settingHostname);
   Debugf("           local Max. Msg : %d\r\n",  settingLocalMaxMsg);
   Debugf("               text Speed : %d\r\n",  settingTextSpeed);
-  Debugf("               LDR offset : %d\r\n",  settingLDRoffset);
+  Debugf("           LDR low offset : %d\r\n",  settingLDRlowOffset);
+  Debugf("          LDR high offset : %d\r\n",  settingLDRhighOffset);
   Debugf("            max Intensity : %d\r\n",  settingMaxIntensity);
   Debugf("         WeerLive.nl AUTH : %s\r\n",  settingWeerLiveAUTH);
   Debugf("      WeerLive.nl Locatie : %s\r\n",  settingWeerLiveLocation);
@@ -197,7 +204,8 @@ void updateSetting(const char *field, const char *newValue)
   }
   if (!stricmp(field, "localMaxMsg"))      settingLocalMaxMsg   = String(newValue).toInt();  
   if (!stricmp(field, "textSpeed"))        settingTextSpeed     = String(newValue).toInt();  
-  if (!stricmp(field, "LDRoffset"))        settingLDRoffset     = String(newValue).toInt();  
+  if (!stricmp(field, "LDRlowOffset"))     settingLDRlowOffset  = String(newValue).toInt();  
+  if (!stricmp(field, "LDRhighOffset"))    settingLDRhighOffset = String(newValue).toInt();  
   if (!stricmp(field, "maxIntensity"))     settingMaxIntensity  = String(newValue).toInt();  
 
   if (!stricmp(field, "weerLiveAUTH"))     strCopy(settingWeerLiveAUTH, sizeof(settingWeerLiveAUTH), newValue);   

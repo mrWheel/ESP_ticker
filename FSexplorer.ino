@@ -79,10 +79,10 @@ void setupFSexplorer()    // Funktionsaufruf "spiffs();" muss im Setup eingebund
   httpServer.on("/update", updateFirmware);
   httpServer.onNotFound([]() 
   {
-    if (Verbose2) DebugTf("in 'onNotFound()'!! [%s] => \r\n", String(httpServer.uri()).c_str());
+    if (Verbose) DebugTf("in 'onNotFound()'!! [%s] => \r\n", String(httpServer.uri()).c_str());
     if (httpServer.uri().indexOf("/api/") == 0) 
     {
-      if (Verbose1) DebugTf("next: processAPI(%s)\r\n", String(httpServer.uri()).c_str());
+      if (Verbose) DebugTf("next: processAPI(%s)\r\n", String(httpServer.uri()).c_str());
       processAPI();
     }
     else if (httpServer.uri() == "/")
@@ -123,7 +123,11 @@ void APIlistFiles()             // Senden aller Daten an den Client
     dirMap[fileNr].Name[0] = '\0';
     strncat(dirMap[fileNr].Name, dir.fileName().substring(1).c_str(), 29); // remove leading '/'
     dirMap[fileNr].Size = dir.fileSize();
-    fileNr++;
+    //--- Skip News and Local messages files
+    if ((dir.fileName().indexOf("/LCL") == -1) && (dir.fileName().indexOf("/NWS-") == -1))
+    {
+      fileNr++;
+    }
   }
   //DebugTf("fileNr[%d], Max[%d]\r\n", fileNr, MAX_FILES_IN_LIST);
 

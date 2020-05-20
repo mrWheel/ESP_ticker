@@ -127,7 +127,7 @@ time_t epoch(const char *timeStamp, int8_t len, bool syncTime)
   char fullTimeStamp[16] = "";
 
   strConcat(fullTimeStamp, 15, timeStamp);
-  if (Verbose2) DebugTf("epoch(%s) strlen([%d])\r\n", fullTimeStamp, strlen(fullTimeStamp));  
+  if (Verbose) DebugTf("epoch(%s) strlen([%d])\r\n", fullTimeStamp, strlen(fullTimeStamp));  
   switch(strlen(fullTimeStamp)) {
     case  4:  //--- timeStamp is YYMM
               strConcat(fullTimeStamp, 15, "01010101X");
@@ -149,7 +149,7 @@ time_t epoch(const char *timeStamp, int8_t len, bool syncTime)
   
   if (strlen(fullTimeStamp) < 13) return now();
   
-  if (Verbose2) DebugTf("DateTime: [%02d]-[%02d]-[%02d] [%02d]:[%02d]:[%02d]\r\n"
+  if (Verbose) DebugTf("DateTime: [%02d]-[%02d]-[%02d] [%02d]:[%02d]:[%02d]\r\n"
                                                                  ,DayFromTimestamp(timeStamp)
                                                                  ,MonthFromTimestamp(timeStamp)
                                                                  ,YearFromTimestamp(timeStamp)

@@ -86,10 +86,10 @@ void getWeerLiveData() {
   parseJsonKey(jsonResponse, "d0tmax", val, 50);
   snprintf(cMsg, LOCAL_SIZE, "%s max %s°C", tempMessage, val);
   parseJsonKey(jsonResponse, "luchtd", val, 50);
-  snprintf(tempMessage, LOCAL_SIZE, "%s  luchtdruk %s hPa ", cMsg, val);
+  snprintf(tempMessage, LOCAL_SIZE, "%s - luchtdruk %s hPa ", cMsg, val);
 
   parseJsonKey(jsonResponse, "d1weer", val, 50);
-  snprintf(cMsg, LOCAL_SIZE, "%s  morgen %s ", tempMessage, val);
+  snprintf(cMsg, LOCAL_SIZE, "%s - morgen %s ", tempMessage, val);
   parseJsonKey(jsonResponse, "d1tmin", val, 50);
   snprintf(tempMessage, LOCAL_SIZE, "%s min %s°C ", cMsg, val);
   parseJsonKey(jsonResponse, "d1tmax", val, 50);

@@ -31,8 +31,9 @@
 #define JSON_BUFF_MAX   255
 #define MAX_NO_NO_WORDS  20
 
-bool      Verbose1 = false;
-bool      Verbose2 = false;
+bool      Verbose = false;
+char      cDate[15], cTime[10];
+uint32_t  nrReboots;
 // Global message buffers shared by Wifi and Scrolling functions
 char      cMsg[NEWS_SIZE];
 char      tempMessage[LOCAL_SIZE] = "";
@@ -52,7 +53,7 @@ String    noWords[MAX_NO_NO_WORDS+1];
 char      settingHostname[41];
 char      settingNewsNoWords[LOCAL_SIZE];
 uint8_t   settingLocalMaxMsg, settingTextSpeed, settingMaxIntensity;
-uint16_t  settingLDRoffset;
+uint16_t  settingLDRlowOffset, settingLDRhighOffset;
 char      settingWeerLiveAUTH[51], settingWeerLiveLocation[51];
 uint8_t   settingWeerLiveInterval;
 char      settingNewsAUTH[51];

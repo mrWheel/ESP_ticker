@@ -243,7 +243,7 @@
                     {
                       sInput.setAttribute("type", "text");
                       sInput.setAttribute("maxlength", data[i].maxlen);
-                      sInput.setAttribute("size", data[i].maxlen);
+                      sInput.setAttribute("size", 50);
                     }
                     else if (data[i].type == "f")
                     {
@@ -355,6 +355,10 @@
       }
       if (changes) {
         console.log("Changes where made in ["+field+"]["+value+"]");
+        var value = value.replace(/,/g, " ");
+        value = value.replace(/  /g, " ");
+        value = value.replace(/  /g, " ");
+        value = value.replace(/  /g, " ");
         //processWithTimeout([(data.length -1), 0], 2, data, sendPostReading);
         sendPostSetting(field, value);
       }
@@ -362,30 +366,6 @@
     
   } // saveSettings()
 
-  
-/****  
-  //============================================================================  
-  function saveSettings() 
-  {
-    console.log("saveSettings() ...");
-    var settings = document.getElementById("settingsPage").getElementsByTagName('div');;
-    for(var i = 0; i < settings.length; i++){
-      //do something to each div like
-      //console.log(settings[i].innerHTML);
-      Dname = settings[i].getAttribute("id");
-      if (Dname != null)
-      {
-        //console.log("Dname["+Dname+"]");
-        field = Dname.substr(2);
-        value = document.getElementById(field).value;
-        console.log("==> name["+field+"], value["+value+"]");
-        sendPostSetting(field, value) 
-        //console.log("value["+value+"]");
-      }
-    }    
-    
-  } // saveSettings()
-****/
     
   //============================================================================  
   function sendPostMessages(field, value) 
@@ -491,13 +471,16 @@
            [ "author",            "Auteur" ]
           ,[ "localMaxMsg",       "max. aantal boodschappen" ]
           ,[ "textSpeed",         "scroll snelheid" ]
-          ,[ "maxIntensity",      "Intensiteit leds" ]
+          ,[ "maxIntensity",      "max. Intensiteit leds" ]
+          ,[ "LDRlowOffset",      "LDR min. waarde" ]
+          ,[ "LDRhighOffset",     "LDR max. waarde" ]
           ,[ "weerliveAUTH",      "weerlive.nl auth. token" ]
           ,[ "weerliveLocation",  "weerlive.nl locatie" ]
           ,[ "weerliveInterval",  "weerlive.nl refresh interval in minuten" ]
           ,[ "newsapiAUTH",       "newsapi.org auth. token" ]
           ,[ "newsapiMaxMsg",     "newsapi.nl max. items" ]
           ,[ "newsapiInterval",   "newapi.nl refresh interval in minuten" ]
+          ,[ "newsNoWords",       "skip items met deze woorden" ]
     ];
   
 /*
