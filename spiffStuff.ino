@@ -90,6 +90,13 @@ bool readFileById(const char* fType, uint8_t mId)
     return false;
   }
   Debugf("OK! [%s]\r\n", fileMessage);
+
+  if (mId == 0)
+  {
+    SPIFFS.remove("/LCL-000");
+    DebugTln("Remove LCL-000 ..");
+  }
+
   return true;
   
 } // readFileById()
@@ -102,6 +109,13 @@ bool writeFileById(const char* fType, uint8_t mId, const char *msg)
   sprintf(fName, "/%s-%03d", fType, mId);
 
   DebugTf("write [%s] ", fName);
+
+  if (strlen(msg) < 3)
+  {
+    SPIFFS.remove(fName);
+    Debugln("Empty message, file removed!");
+    return true;
+  }
 
   File file = SPIFFS.open(fName, "w");
   if (!file) 
@@ -129,7 +143,7 @@ void updateMessage(const char *field, const char *newValue)
 
   if (msgId < 0 || msgId > settingLocalMaxMsg)
   {
-    DebugTf("msgId[%d] is to large! Bailing out!\r\n", msgId);
+    DebugTf("msgId[%d] is out of scope! Bailing out!\r\n", msgId);
     return;
   }
 

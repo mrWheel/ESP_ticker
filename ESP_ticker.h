@@ -18,12 +18,12 @@
 //#define HARDWARE_TYPE MD_MAX72XX::PAROLA_HW
 #define HARDWARE_TYPE MD_MAX72XX::FC16_HW
 //#define HARDWARE_TYPE MD_MAX72XX::GENERIC_HW
-#define MAX_DEVICES 8
+#define MAX_DEVICES  8
 #define MAX_SPEED   50
 
 //#define CLK_PIN   14 // or SCK
 //#define DATA_PIN  13 // or MOSI
-#define CS_PIN    15 // or SS
+#define CS_PIN      15 // or SS
 
 #define SETTINGS_FILE   "/settings.ini"
 #define LOCAL_SIZE      255

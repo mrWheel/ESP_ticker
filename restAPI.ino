@@ -1,7 +1,7 @@
 /* 
 ***************************************************************************  
 **  Program  : restAPI, part of lichtKrant
-**  Version  : v2.0.1
+**  Version  : v2.0.3
 **
 **  Copyright (c) 2020 Willem Aandewiel
 **
@@ -207,7 +207,7 @@ void sendLocalMessages()
 
   sendStartJsonObj("messages");
 
-  for (mID=0; mID <= settingLocalMaxMsg; mID++)
+  for (mID=1; mID <= settingLocalMaxMsg; mID++)
   {
     if (readFileById("LCL", mID))
     {

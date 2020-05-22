@@ -92,6 +92,8 @@ void getNewsapiData() {
   } // connected ..
 
   newsapiClient.stop();
+  updateMessage("0", "News brought to you by 'newsapi.org'");
+
 
 } // getNewsapiData()
 

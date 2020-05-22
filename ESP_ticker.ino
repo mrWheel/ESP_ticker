@@ -1,5 +1,5 @@
 
-#define _FW_VERSION "v1.3.4 (20-05-2020)"
+#define _FW_VERSION "v1.4.0 (22-05-2020)"
 
 
 // Use the Parola library to scroll text on the display
@@ -58,11 +58,6 @@ textEffect_t  effect[] =
 
 
 //---------------------------------------------------------------------
-int16_t lowAnalogRead = 9999, highAnalogRead = -100;
-int16_t lowIntensity  = 9999, highIntensity  = -100;
-int8_t  lastHour      = -1;
-int8_t  lastMinute    = -1;
-
 int16_t calculateIntensity()
 {
   int a0In = 0;
@@ -154,7 +149,7 @@ bool hasNoNoWord(const char *cIn)
 void nextNieuwsBericht()
 {
   newsMsgID++;
-  if (newsMsgID > settingNewsMaxMsg) newsMsgID = 0;
+  if (newsMsgID >= settingNewsMaxMsg) newsMsgID = 0;
   while (!readFileById("NWS", newsMsgID))
   {
     DebugTln("File not found!");
@@ -173,12 +168,17 @@ void nextNieuwsBericht()
 void nextLocalBericht()
 {
   localMsgID++;
-  if (localMsgID > (settingLocalMaxMsg -1)) localMsgID = 0;
+  if (localMsgID > settingLocalMaxMsg) localMsgID = 0;
   while (!readFileById("LCL", localMsgID))
   {
-    DebugTln("File not found!");
+    DebugTf("File [LCL-%03d] not found!\r\n", localMsgID);
     localMsgID++;
-    if (localMsgID > (settingLocalMaxMsg -1)) localMsgID = 0;
+    if (localMsgID > settingLocalMaxMsg) 
+    {
+      DebugTln("Back to LCL-000, exit while-loop");
+      localMsgID = 0;
+      continue;
+    }
   }
   snprintf(actMessage, LOCAL_SIZE, "** %s **", fileMessage);
   //DebugTf("localMsgID[%d] %s\r\n", localMsgID, actMessage);
@@ -282,11 +282,6 @@ void setup()
   P.setTextEffect(PA_SCROLL_LEFT, PA_NO_EFFECT);
   
   valueIntensity = calculateIntensity(); // read analog input pin 0
-
-  lowAnalogRead  = 9999;
-  highAnalogRead = -100;
-  lowIntensity   = 9999;
-  highIntensity  = -100;
 
   P.setIntensity(valueIntensity);
   newsMsgID = 0;
