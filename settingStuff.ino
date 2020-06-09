@@ -1,7 +1,6 @@
 /*
 ***************************************************************************  
-**  Program  : settingsStuff, part of lichtKrant
-**  Version  : v2.0.1
+**  Program  : settingsStuff, part of ESP_ticker
 **
 **  Copyright (c) 2020 Willem Aandewiel
 **
@@ -246,4 +245,5 @@ void updateSetting(const char *field, const char *newValue)
 * OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR
 * THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 * 
-***************************************************************************/
+****************************************************************************
+*/

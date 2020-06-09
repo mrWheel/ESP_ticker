@@ -1,6 +1,6 @@
 /* 
 ***************************************************************************  
-**  Program  : helperStuff, part of lichtKrant
+**  Program  : helperStuff, part of ESP_ticker
 **
 **  Copyright (c) 2020 Willem Aandewiel
 **
@@ -521,4 +521,5 @@ void utf8Ascii(char* s)
 * OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR
 * THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 * 
-***************************************************************************/
+****************************************************************************
+*/

@@ -1,7 +1,6 @@
 /* 
 ***************************************************************************  
-**  Program  : restAPI, part of lichtKrant
-**  Version  : v2.0.3
+**  Program  : restAPI, part of ESP_ticker
 **
 **  Copyright (c) 2020 Willem Aandewiel
 **
@@ -357,4 +356,5 @@ void sendApiNotFound(const char *URI)
 * OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR
 * THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 * 
-***************************************************************************/
+****************************************************************************
+*/

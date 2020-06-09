@@ -1,13 +1,13 @@
 /* 
 ***************************************************************************  
-**  Program  : jsonStuff, part of lichtKrant
-**  Version  : v2.0.1
+**  Program  : jsonStuff, part of ESP_ticker
 **
 **  Copyright (c) 2020 Willem Aandewiel
 **
 **  TERMS OF USE: MIT License. See bottom of file.                                                            
 ***************************************************************************      
 */
+
 static char objSprtr[10] = "";
 
 //=======================================================================
@@ -206,4 +206,5 @@ void sendJsonSettingObj(const char *cName, const char *cValue, const char *sType
 * OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR
 * THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 * 
-***************************************************************************/
+****************************************************************************
+*/

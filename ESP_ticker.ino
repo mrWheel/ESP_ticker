@@ -1,5 +1,33 @@
+/*
+***************************************************************************  
+**  Program  : ESP_ticker (lichtkrant)
+*/
+#define _FW_VERSION "v1.5.0 (09-06-2020)"
+/* 
+**  Copyright (c) 2020 Willem Aandewiel
+**
+**  TERMS OF USE: MIT License. See bottom of file.                                                            
+***************************************************************************      
 
-#define _FW_VERSION "v1.4.0 (22-05-2020)"
+    Arduino-IDE settings for ESP-12E:
+
+    - Board: "Generic ESP8266 Module)"
+    - Flash mode: "DIO" / "DOUT"
+    - Flash size: "4MB (FS:2M OTA~1019KB)"
+    - CPU Frequency: "80 MHz"
+    - Debug port: "Disabled"
+    - Debug Level: "None"
+    - IwIP Variant: "v2 Lower Memory"
+    - VTables: "Flash"
+    - Reset Method: "nodemcu"
+    - CPU Frequency: "80 MHz"
+    - Buildin Led: "2"
+    - Upload Speed: "115200"
+    - Erase Flash: "Only Sketch"
+    - Port: "aircoControl at <-- IP address -->"
+
+    Arduino ESP8266 core v2.7.1
+*/
 
 
 // Use the Parola library to scroll text on the display
@@ -213,6 +241,11 @@ void setup()
   {
     DebugTln(F("SPIFFS Mount succesfull\r"));
     SPIFFSmounted = true;
+    if (!SPIFFS.exists("/LCL-001"))
+    {
+      writeFileById("LCL", 1, "ESP_ticker by Willem Aandewiel");
+    }
+    writeFileById("NWS", 1, "(c) 2020 Willem Aandewiel");
   } else { 
     DebugTln(F("SPIFFS Mount failed\r"));   // Serious problem with SPIFFS 
     SPIFFSmounted = false;
@@ -246,7 +279,15 @@ void setup()
   digitalWrite(LED_BUILTIN, LOW);
 
   startMDNS(settingHostname);
-  startNTP();
+    
+  //--- ezTime initialisation
+  setDebug(INFO);  
+  waitForSync(); 
+  CET.setLocation(F("Europe/Amsterdam"));
+  CET.setDefault(); 
+  
+  DebugTln("UTC time: "+ UTC.dateTime());
+  DebugTln("CET time: "+ CET.dateTime());
 
   nrReboots++;
   writeLastStatus();
@@ -298,14 +339,17 @@ void setup()
 //=====================================================================
 void loop()
 {
-  handleNTP();
+//handleNTP();
+  events(); // trigger ezTime update etc.
   httpServer.handleClient();
   MDNS.update();
+  
   if ((millis() > weerTimer) && (strlen(settingWeerLiveAUTH) > 5))
   {
     weerTimer = millis() + (settingWeerLiveInterval * (60 * 1000)); // Interval in Minutes!
     getWeerLiveData();
   }
+  
   if ((millis() > newsapiTimer) && (strlen(settingNewsAUTH) > 5))
   {
     newsapiTimer = millis() + (settingNewsInterval * (60 * 1000)); // Interval in Minutes!
@@ -366,3 +410,28 @@ void loop()
 
   
 } // loop()
+
+
+/***************************************************************************
+*
+* Permission is hereby granted, free of charge, to any person obtaining a
+* copy of this software and associated documentation files (the
+* "Software"), to deal in the Software without restriction, including
+* without limitation the rights to use, copy, modify, merge, publish,
+* distribute, sublicense, and/or sell copies of the Software, and to permit
+* persons to whom the Software is furnished to do so, subject to the
+* following conditions:
+*
+* The above copyright notice and this permission notice shall be included
+* in all copies or substantial portions of the Software.
+*
+* THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS
+* OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF
+* MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT.
+* IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY
+* CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT
+* OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR
+* THE USE OR OTHER DEALINGS IN THE SOFTWARE.
+* 
+****************************************************************************
+*/

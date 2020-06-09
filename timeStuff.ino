@@ -1,6 +1,6 @@
 /*
 ***************************************************************************  
-**  Program  : timeStuff, part of lichtKrant
+**  Program  : timeStuff, part of ESP_ticker
 **
 **  Copyright (c) 2020 Willem Aandewiel
 **
@@ -200,4 +200,5 @@ time_t epoch(const char *timeStamp, int8_t len, bool syncTime)
 * OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR
 * THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 * 
-***************************************************************************/
+****************************************************************************
+*/

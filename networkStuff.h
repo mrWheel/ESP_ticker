@@ -1,7 +1,6 @@
 /*
 ***************************************************************************  
 **  Program : networkStuff.h
-**  Version : 2.0  10-05-2020
 **
 **  Copyright (c) 2020 Willem Aandewiel
 **
@@ -161,4 +160,5 @@ void startMDNS(const char *Hostname)
 * OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR
 * THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 * 
-***************************************************************************/
+****************************************************************************
+*/
