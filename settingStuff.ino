@@ -2,7 +2,7 @@
 ***************************************************************************  
 **  Program  : settingsStuff, part of ESP_ticker
 **
-**  Copyright (c) 2020 Willem Aandewiel
+**  Copyright (c) 2021 Willem Aandewiel
 **
 **  TERMS OF USE: MIT License. See bottom of file.                                                            
 ***************************************************************************      

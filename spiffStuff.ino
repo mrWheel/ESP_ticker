@@ -2,7 +2,7 @@
 ***************************************************************************  
 **  Program  : spiffStuff, part of ESP_ticker
 **
-**  Copyright (c) 2020 Willem Aandewiel
+**  Copyright (c) 2021 Willem Aandewiel
 **
 **  TERMS OF USE: MIT License. See bottom of file.                                                            
 ***************************************************************************      
@@ -67,6 +67,8 @@ void writeLastStatus()
 //------------------------------------------------------------------------
 bool readFileById(const char* fType, uint8_t mId)
 {
+  String percChar   = "%%";
+  String backSlash  = "\\";
   String rTmp;
   char fName[50] = "";
   sprintf(fName, "/%s-%03d", fType, mId);
@@ -83,10 +85,19 @@ bool readFileById(const char* fType, uint8_t mId)
 
   while(f.available()) {
     rTmp = f.readStringUntil('\n');
+    //Debugf("rTmp(in)  [%s]\r\n", rTmp.c_str());
     rTmp.replace("\r", "");
   }
   f.close();
 
+  rTmp.replace("@1@", ":");
+  rTmp.replace("@2@", "{");
+  rTmp.replace("@3@", "}");
+  rTmp.replace("@4@", ",");
+  rTmp.replace("@5@", backSlash);
+  rTmp.replace("@6@", percChar);
+  //DebugTf("rTmp(out) [%s]\r\n", rTmp.c_str());
+    
   snprintf(fileMessage, LOCAL_SIZE, rTmp.c_str());
   if (strlen(fileMessage) == 0)
   {
@@ -130,6 +141,7 @@ bool writeFileById(const char* fType, uint8_t mId, const char *msg)
   yield();
 
   Debugln(F("Start writing data .. \r"));
+  Debugln(msg);
   file.println(msg);
   file.close();
 

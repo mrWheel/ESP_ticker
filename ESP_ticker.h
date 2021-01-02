@@ -2,7 +2,7 @@
 ***************************************************************************  
 **  Program  : ESP_ticker.h, part of ESP_ticker
 **
-**  Copyright (c) 2020 Willem Aandewiel
+**  Copyright (c) 2021 Willem Aandewiel
 **
 **  TERMS OF USE: MIT License. See bottom of file.                                                            
 ***************************************************************************      
@@ -59,6 +59,7 @@ uint32_t  timeTimer   = 0;
 uint32_t  ntpTimer    = millis() + 30000;
 uint32_t  weerTimer   = 0;
 uint32_t  newsapiTimer = 0;
+uint32_t  revisionTimer = 0;
 String    noWords[MAX_NO_NO_WORDS+1];
 char      settingHostname[41];
 char      settingNewsNoWords[LOCAL_SIZE];

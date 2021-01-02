@@ -1,9 +1,9 @@
 /*
 ***************************************************************************  
 **  Program  : index.js, part of ESP_ticker
-**  Version  : v1.3.1
+**  Version  : v1.6.0   (02-01-2021)
 **
-**  Copyright (c) 2020 Willem Aandewiel
+**  Copyright (c) 2021 Willem Aandewiel
 **
 **  TERMS OF USE: MIT License. See bottom of file.                                                            
 ***************************************************************************      
@@ -134,6 +134,13 @@
         msg = json.messages;
         for( let i in msg )
         {
+          msg[i].value = msg[i].value.replaceAll("@1@", ":");
+          msg[i].value = msg[i].value.replaceAll("@2@", "{");
+          msg[i].value = msg[i].value.replaceAll("@3@", "}");
+          msg[i].value = msg[i].value.replaceAll("@4@", ",");
+          msg[i].value = msg[i].value.replaceAll("@5@", "\\");
+          msg[i].value = msg[i].value.replaceAll("@6@", "\%");
+
           console.log("["+msg[i].name+"]=>["+msg[i].value+"]");
           var messages = document.getElementById('mainPage');
           if( ( document.getElementById("msgR_"+msg[i].name)) == null )
@@ -370,8 +377,18 @@
   //============================================================================  
   function sendPostMessages(field, value) 
   {
+    //console.log("sendPostMessages(value): "+value+"]");
+    value = value.replaceAll("\"", "'");
+    value = value.replaceAll(":", "@1@");
+    value = value.replaceAll("{", "@2@");
+    value = value.replaceAll("}", "@3@");
+    value = value.replaceAll(",", "@4@");
+    value = value.replaceAll("\\", "@5@");
+    value = value.replaceAll("\%", "@6@");
+    console.log("sendPostMessages(value): "+value+"]");
+    
     const jsonString = {"name" : field, "value" : value};
-    console.log("sending: "+JSON.stringify(jsonString));
+    console.log("sendPostMessages(): "+JSON.stringify(jsonString));
     const other_params = {
         headers : { "content-type" : "application/json; charset=UTF-8"},
         body : JSON.stringify(jsonString),
@@ -483,6 +500,13 @@
           ,[ "newsNoWords",       "skip items met deze woorden" ]
     ];
   
+  //============================================================================  
+  String.prototype.replaceAll = function(str1, str2, ignore) 
+  {
+    return this.replace(new RegExp(str1.replace(/([\/\,\!\\\^\$\{\}\[\]\(\)\.\*\+\?\|\<\>\-\&])/g,"\\$&"),(ignore?"gi":"g")),(typeof(str2)=="string")?str2.replace(/\$/g,"$$$$"):str2);
+  //return this.replace(new RegExp(str1.replace(/([\/\,\!\\\^\$\[\]\(\)\.\*\+\?\|\<\>\-\&])/g,"\\$&"),(ignore?"gi":"g")),(typeof(str2)=="string")?str2.replace(/\$/g,"$$$$"):str2);
+  }
+   
 /*
 ***************************************************************************
 *

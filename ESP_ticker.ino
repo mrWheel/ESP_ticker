@@ -2,9 +2,9 @@
 ***************************************************************************  
 **  Program  : ESP_ticker (lichtkrant)
 */
-#define _FW_VERSION "v1.5.0 (09-06-2020)"
+#define _FW_VERSION "v1.6.0 (02-01-2021)"
 /* 
-**  Copyright (c) 2020 Willem Aandewiel
+**  Copyright (c) 2021 Willem Aandewiel
 **
 **  TERMS OF USE: MIT License. See bottom of file.                                                            
 ***************************************************************************      
@@ -20,11 +20,11 @@
     - IwIP Variant: "v2 Lower Memory"
     - VTables: "Flash"
     - Reset Method: "nodemcu"
-    - CPU Frequency: "80 MHz"
+    - CPU Frequency: "80 MHz" / "160 MHz"
     - Buildin Led: "2"
     - Upload Speed: "115200"
     - Erase Flash: "Only Sketch"
-    - Port: "aircoControl at <-- IP address -->"
+    - Port: "ESPticker at <-- IP address -->"
 
     Arduino ESP8266 core v2.7.1
 */
@@ -212,7 +212,13 @@ void nextLocalBericht()
   //DebugTf("localMsgID[%d] %s\r\n", localMsgID, actMessage);
   utf8Ascii(actMessage);
   P.displayScroll(actMessage, PA_LEFT, PA_SCROLL_LEFT, (MAX_SPEED - settingTextSpeed));
-  
+    
+  if ((millis() - revisionTimer) > 900000)
+  {
+    revisionTimer = millis();
+    getRevisionData();
+  }
+
 } // nextLocalBericht()
 
 
@@ -241,11 +247,19 @@ void setup()
   {
     DebugTln(F("SPIFFS Mount succesfull\r"));
     SPIFFSmounted = true;
+    if (!SPIFFS.exists("/LCL-000"))
+    {
+      char LCL000[100];
+      sprintf(LCL000, "ESP_ticker %s by Willem Aandewiel", String(_FW_VERSION).c_str());
+      writeFileById("LCL", 0, LCL000);
+    }
     if (!SPIFFS.exists("/LCL-001"))
     {
-      writeFileById("LCL", 1, "ESP_ticker by Willem Aandewiel");
+      char LCL001[100];
+      sprintf(LCL001, "ESP_ticker %s by Willem Aandewiel", String(_FW_VERSION).c_str());
+      writeFileById("LCL", 1, LCL001);
     }
-    writeFileById("NWS", 1, "(c) 2020 Willem Aandewiel");
+    writeFileById("NWS", 1, "(c) 2021 Willem Aandewiel");
   } else { 
     DebugTln(F("SPIFFS Mount failed\r"));   // Serious problem with SPIFFS 
     SPIFFSmounted = false;
@@ -254,7 +268,7 @@ void setup()
   // writeLastStatus();  // only for firsttime initialization //
   //==========================================================//
   readLastStatus(); // place it in actTimestamp
-
+  
   readSettings(true);
   splitNewsNoWords(settingNewsNoWords);
 
@@ -300,6 +314,16 @@ void setup()
   Serial.print("\nGebruik 'telnet ");
   Serial.print (WiFi.localIP());
   Serial.println("' voor verdere debugging\r\n");
+
+  /***
+  for (int i=0; i<10; i++)
+  {
+    char lclName[15];
+    sprintf(lclName, "/LCL-%03d", i);
+    DebugTf("Remove [%s] from SPIFFS ..\r\n", lclName);
+    SPIFFS.remove(lclName);
+  }
+  ***/
 
 //================ Start HTTP Server ================================
   setupFSexplorer();

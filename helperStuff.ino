@@ -2,7 +2,7 @@
 ***************************************************************************  
 **  Program  : helperStuff, part of ESP_ticker
 **
-**  Copyright (c) 2020 Willem Aandewiel
+**  Copyright (c) 2021 Willem Aandewiel
 **
 **  TERMS OF USE: MIT License. See bottom of file.                                                            
 ***************************************************************************      
@@ -499,6 +499,17 @@ void utf8Ascii(char* s)
 
 } // utf8Ascii(char)
 
+
+void getRevisionData() 
+{
+  if (!SPIFFS.exists("/LCL-000"))
+  {
+    char LCL000[100];
+    sprintf(LCL000, "ESP_ticker %s (c) by Willem Aandewiel", String(_FW_VERSION).c_str());
+    writeFileById("LCL", 0, LCL000);
+  }
+
+} //  getRevisionData()
 
 /***************************************************************************
 *

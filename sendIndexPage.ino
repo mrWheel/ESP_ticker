@@ -2,7 +2,7 @@
 ***************************************************************************  
 **  Program : sendIndexPage
 **
-**  Copyright (c) 2020 Willem Aandewiel
+**  Copyright (c) 2021 Willem Aandewiel
 **
 **  TERMS OF USE: MIT License. See bottom of file.                                                            
 ***************************************************************************      
@@ -63,7 +63,7 @@ R"(
     <!-- KEEP THIS --->
 
     <!-- Pin to bottom right corner -->
-    <div class="bottom right-0">2020 &copy; Willem Aandewiel</div>
+    <div class="bottom right-0">2021 &copy; Willem Aandewiel</div>
 
     <!-- Pin to bottom left corner -->
     <div id="message" class="bottom left-0">-</div>

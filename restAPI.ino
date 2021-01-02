@@ -2,7 +2,7 @@
 ***************************************************************************  
 **  Program  : restAPI, part of ESP_ticker
 **
-**  Copyright (c) 2020 Willem Aandewiel
+**  Copyright (c) 2021 Willem Aandewiel
 **
 **  TERMS OF USE: MIT License. See bottom of file.                                                            
 ***************************************************************************      
@@ -210,7 +210,13 @@ void sendLocalMessages()
   {
     if (readFileById("LCL", mID))
     {
-      sendJsonSettingObj(intToStr(mID), fileMessage, "s", sizeof(fileMessage) -1);
+      //--- next 5 lines are realy dirty ...
+      char   newMsg[LOCAL_SIZE] = "";
+      String tmp = String(fileMessage);
+      tmp.replace("\\", "\\\\");
+      sprintf(newMsg, "%s", tmp.c_str());
+    //sendJsonSettingObj(intToStr(mID), fileMessage, "s", sizeof(fileMessage) -1);
+      sendJsonSettingObj(intToStr(mID), newMsg, "s", sizeof(newMsg) -1);
     }
     else
     {

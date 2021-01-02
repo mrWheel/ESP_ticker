@@ -2,7 +2,7 @@
 ***************************************************************************  
 **  Program  : Debug.h, part of ESP_tickerExtend
 **
-**  Copyright (c) 2020 Willem Aandewiel
+**  Copyright (c) 2021 Willem Aandewiel
 **  Met dank aan Erik
 **
 **  TERMS OF USE: MIT License. See bottom of file.                                                            

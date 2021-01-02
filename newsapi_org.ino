@@ -2,7 +2,7 @@
 ***************************************************************************  
 **  Program : newsapi_org
 **
-**  Copyright (c) 2020 Willem Aandewiel
+**  Copyright (c) 2021 Willem Aandewiel
 **
 **  TERMS OF USE: MIT License. See bottom of file.                                                            
 ***************************************************************************      
@@ -10,7 +10,8 @@
 
 // http://newsapi.org/v2/top-headlines?country=nl&apiKey=API_KEY
 
-void getNewsapiData() {
+void getNewsapiData() 
+{
   const char* newsapiHost    = "newsapi.org";
   const int   httpPort        = 80;
   int         newsapiStatus  = 0;
