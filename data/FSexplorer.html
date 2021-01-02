@@ -1,9 +1,9 @@
 <!--
 ***************************************************************************  
 **  Program  : FSexplorer.html, part of ESP_ticker
-**  Version  : v1.3.1
+**  Version  : v1.4.0 (02-01-2021)
 **
-**  Copyright (c) 2020 Willem Aandewiel
+**  Copyright (c) 2021 Willem Aandewiel
 **
 **  TERMS OF USE: MIT License. See bottom of file.                                                            
 ***************************************************************************      
@@ -48,7 +48,7 @@
                      dir += `<td width=10% nowrap><a href ="${json[i].name}?delete=/${json[i].name}"> Delete </a></td>`;
                      if (json[i].name == '!format') 
                      {
-                 	    document.getElementById('FormatSPIFFS').disabled = false;
+                 	    document.getElementById('FormatLittleFS').disabled = false;
                      }
                    }
                    else 
@@ -88,7 +88,7 @@
                     }
              });
              //elem[6].addEventListener('click', () => {
-             document.getElementById('FormatSPIFFS').addEventListener('click', () => {
+             document.getElementById('FormatLittleFS').addEventListener('click', () => {
                  if (!confirm(`Weet je zeker dat je deze functie wilt uitvoeren?\nAls je doorgaat moet je zelf FSexplorer.html en álle andere systeem bestanden weer uploaden!!.`)) event.preventDefault();
              }); 
           });
@@ -125,8 +125,8 @@
       </div>
       <div style='width: 40%'>
         <span>
-        <form style='float right;' action="/SPIFFSformat" method="POST">
-          <input id='FormatSPIFFS' type='submit' class='button' name='SUBMIT' value='Format SPIFFS' DISABLED/>
+        <form style='float right;' action="/LittleFSformat" method="POST">
+          <input id='FormatLittleFS' type='submit' class='button' name='SUBMIT' value='Format SPIFFS' DISABLED/>
         </form>
         </span>
       </div>

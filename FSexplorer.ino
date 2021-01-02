@@ -5,7 +5,7 @@
 **
 **  Mostly stolen from https://www.arduinoforum.de/User-Fips
 **  For more information visit: https://fipsok.de
-**  See also https://www.arduinoforum.de/arduino-Thread-SPIFFS-DOWNLOAD-UPLOAD-DELETE-Esp8266-NodeMCU
+**  See also https://www.arduinoforum.de/arduino-Thread-LittleFS-DOWNLOAD-UPLOAD-DELETE-Esp8266-NodeMCU
 **
 ***************************************************************************      
   Copyright (c) 2018 Jens Fleischer. All rights reserved.
@@ -24,7 +24,7 @@
 **      setup()
 **      {
 **        setupFSexplorer();
-**        httpServer.serveStatic("/FSexplorer.png",   SPIFFS, "/FSexplorer.png");
+**        httpServer.serveStatic("/FSexplorer.png",   LittleFS, "/FSexplorer.png");
 **        httpServer.on("/",          sendIndexPage);
 **        httpServer.on("/index",     sendIndexPage);
 **        httpServer.on("/index.html",sendIndexPage);
@@ -51,7 +51,7 @@ const char Helper[] = R"(
     <input type="file" name="upload">
     <input type="submit" value="Upload">
   </form>
-  <br/><b>or</b> you can use the <i>Flash Utility</i> to flash firmware or SPIFFS!
+  <br/><b>or</b> you can use the <i>Flash Utility</i> to flash firmware or LittleFS!
   <form action='/update' method='GET'>
     <input type='submit' name='SUBMIT' value='Flash Utility'/>
   </form>
@@ -61,19 +61,19 @@ const char Header[] = "HTTP/1.1 303 OK\r\nLocation:FSexplorer.html\r\nCache-Cont
 //=====================================================================================
 void setupFSexplorer()    // Funktionsaufruf "spiffs();" muss im Setup eingebunden werden
 {    
-  SPIFFS.begin();
+  LittleFS.begin();
   
-  if (SPIFFS.exists("/FSexplorer.html")) 
+  if (LittleFS.exists("/FSexplorer.html")) 
   {
-    httpServer.serveStatic("/FSexplorer.html", SPIFFS, "/FSexplorer.html");
-    httpServer.serveStatic("/FSexplorer",      SPIFFS, "/FSexplorer.html");
+    httpServer.serveStatic("/FSexplorer.html", LittleFS, "/FSexplorer.html");
+    httpServer.serveStatic("/FSexplorer",      LittleFS, "/FSexplorer.html");
   }
   else 
   {
     httpServer.send(200, "text/html", Helper); //Upload the FSexplorer.html
   }
   httpServer.on("/api/listfiles", APIlistFiles);
-  httpServer.on("/SPIFFSformat", formatSpiffs);
+  httpServer.on("/LittleFSformat", formatLittleFS);
   httpServer.on("/upload", HTTP_POST, []() {}, handleFileUpload);
   httpServer.on("/ReBoot", reBootESP);
   httpServer.on("/update", updateFirmware);
@@ -107,7 +107,7 @@ void setupFSexplorer()    // Funktionsaufruf "spiffs();" muss im Setup eingebund
 //=====================================================================================
 void APIlistFiles()             // Senden aller Daten an den Client
 {   
-  FSInfo SPIFFSinfo;
+  FSInfo LittleFSinfo;
 
   typedef struct _fileMeta {
     char    Name[30];     
@@ -117,14 +117,16 @@ void APIlistFiles()             // Senden aller Daten an den Client
   _fileMeta dirMap[MAX_FILES_IN_LIST+1];
   int fileNr = 0;
   
-  Dir dir = SPIFFS.openDir("/");         // List files on SPIFFS
+  Dir dir = LittleFS.openDir("/");         // List files on LittleFS
   while (dir.next() && (fileNr < MAX_FILES_IN_LIST))  
   {
     dirMap[fileNr].Name[0] = '\0';
-    strncat(dirMap[fileNr].Name, dir.fileName().substring(1).c_str(), 29); // remove leading '/'
+  //strncat(dirMap[fileNr].Name, dir.fileName().substring(1).c_str(), 29); // remove leading '/'
+    strncat(dirMap[fileNr].Name, dir.fileName().c_str(), 29); 
     dirMap[fileNr].Size = dir.fileSize();
-    //--- Skip News and Local messages files
-    if ((dir.fileName().indexOf("/LCL") == -1) && (dir.fileName().indexOf("/NWS-") == -1))
+    //--- Skip files in newsFiles map
+  //if ((dir.fileName().indexOf("/newsFiles/LCL-") == -1) && (dir.fileName().indexOf("/newsFiles/NWS-") == -1))
+    if ((dir.fileName().indexOf("/newsFiles") == -1) && (dir.fileSize() > 0))
     {
       fileNr++;
     }
@@ -166,10 +168,10 @@ void APIlistFiles()             // Senden aller Daten an den Client
     temp += R"({"name":")" + String(dirMap[f].Name) + R"(","size":")" + formatBytes(dirMap[f].Size) + R"("})";
   }
 
-  SPIFFS.info(SPIFFSinfo);
-  temp += R"(,{"usedBytes":")" + formatBytes(SPIFFSinfo.usedBytes * 1.05) + R"(",)" +       // Berechnet den verwendeten Speicherplatz + 5% Sicherheitsaufschlag
-          R"("totalBytes":")" + formatBytes(SPIFFSinfo.totalBytes) + R"(","freeBytes":")" + // Zeigt die Größe des Speichers
-          (SPIFFSinfo.totalBytes - (SPIFFSinfo.usedBytes * 1.05)) + R"("}])";               // Berechnet den freien Speicherplatz + 5% Sicherheitsaufschlag
+  LittleFS.info(LittleFSinfo);
+  temp += R"(,{"usedBytes":")" + formatBytes(LittleFSinfo.usedBytes * 1.05) + R"(",)" +       // Berechnet den verwendeten Speicherplatz + 5% Sicherheitsaufschlag
+          R"("totalBytes":")" + formatBytes(LittleFSinfo.totalBytes) + R"(","freeBytes":")" + // Zeigt die Größe des Speichers
+          (LittleFSinfo.totalBytes - (LittleFSinfo.usedBytes * 1.05)) + R"("}])";               // Berechnet den freien Speicherplatz + 5% Sicherheitsaufschlag
 
   httpServer.send(200, "application/json", temp);
   
@@ -182,13 +184,13 @@ bool handleFile(String&& path)
   if (httpServer.hasArg("delete")) 
   {
     DebugTf("Delete -> [%s]\n\r",  httpServer.arg("delete").c_str());
-    SPIFFS.remove(httpServer.arg("delete"));    // Datei löschen
+    LittleFS.remove(httpServer.arg("delete"));    // Datei löschen
     httpServer.sendContent(Header);
     return true;
   }
-  if (!SPIFFS.exists("/FSexplorer.html")) httpServer.send(200, "text/html", Helper); //Upload the FSexplorer.html
+  if (!LittleFS.exists("/FSexplorer.html")) httpServer.send(200, "text/html", Helper); //Upload the FSexplorer.html
   if (path.endsWith("/")) path += "index.html";
-  return SPIFFS.exists(path) ? ({File f = SPIFFS.open(path, "r"); httpServer.streamFile(f, contentType(path)); f.close(); true;}) : false;
+  return LittleFS.exists(path) ? ({File f = LittleFS.open(path, "r"); httpServer.streamFile(f, contentType(path)); f.close(); true;}) : false;
 
 } // handleFile()
 
@@ -205,7 +207,7 @@ void handleFileUpload()
       upload.filename = upload.filename.substring(upload.filename.length() - 30, upload.filename.length());  // Dateinamen auf 30 Zeichen kürzen
     }
     Debugln("FileUpload Name: " + upload.filename);
-    fsUploadFile = SPIFFS.open("/" + httpServer.urlDecode(upload.filename), "w");
+    fsUploadFile = LittleFS.open("/" + httpServer.urlDecode(upload.filename), "w");
   } 
   else if (upload.status == UPLOAD_FILE_WRITE) 
   {
@@ -225,14 +227,14 @@ void handleFileUpload()
 
 
 //=====================================================================================
-void formatSpiffs() 
+void formatLittleFS() 
 {       //Formatiert den Speicher
-  if (!SPIFFS.exists("/!format")) return;
-  DebugTln(F("Format SPIFFS"));
-  SPIFFS.format();
+  if (!LittleFS.exists("/!format")) return;
+  DebugTln(F("Format LittleFS"));
+  LittleFS.format();
   httpServer.sendContent(Header);
   
-} // formatSpiffs()
+} // formatLittleFS()
 
 //=====================================================================================
 const String formatBytes(size_t const& bytes) 
@@ -264,10 +266,10 @@ const String &contentType(String& filename)
 //=====================================================================================
 bool freeSpace(uint16_t const& printsize) 
 {    
-  FSInfo SPIFFSinfo;
-  SPIFFS.info(SPIFFSinfo);
-  Debugln(formatBytes(SPIFFSinfo.totalBytes - (SPIFFSinfo.usedBytes * 1.05)) + " im Spiffs frei");
-  return (SPIFFSinfo.totalBytes - (SPIFFSinfo.usedBytes * 1.05) > printsize) ? true : false;
+  FSInfo LittleFSinfo;
+  LittleFS.info(LittleFSinfo);
+  Debugln(formatBytes(LittleFSinfo.totalBytes - (LittleFSinfo.usedBytes * 1.05)) + " im Spiffs frei");
+  return (LittleFSinfo.totalBytes - (LittleFSinfo.usedBytes * 1.05) > printsize) ? true : false;
   
 } // freeSpace()
 

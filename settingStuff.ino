@@ -12,7 +12,7 @@
 void writeSettings(bool show) 
 {
   DebugTf("Writing to [%s] ..\r\n", SETTINGS_FILE);
-  File file = SPIFFS.open(SETTINGS_FILE, "w"); // open for reading and writing
+  File file = LittleFS.open(SETTINGS_FILE, "w"); // open for reading and writing
   if (!file) 
   {
     DebugTf("open(%s, 'w') FAILED!!! --> Bailout\r\n", SETTINGS_FILE);
@@ -87,7 +87,7 @@ void readSettings(bool show)
   settingNewsMaxMsg         =   4;
   settingNewsInterval       =   0;
 
-  if (!SPIFFS.exists(SETTINGS_FILE)) 
+  if (!LittleFS.exists(SETTINGS_FILE)) 
   {
     DebugTln(F(" .. file not found! --> created file!"));
     writeSettings(show);
@@ -95,7 +95,7 @@ void readSettings(bool show)
 
   for (int T = 0; T < 2; T++) 
   {
-    file = SPIFFS.open(SETTINGS_FILE, "r");
+    file = LittleFS.open(SETTINGS_FILE, "r");
     if (!file) 
     {
       if (T == 0) DebugTf(" .. something went wrong opening [%s]\r\n", SETTINGS_FILE);

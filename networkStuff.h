@@ -48,8 +48,8 @@ ESP8266WebServer        httpServer (80);
 ESP8266HTTPUpdateServer httpUpdater(true);
 
 
-static      FSInfo SPIFFSinfo;
-bool        SPIFFSmounted; 
+static      FSInfo LittleFSinfo;
+bool        LittleFSmounted; 
 bool        isConnected = false;
 
 //gets called when WiFiManager enters configuration mode

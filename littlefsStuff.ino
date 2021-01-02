@@ -1,6 +1,6 @@
 /* 
 ***************************************************************************  
-**  Program  : spiffStuff, part of ESP_ticker
+**  Program  : littlefsStuff, part of ESP_ticker
 **
 **  Copyright (c) 2021 Willem Aandewiel
 **
@@ -14,7 +14,7 @@ void readLastStatus()
   char buffer[50] = "";
   char dummy[50] = "";
   
-  File _file = SPIFFS.open("/sysStatus.csv", "r");
+  File _file = LittleFS.open("/sysStatus.csv", "r");
   if (!_file)
   {
     DebugTln("read(): No /sysStatus.csv found ..");
@@ -52,7 +52,7 @@ void writeLastStatus()
                                           , "meta data");
   DebugTf("writeLastStatus() => %s\r\n", buffer);
 
-  File _file = SPIFFS.open("/sysStatus.csv", "w");
+  File _file = LittleFS.open("/sysStatus.csv", "w");
   if (!_file)
   {
     DebugTln("write(): No /sysStatus.csv found ..");
@@ -71,17 +71,17 @@ bool readFileById(const char* fType, uint8_t mId)
   String backSlash  = "\\";
   String rTmp;
   char fName[50] = "";
-  sprintf(fName, "/%s-%03d", fType, mId);
+  sprintf(fName, "/newsFiles/%s-%03d", fType, mId);
 
   DebugTf("read [%s] ", fName);
   
-  if (!SPIFFS.exists(fName)) 
+  if (!LittleFS.exists(fName)) 
   {
     Debugln("Does not exist!");
     return false;
   }
 
-  File f = SPIFFS.open(fName, "r");
+  File f = LittleFS.open(fName, "r");
 
   while(f.available()) {
     rTmp = f.readStringUntil('\n');
@@ -108,7 +108,7 @@ bool readFileById(const char* fType, uint8_t mId)
 
   if (mId == 0)
   {
-    SPIFFS.remove("/LCL-000");
+    LittleFS.remove("/newsFiles/LCL-000");
     DebugTln("Remove LCL-000 ..");
   }
 
@@ -121,18 +121,18 @@ bool writeFileById(const char* fType, uint8_t mId, const char *msg)
 {
   String rTmp;
   char fName[50] = "";
-  sprintf(fName, "/%s-%03d", fType, mId);
+  sprintf(fName, "/newsFiles/%s-%03d", fType, mId);
 
   DebugTf("write [%s] ", fName);
 
   if (strlen(msg) < 3)
   {
-    SPIFFS.remove(fName);
+    LittleFS.remove(fName);
     Debugln("Empty message, file removed!");
     return true;
   }
 
-  File file = SPIFFS.open(fName, "w");
+  File file = LittleFS.open(fName, "w");
   if (!file) 
   {
     Debugf("open(%s, 'w') FAILED!!! --> Bailout\r\n", fName);
@@ -182,8 +182,7 @@ void writeToLog(const char *logLine)
                                           , hour(), minute(), second()
                                           , logLine);
   DebugTf("writeToLogs() => %s\r\n", buffer);
-
-  File _file = SPIFFS.open("/sysLog.csv", "a");
+  File _file = LittleFS.open("/sysLog.csv", "a");
   if (!_file)
   {
     DebugTln("write(): No /sysLog.csv found ..");

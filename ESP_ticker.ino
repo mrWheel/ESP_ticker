@@ -2,7 +2,7 @@
 ***************************************************************************  
 **  Program  : ESP_ticker (lichtkrant)
 */
-#define _FW_VERSION "v1.6.0 (02-01-2021)"
+#define _FW_VERSION "v1.7.0 (02-01-2021)"
 /* 
 **  Copyright (c) 2021 Willem Aandewiel
 **
@@ -26,7 +26,7 @@
     - Erase Flash: "Only Sketch"
     - Port: "ESPticker at <-- IP address -->"
 
-    Arduino ESP8266 core v2.7.1
+    Arduino ESP8266 core v2.7.+
 */
 
 
@@ -195,11 +195,17 @@ void nextNieuwsBericht()
 //---------------------------------------------------------------------
 void nextLocalBericht()
 {
+  bool nothingThere = false;
+  
   localMsgID++;
-  if (localMsgID > settingLocalMaxMsg) localMsgID = 0;
+  if (localMsgID > settingLocalMaxMsg) 
+  {
+    localMsgID    = 0;
+    nothingThere  = true;
+  }
   while (!readFileById("LCL", localMsgID))
   {
-    DebugTf("File [LCL-%03d] not found!\r\n", localMsgID);
+    DebugTf("File [/newsFiles/LCL-%03d] not found!\r\n", localMsgID);
     localMsgID++;
     if (localMsgID > settingLocalMaxMsg) 
     {
@@ -208,6 +214,13 @@ void nextLocalBericht()
       continue;
     }
   }
+  if (nothingThere && (localMsgID == 0)) 
+  { 
+    nothingThere = true;
+    getRevisionData();
+  }
+  else  nothingThere = false;
+
   snprintf(actMessage, LOCAL_SIZE, "** %s **", fileMessage);
   //DebugTf("localMsgID[%d] %s\r\n", localMsgID, actMessage);
   utf8Ascii(actMessage);
@@ -242,18 +255,18 @@ void setup()
 
   actMessage[0]  = '\0';
   
-//================ SPIFFS ===========================================
-  if (SPIFFS.begin()) 
+//================ LittleFS ===========================================
+  if (LittleFS.begin()) 
   {
-    DebugTln(F("SPIFFS Mount succesfull\r"));
-    SPIFFSmounted = true;
-    if (!SPIFFS.exists("/LCL-000"))
+    DebugTln(F("LittleFS Mount succesfull\r"));
+    LittleFSmounted = true;
+    if (!LittleFS.exists("/newsFiles/LCL-000"))
     {
       char LCL000[100];
       sprintf(LCL000, "ESP_ticker %s by Willem Aandewiel", String(_FW_VERSION).c_str());
       writeFileById("LCL", 0, LCL000);
     }
-    if (!SPIFFS.exists("/LCL-001"))
+    if (!LittleFS.exists("/newsFiles/LCL-001"))
     {
       char LCL001[100];
       sprintf(LCL001, "ESP_ticker %s by Willem Aandewiel", String(_FW_VERSION).c_str());
@@ -261,8 +274,8 @@ void setup()
     }
     writeFileById("NWS", 1, "(c) 2021 Willem Aandewiel");
   } else { 
-    DebugTln(F("SPIFFS Mount failed\r"));   // Serious problem with SPIFFS 
-    SPIFFSmounted = false;
+    DebugTln(F("LittleFS Mount failed\r"));   // Serious problem with LittleFS 
+    LittleFSmounted = false;
   }
   //==========================================================//
   // writeLastStatus();  // only for firsttime initialization //
@@ -319,20 +332,20 @@ void setup()
   for (int i=0; i<10; i++)
   {
     char lclName[15];
-    sprintf(lclName, "/LCL-%03d", i);
-    DebugTf("Remove [%s] from SPIFFS ..\r\n", lclName);
-    SPIFFS.remove(lclName);
+    sprintf(lclName, "/newsFiles/LCL-%03d", i);
+    DebugTf("Remove [%s] from LittleFS ..\r\n", lclName);
+    LittleFS.remove(lclName);
   }
   ***/
 
 //================ Start HTTP Server ================================
   setupFSexplorer();
-  httpServer.serveStatic("/FSexplorer.png",   SPIFFS, "/FSexplorer.png");
+  httpServer.serveStatic("/FSexplorer.png",   LittleFS, "/FSexplorer.png");
   httpServer.on("/",          sendIndexPage);
   httpServer.on("/index",     sendIndexPage);
   httpServer.on("/index.html",sendIndexPage);
-  httpServer.serveStatic("/index.css", SPIFFS, "/index.css");
-  httpServer.serveStatic("/index.js",  SPIFFS, "/index.js");
+  httpServer.serveStatic("/index.css", LittleFS, "/index.css");
+  httpServer.serveStatic("/index.js",  LittleFS, "/index.js");
   // all other api calls are catched in FSexplorer onNotFounD!
   httpServer.on("/api", HTTP_GET, processAPI);
 
