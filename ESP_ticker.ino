@@ -2,7 +2,7 @@
 ***************************************************************************  
 **  Program  : ESP_ticker (lichtkrant)
 */
-#define _FW_VERSION "v1.7.0 (02-01-2021)"
+#define _FW_VERSION "v1.7.2 (12-06-2021)"
 /* 
 **  Copyright (c) 2021 Willem Aandewiel
 **
@@ -43,6 +43,8 @@
 //
 // MD_MAX72XX library can be found at https://github.com/MajicDesigns/MD_MAX72XX
 //
+
+#define USE_UPDATE_SERVER
 
 #define _HOSTNAME   "ESPticker"
 #include "ESP_ticker.h"
@@ -176,18 +178,27 @@ bool hasNoNoWord(const char *cIn)
 //---------------------------------------------------------------------
 void nextNieuwsBericht()
 {
+  bool breakOut  = false;
   newsMsgID++;
   if (newsMsgID >= settingNewsMaxMsg) newsMsgID = 0;
   while (!readFileById("NWS", newsMsgID))
   {
     DebugTln("File not found!");
     newsMsgID++;
-    if (newsMsgID > settingNewsMaxMsg) newsMsgID = 0;
+    if (newsMsgID > settingNewsMaxMsg) 
+    {
+      newsMsgID = 0;
+      breakOut  = true;
+      break;
+    }
   }
-  snprintf(actMessage, NEWS_SIZE, "** %s **", fileMessage);
-  //DebugTf("newsMsgID[%d] %s\r\n", newsMsgID, actMessage);
-  utf8Ascii(actMessage);
-  P.displayScroll(actMessage, PA_LEFT, PA_SCROLL_LEFT, (MAX_SPEED - settingTextSpeed));
+  if (!breakOut)
+  {
+    snprintf(actMessage, NEWS_SIZE, "** %s **", fileMessage);
+    //DebugTf("newsMsgID[%d] %s\r\n", newsMsgID, actMessage);
+    utf8Ascii(actMessage);
+    P.displayScroll(actMessage, PA_LEFT, PA_SCROLL_LEFT, (MAX_SPEED - settingTextSpeed));
+  }
   
 } // nextNieuwsBericht()
 
@@ -260,19 +271,30 @@ void setup()
   {
     DebugTln(F("LittleFS Mount succesfull\r"));
     LittleFSmounted = true;
-    if (!LittleFS.exists("/newsFiles/LCL-000"))
+       
+    readSettings(true);
+    splitNewsNoWords(settingNewsNoWords);
+
+    if (settingNewsInterval == 0)
     {
-      char LCL000[100];
-      sprintf(LCL000, "ESP_ticker %s by Willem Aandewiel", String(_FW_VERSION).c_str());
-      writeFileById("LCL", 0, LCL000);
+      removeNewsData();
     }
-    if (!LittleFS.exists("/newsFiles/LCL-001"))
+    else
     {
-      char LCL001[100];
-      sprintf(LCL001, "ESP_ticker %s by Willem Aandewiel", String(_FW_VERSION).c_str());
-      writeFileById("LCL", 1, LCL001);
+      if (!LittleFS.exists("/newsFiles/LCL-000"))
+      {
+        char LCL000[100];
+        sprintf(LCL000, "ESP_ticker %s by Willem Aandewiel", String(_FW_VERSION).c_str());
+        writeFileById("LCL", 0, LCL000);
+      }
+      if (!LittleFS.exists("/newsFiles/LCL-001"))
+      {
+        char LCL001[100];
+        sprintf(LCL001, "ESP_ticker %s by Willem Aandewiel", String(_FW_VERSION).c_str());
+        writeFileById("LCL", 1, LCL001);
+      }
+      writeFileById("NWS", 1, "(c) 2021 Willem Aandewiel");
     }
-    writeFileById("NWS", 1, "(c) 2021 Willem Aandewiel");
   } else { 
     DebugTln(F("LittleFS Mount failed\r"));   // Serious problem with LittleFS 
     LittleFSmounted = false;
@@ -281,9 +303,6 @@ void setup()
   // writeLastStatus();  // only for firsttime initialization //
   //==========================================================//
   readLastStatus(); // place it in actTimestamp
-  
-  readSettings(true);
-  splitNewsNoWords(settingNewsNoWords);
 
   // attempt to connect to Wifi network:
   int t = 0;
@@ -384,13 +403,13 @@ void loop()
   if ((millis() > weerTimer) && (strlen(settingWeerLiveAUTH) > 5))
   {
     weerTimer = millis() + (settingWeerLiveInterval * (60 * 1000)); // Interval in Minutes!
-    getWeerLiveData();
+    if (settingWeerLiveInterval > 0)  getWeerLiveData();
   }
   
   if ((millis() > newsapiTimer) && (strlen(settingNewsAUTH) > 5))
   {
     newsapiTimer = millis() + (settingNewsInterval * (60 * 1000)); // Interval in Minutes!
-    getNewsapiData();
+    if (settingNewsInterval > 0)  getNewsapiData();
   }
 
   if (P.displayAnimate()) // done with animation, ready for next message
@@ -415,21 +434,31 @@ void loop()
                 P.displayText(actMessage, PA_CENTER, (MAX_SPEED - settingTextSpeed), 2000, effect[inFX], effect[outFX]);
                 DebugTf("Animate IN[%d], OUT[%d] %s\r\n", inFX, outFX, actMessage);
                 break;
-      case 3:
+      case 3:   nextLocalBericht();
+                P.setTextEffect(PA_SCROLL_LEFT, PA_NO_EFFECT);
+                break;          
       case 6:   nextLocalBericht();
                 P.setTextEffect(PA_SCROLL_LEFT, PA_NO_EFFECT);
                 break;    
       case 4:            
       case 5:            
       case 7:            
-      case 8:   nextNieuwsBericht();
+      case 8:   if (settingNewsInterval > 0)
+                      nextNieuwsBericht();
+                else  nextLocalBericht();
                 P.setTextEffect(PA_SCROLL_LEFT, PA_NO_EFFECT);
                 break;
-      case 9:   snprintf(actMessage, LOCAL_SIZE, "** %s **", tempMessage);
-                utf8Ascii(actMessage);
+      case 9:   if (settingWeerLiveInterval > 0)
+                {
+                  snprintf(actMessage, LOCAL_SIZE, "** %s **", tempMessage);
+                  utf8Ascii(actMessage);
+                }
+                else  nextLocalBericht();
                 P.setTextEffect(PA_SCROLL_LEFT, PA_NO_EFFECT);
                 break;
-      case 10:  nextNieuwsBericht();
+      case 10:  if (settingNewsInterval > 0)
+                      nextNieuwsBericht();
+                else  nextLocalBericht();
                 break;
       default:  msgType = 0;
                 return;

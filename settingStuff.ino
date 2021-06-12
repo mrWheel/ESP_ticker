@@ -153,12 +153,26 @@ void readSettings(bool show)
   if (settingMaxIntensity > 15)       settingMaxIntensity     =   15;
   if (settingMaxIntensity <  1)       settingMaxIntensity     =    1;
   if (strlen(settingWeerLiveLocation) <  1)  sprintf(settingWeerLiveLocation, "Amsterdam");
-  if (settingWeerLiveInterval > 120)  settingWeerLiveInterval =  120;  // minuten!
-  if (settingWeerLiveInterval <  15)  settingWeerLiveInterval =   15;
+  if (settingWeerLiveInterval ==  0) 
+  {
+    settingWeerLiveInterval =    0;  // geen weerberichten
+  }
+  else
+  {
+    if (settingWeerLiveInterval > 120)  settingWeerLiveInterval =  120;  // minuten!
+    if (settingWeerLiveInterval <  15)  settingWeerLiveInterval =   15;
+  }
   if (settingNewsMaxMsg > 20)         settingNewsMaxMsg       =   20;
   if (settingNewsMaxMsg <  1)         settingNewsMaxMsg       =    1;
   if (settingNewsInterval > 120)      settingNewsInterval     =  120;
-  if (settingNewsInterval <  15)      settingNewsInterval     =   15;
+  if (settingNewsInterval ==  0) 
+  {
+    settingNewsInterval  =    0; // geen nieuwsberichten
+  }
+  else
+  {
+    if (settingNewsInterval <  15)    settingNewsInterval     =   15;
+  }
 
   DebugTln(F(" .. done\r"));
 
@@ -217,7 +231,11 @@ void updateSetting(const char *field, const char *newValue)
   if (!stricmp(field, "newsapiInterval"))  settingNewsInterval = String(newValue).toInt();
 
   writeSettings(false);
-  
+
+  if (settingWeerLiveInterval == 0)      memset(tempMessage, 0, sizeof(tempMessage));
+  else if (settingWeerLiveInterval < 15) settingWeerLiveInterval = 15;
+  if (settingNewsInterval == 0)          removeNewsData();
+  else if (settingNewsInterval < 15)     settingNewsInterval = 15;
   //--- rebuild noWords array --
   splitNewsNoWords(settingNewsNoWords);
   

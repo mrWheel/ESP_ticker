@@ -102,6 +102,19 @@ void getNewsapiData()
 } // getNewsapiData()
 
 
+void removeNewsData()
+{
+  char nwsName[15];
+
+  for(int n=0; n<settingNewsMaxMsg; n++)
+  {
+    sprintf(nwsName, "/newsFiles/NWS-%03d", n);
+    DebugTf("Remove [%s] from LittleFS ..\r\n", nwsName);
+    LittleFS.remove(nwsName);
+  }
+
+} //  removeNewsData()
+
 /***************************************************************************
 *
 * Permission is hereby granted, free of charge, to any person obtaining a
