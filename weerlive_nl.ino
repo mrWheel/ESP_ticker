@@ -2,21 +2,23 @@
 ***************************************************************************  
 **  Program : weerlive_nl
 **
-**  Copyright (c) 2021 Willem Aandewiel
+**  Copyright (c) 2021 .. 2023 Willem Aandewiel
 **
 **  TERMS OF USE: MIT License. See bottom of file.                                                            
 ***************************************************************************      
 */
 
-void getWeerLiveData() {
+void getWeerLiveData() 
+{
   const char* weerliveHost    = "weerlive.nl";
   const int   httpPort        = 80;
   int         weerliveStatus  = 0;
   String      tempString;
   int         startPos, endPos;
   int32_t     maxWait;
-  char        jsonResponse[1024];
+  char        jsonResponse[1536];
   char        val[51] = "";
+  bool        gotData = false;
   
   WiFiClient weerliveClient;
 
@@ -29,8 +31,9 @@ void getWeerLiveData() {
   url += settingWeerLiveLocation;
 
   DebugTf("Requesting URL: %s/api/json-data-10min.php?key=secret&locatie=%s\r\n", weerliveHost, settingWeerLiveLocation);
-  //Debugln(url);
-  if (!weerliveClient.connect(weerliveHost, httpPort)) {
+  Debugln(url);
+  if (!weerliveClient.connect(weerliveHost, httpPort)) 
+  {
     DebugTln("connection failed");
     sprintf(tempMessage, "connection to %s failed", weerliveHost);
     return;
@@ -44,17 +47,17 @@ void getWeerLiveData() {
   
   weerliveClient.setTimeout(5000);
 
-  while (weerliveClient.connected())
+  while (weerliveClient.connected() && !gotData)
   {
     yield();
-    while(weerliveClient.available())
+    while(weerliveClient.available() && !gotData)
     {
       //--- skip to find HTTP/1.1
       //--- then parse response code
       if (weerliveClient.find("HTTP/1.1"))
       {
         weerliveStatus = weerliveClient.parseInt(); // parse status code
-        Debugf("Statuscode: [%d] ", weerliveStatus); 
+        DebugTf("Statuscode: [%d] ", weerliveStatus); 
         if (weerliveStatus != 200)
         {
           Debugln(" ERROR!");
@@ -72,17 +75,22 @@ void getWeerLiveData() {
       if (weerliveClient.find("\r\n\r\n"))
       {
         weerliveClient.readBytesUntil('\0',  jsonResponse, sizeof(jsonResponse));
+        gotData = true;
+        DebugTln("Got weer data!");
       }
     } // while available ..
     
   } // connected ..
 
   weerliveClient.stop();
-  strTrimCntr(jsonResponse, 1023);
-  DebugTf("\r\njsonResponse now holds[%s]\r\n", jsonResponse);
+  //-- jsonResponse looks like:
+  //-- { "liveweer": [{"plaats": "Baarn", "timestamp": "1683105785", "time": "03-05-2023 11:23", "temp": "10.4", "gtemp": "8.8", "samenv": "Licht bewolkt", "lv": "56", "windr": "NO", "windrgr": "44", "windms": "3", "winds": "2", "windk": "5.8", "windkmh": "10.8", "luchtd": "1029.4", "ldmmhg": "772", "dauwp": "2", "zicht": "35", "verw": "Zonnig en droog, donderdag warmer", "sup": "06:03", "sunder": "21:08", "image": "lichtbewolkt", "d0weer": "halfbewolkt", "d0tmax": "15", "d0tmin": "3", "d0windk": "2", "d0windknp": "6", "d0windms": "3", "d0windkmh": "11", "d0windr": "NO", "d0windrgr": "44", "d0neerslag": "0", "d0zon": "35", "d1weer": "halfbewolkt", "d1tmax": "20", "d1tmin": "5", "d1windk": "2", "d1windknp": "6", "d1windms": "3", "d1windkmh": "11", "d1windr": "O", "d1windrgr": "90", "d1neerslag": "20", "d1zon": "60", "d2weer": "regen", "d2tmax": "19", "d2tmin": "12", "d2windk": "2", "d2windknp": "6", "d2windms": "3", "d2windkmh": "11", "d2windr": "ZW", "d2windrgr": "225", "d2neerslag": "80", "d2zon": "30", "alarm": "0", "alarmtxt": ""}]}
   
-  // jsonResponse = "{ \"liveweer\": [{\"plaats\": \"Baarn\", \"temp\": \"9.8\", \"gtemp\": \"8.9\", \"samenv\": \"Licht bewolkt\", \"lv\": \"53\", \"windr\": \"NW\", \"windms\": \"2\", \"winds\": \"2\", \"windk\": \"3.9\", \"windkmh\": \"7.2\", \"luchtd\": \"1020.5\", \"ldmmhg\": \"765\", \"dauwp\": \"-0\", \"zicht\": \"35\", \"verw\": \"Perioden met zon en hier en daar een bui\", \"sup\": \"05:45\", \"sunder\": \"21:25\", \"image\": \"halfbewolkt\", \"d0weer\": \"halfbewolkt\", \"d0tmax\": \"13\", \"d0tmin\": \"2\", \"d0windk\": \"2\", \"d0windknp\": \"4\", \"d0windms\": \"2\", \"d0windkmh\": \"7\", \"d0windr\": \"ZW\", \"d0neerslag\": \"8\", \"d0zon\": \"53\", \"d1weer\": \"halfbewolkt\", \"d1tmax\": \"13\", \"d1tmin\": \"0\", \"d1windk\": \"2\", \"d1windknp\": \"6\", \"d1windms\": \"3\", \"d1windkmh\": \"11\", \"d1windr\": \"VAR\", \"d1neerslag\": \"40\", \"d1zon\": \"50\", \"d2weer\": \"halfbewolkt\", \"d2tmax\": \"12\", \"d2tmin\": \"5\", \"d2windk\": \"2\", \"d2windknp\": \"6\", \"d2windms\": \"3\", \"d2windkmh\": \"11\", \"d2windr\": \"N\", \"d2neerslag\": \"20\", \"d2zon\": \"50\", \"alarm\": 0}]}";                          
-
+  int prevLength = strlen(jsonResponse);
+  strTrimCntr(jsonResponse, 1534);
+  DebugTf("jsonResponse now [%d]chars (before trim [%d]chars)\r\n", strlen(jsonResponse), prevLength);
+  DebugTf("jsonResponse is [%s]\r\n", jsonResponse);
+  
   parseJsonKey(jsonResponse, "plaats", val, 50);
   snprintf(tempMessage, LOCAL_SIZE, val);
   parseJsonKey(jsonResponse, "samenv", val, 50);

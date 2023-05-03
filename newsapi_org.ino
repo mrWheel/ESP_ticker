@@ -2,20 +2,20 @@
 ***************************************************************************  
 **  Program : newsapi_org
 **
-**  Copyright (c) 2021 Willem Aandewiel
+**  Copyright (c) 2021 .. 2023 Willem Aandewiel
 **
 **  TERMS OF USE: MIT License. See bottom of file.                                                            
 ***************************************************************************      
 */
 
-// http://newsapi.org/v2/top-headlines?country=nl&apiKey=API_KEY
+//-- http://newsapi.org/v2/top-headlines?country=nl&apiKey=API_KEY
 
 void getNewsapiData() 
 {
   const char* newsapiHost    = "newsapi.org";
   const int   httpPort        = 80;
   int         newsapiStatus  = 0;
-  char        newsMessage[NEWS_SIZE];
+  char        newsMessage[NEWS_SIZE] = {};
   int         startPos, endPos;
   int32_t     maxWait;
   char        jsonResponse[1024];
@@ -31,9 +31,17 @@ void getNewsapiData()
 
   DebugTf("Requesting URL: %s/v2/top-headlines?country=nl&key=secret\r\n", newsapiHost);
 
-  if (!newsapiClient.connect(newsapiHost, httpPort)) {
+  if (!newsapiClient.connect(newsapiHost, httpPort)) 
+  {
     DebugTln("connection failed");
     sprintf(tempMessage, "connection to %s failed", newsapiHost);
+    //-- empty newsMessage store --
+    for(int i=0; i<settingLocalMaxMsg; i++)
+    {
+      sprintf(newsMessage, "No Data");
+      writeFileById("NWS", i, newsMessage);
+    }
+
     return;
   }
 
@@ -66,6 +74,11 @@ void getNewsapiData()
       else
       {
         DebugTln("Error reading newsapi.org.. -> bailout!");
+        for(int i=0; i<settingLocalMaxMsg; i++)
+        {
+          sprintf(newsMessage, "No Data");
+          writeFileById("NWS", i, newsMessage);
+        }
         return;
       }
       //--- skip headers

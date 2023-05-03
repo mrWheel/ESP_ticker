@@ -121,9 +121,9 @@ bool writeFileById(const char* fType, uint8_t mId, const char *msg)
 {
   String rTmp;
   char fName[50] = "";
-  sprintf(fName, "/newsFiles/%s-%03d", fType, mId);
+  sprintf(fName, "/newsFiles/%s-%03d ", fType, mId);
 
-  DebugTf("write [%s] ", fName);
+  DebugTf("write [%s] (%s)\r\n", fName, msg);
 
   if (strlen(msg) < 3)
   {
@@ -132,6 +132,7 @@ bool writeFileById(const char* fType, uint8_t mId, const char *msg)
     return true;
   }
 
+  DebugTln("LittleFS.open()...");
   File file = LittleFS.open(fName, "w");
   if (!file) 
   {
@@ -141,10 +142,12 @@ bool writeFileById(const char* fType, uint8_t mId, const char *msg)
   yield();
 
   Debugln(F("Start writing data .. \r"));
+  DebugFlush();
   Debugln(msg);
   file.println(msg);
   file.close();
 
+  DebugTln("Exit writeFileById()!");
   return true;
   
 } // writeFileById()
