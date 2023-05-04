@@ -7,5 +7,5 @@ more information.
 
 To upload the data-map to LittleFS look <a href="https://arduino-esp8266.readthedocs.io/en/latest/filesystem.html#uploading-files-to-file-system" target="_blank">here</a> for more information.
 
-## v1.7.3 (03-05-2023)
+## v1.7.3 (04-05-2023)
 Small changes. Seems returned jsonString from Weerlive.nl has grown bigger..
