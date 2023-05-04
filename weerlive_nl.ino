@@ -36,6 +36,8 @@ void getWeerLiveData()
   {
     DebugTln("connection failed");
     sprintf(tempMessage, "connection to %s failed", weerliveHost);
+    weerliveClient.flush();
+    weerliveClient.stop();
     return;
   }
 
@@ -61,6 +63,7 @@ void getWeerLiveData()
         if (weerliveStatus != 200)
         {
           Debugln(" ERROR!");
+          weerliveClient.flush();
           weerliveClient.stop();
           return;  
         }
@@ -69,6 +72,8 @@ void getWeerLiveData()
       else
       {
         DebugTln("Error reading weerLive.. -> bailout!");
+        weerliveClient.flush();
+        weerliveClient.stop();
         return;
       }
       //--- skip headers
@@ -84,6 +89,7 @@ void getWeerLiveData()
     
   } // connected ..
 
+  weerliveClient.flush();
   weerliveClient.stop();
   //-- jsonResponse looks like:
   //-- { "liveweer": [{"plaats": "Baarn", "timestamp": "1683105785", "time": "03-05-2023 11:23", "temp": "10.4", "gtemp": "8.8", "samenv": "Licht bewolkt", "lv": "56", "windr": "NO", "windrgr": "44", "windms": "3", "winds": "2", "windk": "5.8", "windkmh": "10.8", "luchtd": "1029.4", "ldmmhg": "772", "dauwp": "2", "zicht": "35", "verw": "Zonnig en droog, donderdag warmer", "sup": "06:03", "sunder": "21:08", "image": "lichtbewolkt", "d0weer": "halfbewolkt", "d0tmax": "15", "d0tmin": "3", "d0windk": "2", "d0windknp": "6", "d0windms": "3", "d0windkmh": "11", "d0windr": "NO", "d0windrgr": "44", "d0neerslag": "0", "d0zon": "35", "d1weer": "halfbewolkt", "d1tmax": "20", "d1tmin": "5", "d1windk": "2", "d1windknp": "6", "d1windms": "3", "d1windkmh": "11", "d1windr": "O", "d1windrgr": "90", "d1neerslag": "20", "d1zon": "60", "d2weer": "regen", "d2tmax": "19", "d2tmin": "12", "d2windk": "2", "d2windknp": "6", "d2windms": "3", "d2windkmh": "11", "d2windr": "ZW", "d2windrgr": "225", "d2neerslag": "80", "d2zon": "30", "alarm": "0", "alarmtxt": ""}]}

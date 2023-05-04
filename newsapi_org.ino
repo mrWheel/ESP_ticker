@@ -10,6 +10,7 @@
 
 //-- http://newsapi.org/v2/top-headlines?country=nl&apiKey=API_KEY
 
+//----------------------------------------------------------------------
 bool getNewsapiData() 
 {
   const char* newsapiHost    = "newsapi.org";
@@ -31,11 +32,12 @@ bool getNewsapiData()
   url += settingNewsAUTH;
 
   DebugTf("Requesting URL: %s/v2/top-headlines?country=nl&apiKey=secret\r\n", newsapiHost);
-  Debugln("\r\n=======================================");
   DebugFlush();
-  Debug(newsapiHost);
-  Debugln(url);
-  Debugln("=======================================");
+  //Debugln("\r\n=======================================");
+  //DebugFlush();
+  //Debug(newsapiHost);
+  //Debugln(url);
+  //Debugln("=======================================");
   
   if (!newsapiClient.connect(newsapiHost, httpPort)) 
   {
@@ -45,16 +47,19 @@ bool getNewsapiData()
     for(int i=0; i<=settingNewsMaxMsg; i++)
     {
       //sprintf(newsMessage, "");
-      if (i==0) writeFileById("NWS", i, "There is No News ....");
+      if (i==1) writeFileById("NWS", i, "There is No News ....");
       else      writeFileById("NWS", i, "");
     }
-
+    
+    newsapiClient.flush();
+    newsapiClient.stop();
     return false;
   }
 
   // This will send the request to the server
   newsapiClient.print(String("GET ") + url + " HTTP/1.1\r\n" +
                "Host: " + newsapiHost + "\r\n" + 
+               "User-Agent: ESP-ticker\r\n" + 
                "Connection: close\r\n\r\n");
   delay(10);
   
@@ -74,6 +79,21 @@ bool getNewsapiData()
         if (newsapiStatus != 200)
         {
           Debugln(" ERROR!");
+          while(newsapiClient.available())
+          {
+            char nC = newsapiClient.read();
+            Debug(nC);
+          }
+          Debugln();
+          newsapiClient.flush();
+          newsapiClient.stop();
+          for(int i=0; i<=settingNewsMaxMsg; i++)
+          {
+            //sprintf(newsMessage, "");
+            if (i==1) writeFileById("NWS", i, "There is No News ....");
+            else      writeFileById("NWS", i, "");
+          }
+          newsapiClient.flush();
           newsapiClient.stop();
           return false;  
         }
@@ -85,9 +105,11 @@ bool getNewsapiData()
         for(int i=0; i<=settingNewsMaxMsg; i++)
         {
           //sprintf(newsMessage, "");
-          if (i==0) writeFileById("NWS", i, "There is No News ....");
+          if (i==1) writeFileById("NWS", i, "There is No News ....");
           else      writeFileById("NWS", i, "");
         }
+        newsapiClient.flush();
+        newsapiClient.stop();
         return false;
       }
       //--- skip headers
@@ -117,6 +139,7 @@ bool getNewsapiData()
     
   } // connected ..
 
+  newsapiClient.flush();
   newsapiClient.stop();
   updateMessage("0", "News brought to you by 'newsapi.org'");
 
@@ -125,11 +148,12 @@ bool getNewsapiData()
 } // getNewsapiData()
 
 
+//----------------------------------------------------------------------
 void removeNewsData()
 {
   char nwsName[15];
 
-  for(int n=0; n<settingNewsMaxMsg; n++)
+  for(int n=0; n<=settingNewsMaxMsg; n++)
   {
     sprintf(nwsName, "/newsFiles/NWS-%03d", n);
     DebugTf("Remove [%s] from LittleFS ..\r\n", nwsName);

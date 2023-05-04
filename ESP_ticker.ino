@@ -112,8 +112,8 @@ int16_t calculateIntensity()
 
   //--- map LDR to offset..1024 -> 0..settingMax
   int intensity = map(valueLDR, settingLDRlowOffset, settingLDRhighOffset,  0, settingMaxIntensity);
-  DebugTf("map(%d, %d, %d, 0, %d) => [%d]\r\n", valueLDR, settingLDRlowOffset, settingLDRhighOffset
-                                                        , 0                  , settingMaxIntensity);
+  //DebugTf("map(%d, %d, %d, 0, %d) => [%d]\r\n", valueLDR, settingLDRlowOffset, settingLDRhighOffset
+  //                                                      , 0                  , settingMaxIntensity);
 
 
 /*
@@ -414,10 +414,14 @@ void loop()
     newsapiTimer = millis() + (settingNewsInterval * (60 * 1000)); // Interval in Minutes!
     if (settingNewsInterval > 0) 
     {
-      if (!getNewsapiData())
+      if (!getNewsapiData())  //-- first try ...
       {
-        //-- try again in two(2) minutes ...
-        newsapiTimer = millis() + (2 * (60 * 1000)); // Interval in Minutes!
+        delay(100);
+        if (!getNewsapiData())  //-- second try ...
+        {
+          //-- try again in two(2) minutes ...
+          newsapiTimer = millis() + (2 * (60 * 1000)); // Interval in Minutes!
+        }
       }
     }
   }

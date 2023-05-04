@@ -65,7 +65,7 @@
                		 });
                });
                main.insertAdjacentHTML('beforeend', '</table>');
-               main.insertAdjacentHTML('beforeend', `<p><b>SPIFFS</b> gebruikt ${json[i].usedBytes} van ${json[i].totalBytes}`);
+               main.insertAdjacentHTML('beforeend', `<p><b>LittleFS</b> gebruikt ${json[i].usedBytes} van ${json[i].totalBytes}`);
                free = json[i].freeBytes;
                fileSize.innerHTML = "<b> &nbsp; </b><p>";    // spacer                
 
@@ -126,7 +126,7 @@
       <div style='width: 40%'>
         <span>
         <form style='float right;' action="/LittleFSformat" method="POST">
-          <input id='FormatLittleFS' type='submit' class='button' name='SUBMIT' value='Format SPIFFS' DISABLED/>
+          <input id='FormatLittleFS' type='submit' class='button' name='SUBMIT' value='Format LittleFS' DISABLED/>
         </form>
         </span>
       </div>
