@@ -10,10 +10,10 @@
 
 //-- http://newsapi.org/v2/top-headlines?country=nl&apiKey=API_KEY
 
-void getNewsapiData() 
+bool getNewsapiData() 
 {
   const char* newsapiHost    = "newsapi.org";
-  const int   httpPort        = 80;
+  const int   httpPort       = 80;
   int         newsapiStatus  = 0;
   char        newsMessage[NEWS_SIZE] = {};
   int         startPos, endPos;
@@ -23,26 +23,33 @@ void getNewsapiData()
   
   WiFiClient newsapiClient;
 
+  Debugln();
   DebugTf("getNewsapiData(%s)\r\n", newsapiHost);
 
   // We now create a URI for the request
   String url = "/v2/top-headlines?country=nl&apiKey=";
   url += settingNewsAUTH;
 
-  DebugTf("Requesting URL: %s/v2/top-headlines?country=nl&key=secret\r\n", newsapiHost);
-
+  DebugTf("Requesting URL: %s/v2/top-headlines?country=nl&apiKey=secret\r\n", newsapiHost);
+  Debugln("\r\n=======================================");
+  DebugFlush();
+  Debug(newsapiHost);
+  Debugln(url);
+  Debugln("=======================================");
+  
   if (!newsapiClient.connect(newsapiHost, httpPort)) 
   {
     DebugTln("connection failed");
     sprintf(tempMessage, "connection to %s failed", newsapiHost);
     //-- empty newsMessage store --
-    for(int i=0; i<settingLocalMaxMsg; i++)
+    for(int i=0; i<=settingNewsMaxMsg; i++)
     {
-      sprintf(newsMessage, "No Data");
-      writeFileById("NWS", i, newsMessage);
+      //sprintf(newsMessage, "");
+      if (i==0) writeFileById("NWS", i, "There is No News ....");
+      else      writeFileById("NWS", i, "");
     }
 
-    return;
+    return false;
   }
 
   // This will send the request to the server
@@ -57,29 +64,31 @@ void getNewsapiData()
     yield();
     while(newsapiClient.available())
     {
+      Debugln();
       //--- skip to find HTTP/1.1
       //--- then parse response code
       if (newsapiClient.find("HTTP/1.1"))
       {
         newsapiStatus = newsapiClient.parseInt(); // parse status code
-        Debugf("Statuscode: [%d] ", newsapiStatus); 
+        DebugTf("Statuscode: [%d] ", newsapiStatus); 
         if (newsapiStatus != 200)
         {
           Debugln(" ERROR!");
           newsapiClient.stop();
-          return;  
+          return false;  
         }
         Debugln(" OK!");
       }
       else
       {
         DebugTln("Error reading newsapi.org.. -> bailout!");
-        for(int i=0; i<settingLocalMaxMsg; i++)
+        for(int i=0; i<=settingNewsMaxMsg; i++)
         {
-          sprintf(newsMessage, "No Data");
-          writeFileById("NWS", i, newsMessage);
+          //sprintf(newsMessage, "");
+          if (i==0) writeFileById("NWS", i, "There is No News ....");
+          else      writeFileById("NWS", i, "");
         }
-        return;
+        return false;
       }
       //--- skip headers
       uint16_t  msgIdx  = 0;
@@ -111,6 +120,7 @@ void getNewsapiData()
   newsapiClient.stop();
   updateMessage("0", "News brought to you by 'newsapi.org'");
 
+  return true;
 
 } // getNewsapiData()
 

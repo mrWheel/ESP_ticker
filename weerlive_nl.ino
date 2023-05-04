@@ -47,7 +47,7 @@ void getWeerLiveData()
   
   weerliveClient.setTimeout(5000);
 
-  while (weerliveClient.connected() && !gotData)
+  while ((weerliveClient.connected() || weerliveClient.available()) && !gotData)
   {
     yield();
     while(weerliveClient.available() && !gotData)
@@ -74,7 +74,9 @@ void getWeerLiveData()
       //--- skip headers
       if (weerliveClient.find("\r\n\r\n"))
       {
-        weerliveClient.readBytesUntil('\0',  jsonResponse, sizeof(jsonResponse));
+        int charsRead = 0;
+        charsRead = weerliveClient.readBytesUntil('\0',  jsonResponse, sizeof(jsonResponse));
+        jsonResponse[(charsRead -1)] = '\0';
         gotData = true;
         DebugTln("Got weer data!");
       }
@@ -89,7 +91,7 @@ void getWeerLiveData()
   int prevLength = strlen(jsonResponse);
   strTrimCntr(jsonResponse, 1534);
   DebugTf("jsonResponse now [%d]chars (before trim [%d]chars)\r\n", strlen(jsonResponse), prevLength);
-  DebugTf("jsonResponse is [%s]\r\n", jsonResponse);
+  DebugTf("jsonResponse is [%s]\r\n\n", jsonResponse);
   
   parseJsonKey(jsonResponse, "plaats", val, 50);
   snprintf(tempMessage, LOCAL_SIZE, val);
@@ -110,8 +112,8 @@ void getWeerLiveData()
   snprintf(cMsg, LOCAL_SIZE, "%s max %s°C", tempMessage, val);
 
   snprintf(tempMessage, LOCAL_SIZE, "%s", cMsg);
-  
-  Debugln(tempMessage);
+  Debugln("\r\n");
+  Debugf("\tWeer[%s]\r\n", tempMessage);
   
 } // getWeerLiveData()
 

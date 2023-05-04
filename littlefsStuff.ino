@@ -71,6 +71,7 @@ bool readFileById(const char* fType, uint8_t mId)
   String backSlash  = "\\";
   String rTmp;
   char fName[50] = "";
+  
   sprintf(fName, "/newsFiles/%s-%03d", fType, mId);
 
   DebugTf("read [%s] ", fName);
@@ -83,7 +84,8 @@ bool readFileById(const char* fType, uint8_t mId)
 
   File f = LittleFS.open(fName, "r");
 
-  while(f.available()) {
+  while(f.available()) 
+  {
     rTmp = f.readStringUntil('\n');
     //Debugf("rTmp(in)  [%s]\r\n", rTmp.c_str());
     rTmp.replace("\r", "");
@@ -104,7 +106,7 @@ bool readFileById(const char* fType, uint8_t mId)
     Debugln("file is zero bytes long");
     return false;
   }
-  Debugf("OK! [%s]\r\n", fileMessage);
+  Debugf("OK! \r\n\t[%s]\r\n", fileMessage);
 
   if (mId == 0)
   {
@@ -121,9 +123,9 @@ bool writeFileById(const char* fType, uint8_t mId, const char *msg)
 {
   String rTmp;
   char fName[50] = "";
-  sprintf(fName, "/newsFiles/%s-%03d ", fType, mId);
+  sprintf(fName, "/newsFiles/%s-%03d", fType, mId);
 
-  DebugTf("write [%s] (%s)\r\n", fName, msg);
+  DebugTf("write [%s]-> [%s]\r\n", fName, msg);
 
   if (strlen(msg) < 3)
   {

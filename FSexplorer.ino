@@ -125,13 +125,12 @@ void APIlistFiles()             // Senden aller Daten an den Client
     strncat(dirMap[fileNr].Name, dir.fileName().c_str(), 29); 
     dirMap[fileNr].Size = dir.fileSize();
     //--- Skip files in newsFiles map
-  //if ((dir.fileName().indexOf("/newsFiles/LCL-") == -1) && (dir.fileName().indexOf("/newsFiles/NWS-") == -1))
-    if ((dir.fileName().indexOf("/newsFiles") == -1) && (dir.fileSize() > 0))
-    {
+    //-aaw-if ((dir.fileName().indexOf("/newsFiles") == -1) && (dir.fileSize() > 0))
+    //{
       fileNr++;
-    }
+    //}
   }
-  //DebugTf("fileNr[%d], Max[%d]\r\n", fileNr, MAX_FILES_IN_LIST);
+  DebugTf("fileNr[%d], Max[%d]\r\n", fileNr, MAX_FILES_IN_LIST);
 
   // -- bubble sort dirMap op .Name--
   for (int8_t y = 0; y < fileNr; y++) {

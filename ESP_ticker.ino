@@ -2,7 +2,7 @@
 ***************************************************************************  
 **  Program  : ESP_ticker (lichtkrant)
 */
-#define _FW_VERSION "v1.7.3 (03-05-2023)"
+#define _FW_VERSION "v1.7.3 (04-05-2023)"
 /* 
 **  Copyright (c) 2021 .. 2023 Willem Aandewiel
 **
@@ -298,7 +298,9 @@ void setup()
       }
       writeFileById("NWS", 1, "(c) 2021 Willem Aandewiel");
     }
-  } else { 
+  } 
+  else 
+  { 
     DebugTln(F("LittleFS Mount failed\r"));   // Serious problem with LittleFS 
     LittleFSmounted = false;
   }
@@ -350,16 +352,6 @@ void setup()
   Serial.print (WiFi.localIP());
   Serial.println("' voor verdere debugging\r\n");
 
-  /***
-  for (int i=0; i<10; i++)
-  {
-    char lclName[15];
-    sprintf(lclName, "/newsFiles/LCL-%03d", i);
-    DebugTf("Remove [%s] from LittleFS ..\r\n", lclName);
-    LittleFS.remove(lclName);
-  }
-  ***/
-
 //================ Start HTTP Server ================================
   setupFSexplorer();
   httpServer.serveStatic("/FSexplorer.png",   LittleFS, "/FSexplorer.png");
@@ -391,6 +383,13 @@ void setup()
 
   inFX = 0;
   outFX= 0;
+
+  for (int i=0; i<=settingNewsMaxMsg; i++)
+  {
+    writeFileById("NWS", i, "");
+    //DebugTf("readFileById(NWS, %d)\r\n", i);
+    //readFileById("NWS", i);
+  }
   
 } // setup()
 
@@ -413,7 +412,14 @@ void loop()
   if ((millis() > newsapiTimer) && (strlen(settingNewsAUTH) > 5))
   {
     newsapiTimer = millis() + (settingNewsInterval * (60 * 1000)); // Interval in Minutes!
-    if (settingNewsInterval > 0)  getNewsapiData();
+    if (settingNewsInterval > 0) 
+    {
+      if (!getNewsapiData())
+      {
+        //-- try again in two(2) minutes ...
+        newsapiTimer = millis() + (2 * (60 * 1000)); // Interval in Minutes!
+      }
+    }
   }
 
   if (P.displayAnimate()) // done with animation, ready for next message
@@ -456,6 +462,7 @@ void loop()
       case 9:   if (settingWeerLiveInterval > 0)
                 {
                   snprintf(actMessage, LOCAL_SIZE, "** %s **", tempMessage);
+                  Debugf("\t[%s]\r\n", actMessage);
                   utf8Ascii(actMessage);
                 }
                 else  nextLocalBericht();
