@@ -50,7 +50,7 @@
 #define USE_UPDATE_SERVER
 
 #define _HOSTNAME   "ESPticker"
-#include "ESP_ticker.h"
+#include "main.h"
 
 // HARDWARE SPI
 MD_Parola P = MD_Parola(HARDWARE_TYPE, CS_PIN, MAX_DEVICES);
@@ -231,7 +231,7 @@ void nextLocalBericht()
   if (nothingThere && (localMsgID == 0)) 
   { 
     nothingThere = true;
-    getRevisionData();
+    getRevisionData(_FW_VERSION);
   }
   else  nothingThere = false;
 
@@ -243,7 +243,7 @@ void nextLocalBericht()
   if ((millis() - revisionTimer) > 900000)
   {
     revisionTimer = millis();
-    getRevisionData();
+    getRevisionData(_FW_VERSION);
   }
 
 } // nextLocalBericht()

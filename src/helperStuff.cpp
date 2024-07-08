@@ -8,6 +8,7 @@
 ***************************************************************************      
 */
 
+#include "helperStuff.h"
 
 //===========================================================================================
 bool compare(String x, String y) 
@@ -500,12 +501,12 @@ void utf8Ascii(char* s)
 } // utf8Ascii(char)
 
 
-void getRevisionData() 
+void getRevisionData(const char* fwVersion) 
 {
   if (!LittleFS.exists("/newsFiles/LCL-000"))
   {
     char LCL000[100];
-    sprintf(LCL000, "ESP_ticker %s (c) by Willem Aandewiel", String(_FW_VERSION).c_str());
+    sprintf(LCL000, "ESP_ticker %s (c) by Willem Aandewiel", fwVersion);
     writeFileById("LCL", 0, LCL000);
   }
 

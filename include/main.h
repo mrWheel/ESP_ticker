@@ -8,18 +8,31 @@
 ***************************************************************************      
 */
 
-//#include <ESP8266WiFi.h>
+#include <Arduino.h>
+#include <ESP8266WiFi.h>
 #include <LittleFS.h>
 
-#include <ezTime.h>             // https://github.com/ropg/ezTime
-#include <TelnetStream.h>       // https://github.com/jandrassy/TelnetStream/commit/1294a9ee5cc9b1f7e51005091e351d60c8cddecf
+#include <ezTime.h>
+#include <TelnetStream.h>
 #include "Debug.h"
 #include "networkStuff.h"
 
 #include <MD_Parola.h>
 #include <MD_MAX72xx.h>
-#include "parola_Fonts_data.h"
 #include <SPI.h>
+
+#include "parola_Fonts_data.h"
+#include "FSexplorer.h"
+#include "helperStuff.h"
+#include "jsonStuff.h"
+#include "littlefsStuff.h"
+#include "newsapi_org.h"
+#include "restAPI.h"
+#include "sendIndexPage.h"
+#include "settingStuff.h"
+#include "timeStuff.h"
+#include "weerlive_nl.h"
+#include "Debug.h"
 
 // Define the number of devices we have in the chain and the hardware interface
 // NOTE: These pin numbers are for ESP8266 hardware SPI and will probably not
