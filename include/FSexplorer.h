@@ -3,6 +3,7 @@
 
 #include <FS.h>
 #include <LittleFS.h>
+#include "networkStuff.h"
 
 // Function prototypes
 void listDir(fs::FS &fs, const char *dirname, uint8_t levels);
