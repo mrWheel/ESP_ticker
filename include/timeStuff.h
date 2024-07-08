@@ -3,6 +3,7 @@
 
 #include <Arduino.h>
 #include <TimeLib.h>
+#include "allDefines.h"
 #include "helperStuff.h"
 
 // Function Prototypes

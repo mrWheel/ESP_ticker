@@ -76,7 +76,7 @@ void readSettings(bool show)
   DebugTf(" %s ..\r\n", SETTINGS_FILE);
 
   snprintf(settingHostname,    sizeof(settingHostname), "%s", _HOSTNAME);
-  snprintf(settingNewsNoWords, sizeof(settingNewsNoWords),"Voetbal, show, UEFA, KNVB");
+  snprintf(settingNewsNoWords, LOCAL_SIZE,"Voetbal, show, UEFA, KNVB");
   settingLocalMaxMsg        =   5;
   settingTextSpeed          =  25;
   settingLDRlowOffset       =  70;

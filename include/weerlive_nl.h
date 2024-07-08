@@ -5,13 +5,26 @@
 #include <ESP8266WiFi.h>
 #include <WiFiClientSecure.h>
 #include <ArduinoJson.h>
+#include <WiFiClient.h>
 
-extern const char* ssid;
-extern const char* password;
-extern const char* host;
-extern const char* apiKey;
+#include "Debug.h"
+#include "allDefines.h"
+#include "helperStuff.h"
+#include "jsonStuff.h"
 
-void setupWiFi();
-String getWeatherData();
+// Function prototype
+void getWeerLiveData();
 
-#endif
+// External global variables
+extern char settingWeerLiveAUTH[];
+extern char settingWeerLiveLocation[];
+extern char tempMessage[];
+extern char cMsg[];
+extern const int LOCAL_SIZE;
+
+
+// Utility function prototypes (assuming they are defined elsewhere in your project)
+void strTrimCntr(char *str, int maxLen);
+void parseJsonKey(const char *json, const char *key, char *value, int maxLen);
+
+#endif // WEERLIVE_NL_H

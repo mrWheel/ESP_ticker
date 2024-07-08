@@ -1,5 +1,3 @@
-#include "restAPI.h"
-
 /* 
 ***************************************************************************  
 **  Program  : restAPI, part of ESP_ticker
@@ -9,6 +7,8 @@
 **  TERMS OF USE: MIT License. See bottom of file.                                                            
 ***************************************************************************      
 */
+
+#include "restAPI.h"
 
 
 //=======================================================================
@@ -124,14 +124,16 @@ void sendDeviceInfo()
   sendNestedJsonObj("flashchipid", cMsg);  // flashChipId
   sendNestedJsonObj("flashchipsize", formatFloat((ESP.getFlashChipSize() / 1024.0 / 1024.0), 3));
   sendNestedJsonObj("flashchiprealsize", formatFloat((ESP.getFlashChipRealSize() / 1024.0 / 1024.0), 3));
-
+/*** --AaW-
   LittleFS.info(LittleFSinfo);
   sendNestedJsonObj("spiffssize", formatFloat( (LittleFSinfo.totalBytes / (1024.0 * 1024.0)), 0));
-
+***/
   sendNestedJsonObj("flashchipspeed", formatFloat((ESP.getFlashChipSpeed() / 1000.0 / 1000.0), 0));
-
+/*** --AaW-
   FlashMode_t ideMode = ESP.getFlashChipMode();
   sendNestedJsonObj("flashchipmode", flashMode[ideMode]);
+***/
+/*** --AaW- 
   sendNestedJsonObj("boardtype",
 #ifdef ARDUINO_ESP8266_NODEMCU
      "ESP8266_NODEMCU"
@@ -146,6 +148,7 @@ void sendDeviceInfo()
      "ESP8266_ESP12"
 #endif
   );
+***/
   sendNestedJsonObj("ssid", WiFi.SSID().c_str());
   sendNestedJsonObj("wifirssi", WiFi.RSSI());
 //sendNestedJsonObj("uptime", upTime());

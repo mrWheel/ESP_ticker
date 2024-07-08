@@ -53,7 +53,7 @@ ESP8266HTTPUpdateServer httpUpdater(true);
 
 
 static      FSInfo LittleFSinfo;
-bool        LittleFSmounted; 
+extern bool LittleFSmounted; 
 bool        isConnected = false;
 
 //gets called when WiFiManager enters configuration mode

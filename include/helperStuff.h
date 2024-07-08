@@ -4,6 +4,7 @@
 #include <Arduino.h>
 #include <IPAddress.h>
 #include <LittleFS.h>
+#include "allDefines.h"
 #include "littlefsStuff.h"
 
 // Function Prototypes
@@ -33,5 +34,7 @@ void parseJsonKey(const char *sIn, const char *key, char *val, int valLen);
 uint8_t utf8Ascii(uint8_t ascii);
 void utf8Ascii(char* s);
 void getRevisionData();
+void splitNewsNoWords(const char *noNo);
+bool hasNoNoWord(const char *cIn);
 
 #endif // HELPERSTUFF_H

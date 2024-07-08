@@ -1,11 +1,10 @@
 #ifndef LITTLEFS_STUFF_H
 #define LITTLEFS_STUFF_H
 
-#define LOCAL_SIZE  255
-
 #include <Arduino.h>
 #include <FS.h>
 #include <LittleFS.h>
+#include "allDefines.h"
 #include "timeStuff.h"
 
 extern char cDate[11];

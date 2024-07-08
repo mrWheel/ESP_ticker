@@ -142,43 +142,6 @@ char *updateTime()
 
 
 //---------------------------------------------------------------------
-void splitNewsNoWords(const char *noNo)
-{
-  DebugTln(noNo);
-  int8_t wc = splitString(String(noNo), ' ', noWords, MAX_NO_NO_WORDS);
-  for(int8_t i=0; i<wc; i++)
-  {
-    noWords[i].trim();
-    if (noWords[i].length() > 1)
-    {
-      noWords[i].toLowerCase();
-      DebugTf("NoNoWord[%d] [%s]\r\n", i, noWords[i].c_str());
-    }
-  }
-  
-} // splitNewsNoWords()
-
-//---------------------------------------------------------------------
-bool hasNoNoWord(const char *cIn)
-{
-  for(int8_t i=0; i<MAX_NO_NO_WORDS; i++)
-  {
-    String sIn = String(cIn);
-    sIn.toLowerCase();
-    int idx = sIn.indexOf(noWords[i]);
-    if ((idx > -1) && (noWords[i].length() > 1))  // yes! it's in there somewhere
-    {
-      DebugTf("found [%s]\r\n", noWords[i].c_str());
-      return true;      
-    }
-  }
-  //DebugTln("no NoNo words found!");
-  return false;
-  
-} // hasNoNoWord()
-
-
-//---------------------------------------------------------------------
 void nextNieuwsBericht()
 {
   bool breakOut  = false;
@@ -437,7 +400,8 @@ void loop()
       case 1:   if (!(millis() > timeTimer))  return;
                 inFX  = random(0, ARRAY_SIZE(effect));
                 outFX = random(0, ARRAY_SIZE(effect));
-                snprintf(actMessage, LOCAL_SIZE, weekDayName[weekday()]);
+                //--aaw- snprintf(actMessage, LOCAL_SIZE, weekDayName[weekday()]);
+                snprintf(actMessage, LOCAL_SIZE, weekDayName[1]);
                 P.displayText(actMessage, PA_CENTER, (MAX_SPEED - settingTextSpeed), 1000, effect[inFX], effect[outFX]);
                 DebugTf("Animate IN[%d], OUT[%d] %s\r\n", inFX, outFX, actMessage);
                 break;

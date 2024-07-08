@@ -4,11 +4,9 @@
 #include <Arduino.h>
 #include <WiFiClient.h>
 #include <LittleFS.h>
+#include "allDefines.h"
 #include "helperStuff.h"
 #include "littlefsStuff.h"
-
-#define LOCAL_SIZE      255
-#define NEWS_SIZE       512
 
 // Function prototypes
 bool getNewsapiData();

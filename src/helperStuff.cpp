@@ -512,6 +512,43 @@ void getRevisionData(const char* fwVersion)
 
 } //  getRevisionData()
 
+//---------------------------------------------------------------------
+void splitNewsNoWords(const char *noNo)
+{
+  DebugTln(noNo);
+  int8_t wc = splitString(String(noNo), ' ', noWords, MAX_NO_NO_WORDS);
+  for(int8_t i=0; i<wc; i++)
+  {
+    noWords[i].trim();
+    if (noWords[i].length() > 1)
+    {
+      noWords[i].toLowerCase();
+      DebugTf("NoNoWord[%d] [%s]\r\n", i, noWords[i].c_str());
+    }
+  }
+  
+} // splitNewsNoWords()
+
+//---------------------------------------------------------------------
+bool hasNoNoWord(const char *cIn)
+{
+  for(int8_t i=0; i<MAX_NO_NO_WORDS; i++)
+  {
+    String sIn = String(cIn);
+    sIn.toLowerCase();
+    int idx = sIn.indexOf(noWords[i]);
+    if ((idx > -1) && (noWords[i].length() > 1))  // yes! it's in there somewhere
+    {
+      DebugTf("found [%s]\r\n", noWords[i].c_str());
+      return true;      
+    }
+  }
+  //DebugTln("no NoNo words found!");
+  return false;
+  
+} // hasNoNoWord()
+
+
 /***************************************************************************
 *
 * Permission is hereby granted, free of charge, to any person obtaining a

@@ -11,16 +11,15 @@
 #include <Arduino.h>
 #include <ESP8266WiFi.h>
 #include <LittleFS.h>
-
 #include <ezTime.h>
 #include <TelnetStream.h>
-#include "Debug.h"
-#include "networkStuff.h"
-
 #include <MD_Parola.h>
 #include <MD_MAX72xx.h>
 #include <SPI.h>
 
+#include "Debug.h"
+#include "allDefines.h"
+#include "networkStuff.h"
 #include "parola_Fonts_data.h"
 #include "FSexplorer.h"
 #include "helperStuff.h"
@@ -34,24 +33,8 @@
 #include "weerlive_nl.h"
 #include "Debug.h"
 
-// Define the number of devices we have in the chain and the hardware interface
-// NOTE: These pin numbers are for ESP8266 hardware SPI and will probably not
-// work with your hardware and may need to be adapted
-//#define HARDWARE_TYPE MD_MAX72XX::PAROLA_HW
-#define HARDWARE_TYPE MD_MAX72XX::FC16_HW
-//#define HARDWARE_TYPE MD_MAX72XX::GENERIC_HW
-#define MAX_DEVICES  8
-#define MAX_SPEED   50
 
-//#define CLK_PIN   14 // or SCK
-//#define DATA_PIN  13 // or MOSI
-#define CS_PIN      15 // or SS
-
-#define SETTINGS_FILE   "/settings.ini"
-#define LOCAL_SIZE      255
-#define NEWS_SIZE       512
-#define JSON_BUFF_MAX   255
-#define MAX_NO_NO_WORDS  20
+void splitNewsNoWords(const char *noNo)
 
 bool      Verbose = false;
 char      cDate[15], cTime[10];
@@ -73,7 +56,7 @@ uint32_t  weerTimer   = 0;
 uint32_t  newsapiTimer = 0;
 uint32_t  revisionTimer = 0;
 String    noWords[MAX_NO_NO_WORDS+1];
-char      settingHostname[41];
+char      settingHostname[HOSTNAME_SIZE];
 char      settingNewsNoWords[LOCAL_SIZE];
 uint8_t   settingLocalMaxMsg, settingTextSpeed, settingMaxIntensity;
 uint16_t  settingLDRlowOffset, settingLDRhighOffset;
@@ -81,6 +64,8 @@ char      settingWeerLiveAUTH[51], settingWeerLiveLocation[51];
 uint8_t   settingWeerLiveInterval;
 char      settingNewsAUTH[51];
 uint8_t   settingNewsInterval, settingNewsMaxMsg;
+bool      LittleFSmounted; 
+
 
 Timezone  CET;
 

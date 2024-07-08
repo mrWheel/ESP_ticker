@@ -5,6 +5,7 @@
 
 extern const char index_html[];
 
+void sendIndexPage();
 void handleRoot(ESP8266WebServer &server);
 
 #endif

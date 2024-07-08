@@ -3,9 +3,8 @@
 
 #include <Arduino.h>
 #include <ESP8266WebServer.h>
+#include "allDefines.h"
 
-// Define the maximum buffer size
-#define JSON_BUFF_MAX 200
 
 // Function prototypes
 void sendStartJsonObj(const char *objName);
@@ -21,7 +20,7 @@ void sendJsonSettingObj(const char *cName, int iValue, const char *iType, int mi
 void sendJsonSettingObj(const char *cName, const char *cValue, const char *sType, int maxLen);
 
 // External global variables
-extern char objSprtr[10];
+//extern char objSprtr[10];
 extern ESP8266WebServer httpServer;
 
 #endif // JSONSTUFF_H
