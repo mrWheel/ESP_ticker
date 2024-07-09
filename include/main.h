@@ -60,9 +60,9 @@ char      settingHostname[HOSTNAME_SIZE];
 char      settingNewsNoWords[LOCAL_SIZE];
 uint8_t   settingLocalMaxMsg, settingTextSpeed, settingMaxIntensity;
 uint16_t  settingLDRlowOffset, settingLDRhighOffset;
-char      settingWeerLiveAUTH[51], settingWeerLiveLocation[51];
+char      settingWeerLiveAUTH[WEER_AUTH_SIZE], settingWeerLiveLocation[WEER_LIVE_LOC_SIZE];
 uint8_t   settingWeerLiveInterval;
-char      settingNewsAUTH[51];
+char      settingNewsAUTH[NEWS_AUTH_SIZE];
 uint8_t   settingNewsInterval, settingNewsMaxMsg;
 bool      LittleFSmounted; 
 

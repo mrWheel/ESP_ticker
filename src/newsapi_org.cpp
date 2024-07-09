@@ -21,7 +21,7 @@ bool getNewsapiData()
   char        newsMessage[NEWS_SIZE] = {};
   int         startPos, endPos;
   int32_t     maxWait;
-  char        jsonResponse[1024];
+  char        jsonResponse[JSON_RESPONSE_SIZE] = {};
   char        val[51] = "";
   
   WiFiClient newsapiClient;

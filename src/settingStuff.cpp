@@ -82,10 +82,10 @@ void readSettings(bool show)
   settingLDRlowOffset       =  70;
   settingLDRhighOffset      = 700;
   settingMaxIntensity       =   6;
-  snprintf(settingWeerLiveAUTH,     50, "");
-  snprintf(settingWeerLiveLocation, 50, "");
+  snprintf(settingWeerLiveAUTH,  WEER_AUTH_SIZE, "");
+  snprintf(settingWeerLiveLocation, WEER_LIVE_LOC_SIZE, "");
   settingWeerLiveInterval   =   0;
-  snprintf(settingNewsAUTH,         50, "");
+  snprintf(settingNewsAUTH,  NEWS_AUTH_SIZE, "");
   settingNewsMaxMsg         =   4;
   settingNewsInterval       =   0;
 

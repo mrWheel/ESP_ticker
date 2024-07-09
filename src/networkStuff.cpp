@@ -49,10 +49,12 @@
 
 
 ESP8266WebServer        httpServer (80);
-ESP8266HTTPUpdateServer httpUpdater(true);
+#ifdef USE_UPDATE_SERVER
+  ESP8266HTTPUpdateServer httpUpdater(true);
+#endif
 
 
-static      FSInfo LittleFSinfo;
+//static      FSInfo LittleFSinfo;
 extern bool LittleFSmounted; 
 bool        isConnected = false;
 
@@ -108,11 +110,12 @@ void startWiFi(const char* hostname, int timeOut)
   DebugT(F("IP address: " ));  Debugln (WiFi.localIP());
   DebugT(F("IP gateway: " ));  Debugln (WiFi.gatewayIP());
   Debugln();
-
-  httpUpdater.setup(&httpServer);
-  httpUpdater.setIndexPage(UpdateServerIndex);
-  httpUpdater.setSuccessPage(UpdateServerSuccess);
-  DebugTf(" took [%d] seconds => OK!\r\n", (millis() - lTime) / 1000);
+#ifdef USE_UPDATE_SERVER
+    httpUpdater.setup(&httpServer);
+    httpUpdater.setIndexPage(UpdateServerIndex);
+    httpUpdater.setSuccessPage(UpdateServerSuccess);
+#endif // USE_UPDATE_SERVER
+DebugTf(" took [%d] seconds => OK!\r\n", (millis() - lTime) / 1000);
   
 } // startWiFi()
 

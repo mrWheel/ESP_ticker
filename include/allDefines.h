@@ -10,6 +10,8 @@
 #ifndef _ALLDEFINES_H
 #define  _ALLDEFINES_H
 
+#define _HOSTNAME   "ESPticker"
+
 // Define the number of devices we have in the chain and the hardware interface
 // NOTE: These pin numbers are for ESP8266 hardware SPI and will probably not
 // work with your hardware and may need to be adapted
@@ -28,10 +30,11 @@
 #define LOCAL_SIZE      255
 #define NEWS_SIZE       512
 #define JSON_BUFF_MAX   255
+#define JSON_RESPONSE_SIZE 1024
 #define MAX_NO_NO_WORDS  20
-
-// Define the maximum buffer size
-#define JSON_BUFF_MAX 200
+#define NEWS_AUTH_SIZE   51
+#define WEER_AUTH_SIZE   51
+#define WEER_LIVE_LOC_SIZE 51
 
 
 

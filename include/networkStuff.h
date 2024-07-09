@@ -15,7 +15,7 @@
 // External global variables
 extern ESP8266WebServer httpServer;
 extern ESP8266HTTPUpdateServer httpUpdater;
-extern FSInfo LittleFSinfo;
+//extern FSInfo LittleFSinfo;
 extern bool LittleFSmounted;
 extern bool isConnected;
 
@@ -24,13 +24,6 @@ void configModeCallback(WiFiManager *myWiFiManager);
 void startWiFi(const char* hostname, int timeOut);
 void startTelnet();
 void startMDNS(const char *Hostname);
-
-// Debug function prototypes (assuming they are defined elsewhere in your project)
-void DebugTf(const char *format, ...);
-void Debugln(const char *msg);
-void DebugTln(const char *msg);
-void DebugT(const char *msg);
-void Debugf(const char *format, ...);
 
 // Update server HTML content (assuming they are defined elsewhere in your project)
 extern const char* UpdateServerIndex;

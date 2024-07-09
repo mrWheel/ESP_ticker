@@ -16,22 +16,14 @@
 /*---- start macro's ------------------------------------------------------------------*/
 
 #define Debug(...)      ({ Serial.print(__VA_ARGS__);    })
-                     //      TelnetStream.print(__VA_ARGS__);   \
-                    //    })
 #define Debugln(...)    ({ Serial.println(__VA_ARGS__); })
-                    //       TelnetStream.println(__VA_ARGS__); \
-                        })
 #define Debugf(...)     ({ Serial.printf(__VA_ARGS__);  })
-                    //       TelnetStream.printf(__VA_ARGS__);  \
-                    //    })
 
 #define DebugFlush()    ({ Serial.flush(); })
-                    //       TelnetStream.flush(); \
-                    //    })
 
-#define DebugT(...) ({ Debug(__VA_ARGS__); })
-#define DebugTln(...) ({ Debugln(__VA_ARGS__); })
-#define DebugTf(...) ({ Debugf(__VA_ARGS__); })
+#define DebugT(...)     Debug(__VA_ARGS__)
+#define DebugTln(...)   Debugln(__VA_ARGS__)
+#define DebugTf(...)    Debugf(__VA_ARGS__)
 /***
 #define DebugT(...)     ({ _debugBOL(__FUNCTION__, __LINE__);  \
                            Debug(__VA_ARGS__);                 \

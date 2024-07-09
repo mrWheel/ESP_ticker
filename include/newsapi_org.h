@@ -13,18 +13,18 @@ bool getNewsapiData();
 void removeNewsData();
 
 // External global variables
-extern const char* newsapiHost;
-extern const char* settingNewsAUTH;
+//extern const char* newsapiHost[NEWS_HOST_SIZE];
+extern const char* settingNewsAUTH[NEWS_AUTH_SIZE];
 extern char      settingNewsNoWords[LOCAL_SIZE];
 extern uint8_t   settingLocalMaxMsg, settingTextSpeed, settingMaxIntensity;
 extern uint16_t  settingLDRlowOffset, settingLDRhighOffset;
-extern char      settingWeerLiveAUTH[51], settingWeerLiveLocation[51];
+extern char      settingWeerLiveAUTH[WEER_AUTH_SIZE], settingWeerLiveLocation[WEER_LIVE_LOC_SIZE];
 extern uint8_t   settingWeerLiveInterval;
 extern uint8_t   settingNewsInterval, settingNewsMaxMsg;
 
 extern const int httpPort;
 extern int newsapiStatus;
-extern char newsMessage[];
+extern char newsMessage[LOCAL_SIZE];
 extern int32_t maxWait;
 extern char jsonResponse[];
 extern char val[];

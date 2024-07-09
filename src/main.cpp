@@ -2,7 +2,7 @@
 ***************************************************************************  
 **  Program  : ESP_ticker (lichtkrant)
 */
-#define _FW_VERSION "v1.7.3 (04-05-2023)"
+#define _FW_VERSION "v1.8.0 (08-07-2023)"
 /* 
 **  Copyright (c) 2021 .. 2023 Willem Aandewiel
 **
@@ -47,9 +47,8 @@
 // MD_MAX72XX library can be found at https://github.com/MajicDesigns/MD_MAX72XX
 //
 
-#define USE_UPDATE_SERVER
+//#define USE_UPDATE_SERVER
 
-#define _HOSTNAME   "ESPticker"
 #include "main.h"
 
 // HARDWARE SPI

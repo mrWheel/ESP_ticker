@@ -7,6 +7,8 @@
 #include "allDefines.h"
 #include "littlefsStuff.h"
 
+extern String noWords[MAX_NO_NO_WORDS+1];
+
 // Function Prototypes
 bool compare(String x, String y);
 bool isValidIP(IPAddress ip);
@@ -33,7 +35,7 @@ float strToFloat(const char *s, int dec);
 void parseJsonKey(const char *sIn, const char *key, char *val, int valLen);
 uint8_t utf8Ascii(uint8_t ascii);
 void utf8Ascii(char* s);
-void getRevisionData();
+void getRevisionData(const char*);
 void splitNewsNoWords(const char *noNo);
 bool hasNoNoWord(const char *cIn);
 

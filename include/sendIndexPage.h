@@ -2,6 +2,7 @@
 #define SENDINDEXPAGE_H
 
 #include <ESP8266WebServer.h>
+#include "networkStuff.h"
 
 extern const char index_html[];
 
