@@ -1,5 +1,3 @@
-#include "weerlive_nl.h"
-
 /*
 ***************************************************************************  
 **  Program : weerlive_nl
@@ -9,6 +7,8 @@
 **  TERMS OF USE: MIT License. See bottom of file.                                                            
 ***************************************************************************      
 */
+
+#include "weerlive_nl.h"
 
 void getWeerLiveData() 
 {

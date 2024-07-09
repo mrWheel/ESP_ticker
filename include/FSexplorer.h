@@ -6,6 +6,7 @@
 #include "allDefines.h"
 #include "networkStuff.h"
 #include "restAPI.h"
+#include "sendIndexPage.h"
 
 // Function prototypes
 void setupFSexplorer();
@@ -18,13 +19,16 @@ void appendFile(fs::FS &fs, const char *path, const char *message);
 void renameFile(fs::FS &fs, const char *path1, const char *path2);
 void deleteFile(fs::FS &fs, const char *path);
 void testFileIO(fs::FS &fs, const char *path);
+const String &contentType(String& filename);
 void APIlistFiles();
 void formatLittleFS();
+bool handleFile(String&& path);
 void handleFileUpload();
+void doRedirect(const char *msg, int sec, const char *path, bool reboot);
 void reBootESP();
 void updateFirmware();
 
-extern const char* rootPath;
-extern bool Verbose = false;
+//extern const char* rootPath;
+extern bool Verbose;
 
 #endif

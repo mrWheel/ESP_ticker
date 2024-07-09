@@ -24,23 +24,23 @@ void sendApiNotFound(const char *URI);
 
 // External variables
 extern ESP8266WebServer httpServer;
-extern char cMsg[NEWS_SIZE];
+extern char cMsg[];
 extern bool Verbose;
-extern char settingHostname[HOSTNAME_SIZE];
+extern char settingHostname[];
 extern uint8_t settingLocalMaxMsg;
 extern uint8_t settingTextSpeed;
-extern uint8_t settingLDRlowOffset;
-extern uint8_t settingLDRhighOffset;
+extern uint16_t settingLDRlowOffset;
+extern uint16_t settingLDRhighOffset;
 extern uint8_t settingMaxIntensity;
-extern char settingWeerLiveAUTH[WEER_AUTH_SIZE];
-extern char settingWeerLiveLocation[WEER_LIVE_LOC_SIZE];
+extern char settingWeerLiveAUTH[];
+extern char settingWeerLiveLocation[];
 extern uint8_t settingWeerLiveInterval;
-extern char settingNewsAUTH[NEWS_AUTH_SIZE];
+extern char settingNewsAUTH[];
 extern uint8_t settingNewsMaxMsg;
 extern uint8_t settingNewsInterval;
-extern char settingNewsNoWords[LOCAL_SIZE];
-extern char fileMessage[LOCAL_SIZE];
-extern char _FW_VERSION[20];
+extern char settingNewsNoWords[];
+extern char fileMessage[];
+//extern char _FW_VERSION[];
 extern String lastReset;
 
 #endif // RESTAPI_H

@@ -19,7 +19,7 @@ void getWeerLiveData();
 extern char settingWeerLiveAUTH[WEER_AUTH_SIZE];
 extern char settingWeerLiveLocation[WEER_LIVE_LOC_SIZE];
 extern char tempMessage[LOCAL_SIZE];
-extern char cMsg[LOCAL_SIZE];
+extern char cMsg[NEWS_SIZE];
 
 
 // Utility function prototypes (assuming they are defined elsewhere in your project)

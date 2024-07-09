@@ -1,4 +1,3 @@
-#include "FSexplorer.h"
 /* 
 ***************************************************************************  
 **  Program : FSexplorer
@@ -39,6 +38,8 @@
 **        .
 **      }
 */
+
+#include "FSexplorer.h"
 
 #define MAX_FILES_IN_LIST   25
 
@@ -103,6 +104,13 @@ void setupFSexplorer()    // Funktionsaufruf "spiffs();" muss im Setup eingebund
   });
   
 } // setupFSexplorer()
+
+//=====================================================================================
+const String formatBytes(size_t const& bytes) 
+{ 
+  return (bytes < 1024) ? String(bytes) + " Byte" : (bytes < (1024 * 1024)) ? String(bytes / 1024.0) + " KB" : String(bytes / 1024.0 / 1024.0) + " MB";
+
+} //formatBytes()
 
 
 //=====================================================================================
@@ -237,13 +245,6 @@ void formatLittleFS()
 } // formatLittleFS()
 
 //=====================================================================================
-const String formatBytes(size_t const& bytes) 
-{ 
-  return (bytes < 1024) ? String(bytes) + " Byte" : (bytes < (1024 * 1024)) ? String(bytes / 1024.0) + " KB" : String(bytes / 1024.0 / 1024.0) + " MB";
-
-} //formatBytes()
-
-//=====================================================================================
 const String &contentType(String& filename) 
 {       
   if (filename.endsWith(".htm") || filename.endsWith(".html")) filename = "text/html";
@@ -278,7 +279,7 @@ bool freeSpace(uint16_t const& printsize)
 void updateFirmware()
 {
   DebugTln(F("Redirect to updateIndex .."));
-  doRedirect("wait ... ", 1, "/updateIndex", false);
+  //--aaw- doRedirect("wait ... ", 1, "/updateIndex", false);
       
 } // updateFirmware()
 
@@ -286,7 +287,7 @@ void updateFirmware()
 void reBootESP()
 {
   DebugTln(F("Redirect and ReBoot .."));
-  doRedirect("Reboot ESP - lichtKrant ..", 60, "/", true);
+  //-aaw- doRedirect("Reboot ESP - lichtKrant ..", 60, "/", true);
       
 } // reBootESP()
 

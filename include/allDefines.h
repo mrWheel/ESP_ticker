@@ -11,6 +11,8 @@
 #define  _ALLDEFINES_H
 
 #define _HOSTNAME   "ESPticker"
+#define _FW_VERSION "v1.8.0 (08-07-2023)"
+
 
 // Define the number of devices we have in the chain and the hardware interface
 // NOTE: These pin numbers are for ESP8266 hardware SPI and will probably not

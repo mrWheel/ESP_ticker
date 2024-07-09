@@ -1,5 +1,3 @@
-#include "jsonStuff.h"
-
 /* 
 ***************************************************************************  
 **  Program  : jsonStuff, part of ESP_ticker
@@ -9,6 +7,8 @@
 **  TERMS OF USE: MIT License. See bottom of file.                                                            
 ***************************************************************************      
 */
+
+#include "jsonStuff.h"
 
 static char objSprtr[10] = "";
 

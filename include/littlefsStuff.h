@@ -4,15 +4,17 @@
 #include <Arduino.h>
 #include <FS.h>
 #include <LittleFS.h>
+#include <ctime>
 #include "allDefines.h"
-#include "timeStuff.h"
+//#include "timeStuff.h"
 
-extern char cDate[11];
-extern char cTime[9];
+extern char cDate[];
+extern char cTime[];
 extern uint32_t nrReboots;
-extern char fileMessage[LOCAL_SIZE];
-extern char tempMessage[LOCAL_SIZE];
+extern char fileMessage[];
+extern char tempMessage[];
 extern uint8_t  settingLocalMaxMsg, settingTextSpeed, settingMaxIntensity;
+extern time_t now; 
 
 
 void readLastStatus();

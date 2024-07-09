@@ -11,7 +11,7 @@
 #include <Arduino.h>
 #include <ESP8266WiFi.h>
 #include <LittleFS.h>
-#include <ezTime.h>
+//#include <ezTime.h>
 #include <TelnetStream.h>
 #include <MD_Parola.h>
 #include <MD_MAX72xx.h>
@@ -29,12 +29,14 @@
 #include "restAPI.h"
 #include "sendIndexPage.h"
 #include "settingStuff.h"
-#include "timeStuff.h"
+//#include "timeStuff.h"
 #include "weerlive_nl.h"
 #include "Debug.h"
+#include "TimeSync.h"
 
 
-void splitNewsNoWords(const char *noNo)
+
+void splitNewsNoWords(const char *noNo);
 
 bool      Verbose = false;
 char      cDate[15], cTime[10];
@@ -65,9 +67,12 @@ uint8_t   settingWeerLiveInterval;
 char      settingNewsAUTH[NEWS_AUTH_SIZE];
 uint8_t   settingNewsInterval, settingNewsMaxMsg;
 bool      LittleFSmounted; 
+time_t    now; 
+struct tm timeinfo;
+bool      timeSynced = false;
 
 
-Timezone  CET;
+TimeSync        timeSync;
 
 const char *weekDayName[]  {  "Unknown", "Zondag", "Maandag", "Dinsdag", "Woensdag"
                             , "Donderdag", "Vrijdag", "Zaterdag", "Unknown" };

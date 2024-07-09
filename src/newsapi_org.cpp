@@ -1,5 +1,3 @@
-#include "newsapi_org.h"
-
 /*
 ***************************************************************************  
 **  Program : newsapi_org
@@ -9,6 +7,8 @@
 **  TERMS OF USE: MIT License. See bottom of file.                                                            
 ***************************************************************************      
 */
+
+#include "newsapi_org.h"
 
 //-- http://newsapi.org/v2/top-headlines?country=nl&apiKey=API_KEY
 
@@ -153,7 +153,7 @@ bool getNewsapiData()
 //----------------------------------------------------------------------
 void removeNewsData()
 {
-  char nwsName[15];
+  char nwsName[32];
 
   for(int n=0; n<=settingNewsMaxMsg; n++)
   {

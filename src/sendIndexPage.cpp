@@ -1,5 +1,3 @@
-#include "sendIndexPage.h"
-
 /*
 ***************************************************************************  
 **  Program : sendIndexPage
@@ -9,6 +7,8 @@
 **  TERMS OF USE: MIT License. See bottom of file.                                                            
 ***************************************************************************      
 */
+
+#include "sendIndexPage.h"
 
 static const char indexPage[] =
 R"(

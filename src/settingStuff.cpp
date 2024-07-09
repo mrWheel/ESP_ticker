@@ -1,5 +1,3 @@
-#include "settingStuff.h"
-
 /*
 ***************************************************************************  
 **  Program  : settingsStuff, part of ESP_ticker
@@ -9,6 +7,8 @@
 **  TERMS OF USE: MIT License. See bottom of file.                                                            
 ***************************************************************************      
 */
+
+#include "settingStuff.h"
 
 //=======================================================================
 void writeSettings(bool show) 
@@ -75,7 +75,7 @@ void readSettings(bool show)
   
   DebugTf(" %s ..\r\n", SETTINGS_FILE);
 
-  snprintf(settingHostname,    sizeof(settingHostname), "%s", _HOSTNAME);
+  snprintf(settingHostname,    HOSTNAME_SIZE, "%s", _HOSTNAME);
   snprintf(settingNewsNoWords, LOCAL_SIZE,"Voetbal, show, UEFA, KNVB");
   settingLocalMaxMsg        =   5;
   settingTextSpeed          =  25;
@@ -123,17 +123,17 @@ void readSettings(bool show)
     //DebugTf("cKey[%s], cVal[%s]\r\n", cKey, cVal);
 
     //strToLower(cKey);
-    if (stricmp(cKey, "hostname") == 0)         strCopy(settingHostname,         sizeof(settingHostname), cVal);
+    if (stricmp(cKey, "hostname") == 0)         strCopy(settingHostname,         HOSTNAME_SIZE, cVal);
     if (stricmp(cKey, "localMaxMsg") == 0)      settingLocalMaxMsg      = atoi(cVal);
     if (stricmp(cKey, "textSpeed") == 0)        settingTextSpeed        = atoi(cVal);
     if (stricmp(cKey, "LDRlowOffset") == 0)     settingLDRlowOffset     = atoi(cVal);
     if (stricmp(cKey, "LDRhighOffset") == 0)    settingLDRhighOffset    = atoi(cVal);
     if (stricmp(cKey, "maxIntensity") == 0)     settingMaxIntensity     = atoi(cVal);
-    if (stricmp(cKey, "weerLiveAUTH") == 0)     strCopy(settingWeerLiveAUTH,     sizeof(settingWeerLiveAUTH), cVal);
-    if (stricmp(cKey, "weerlivelocatie") == 0)  strCopy(settingWeerLiveLocation, sizeof(settingWeerLiveLocation), cVal);
+    if (stricmp(cKey, "weerLiveAUTH") == 0)     strCopy(settingWeerLiveAUTH,     WEER_AUTH_SIZE, cVal);
+    if (stricmp(cKey, "weerlivelocatie") == 0)  strCopy(settingWeerLiveLocation, WEER_LIVE_LOC_SIZE, cVal);
     if (stricmp(cKey, "weerLiveInterval") == 0) settingWeerLiveInterval = atoi(cVal);
-    if (stricmp(cKey, "newsAUTH") == 0)         strCopy(settingNewsAUTH,         sizeof(settingNewsAUTH), cVal);
-    if (stricmp(cKey, "newsNoWords") == 0)      strCopy(settingNewsNoWords,      sizeof(settingNewsNoWords), cVal);
+    if (stricmp(cKey, "newsAUTH") == 0)         strCopy(settingNewsAUTH,         NEWS_AUTH_SIZE, cVal);
+    if (stricmp(cKey, "newsNoWords") == 0)      strCopy(settingNewsNoWords,      LOCAL_SIZE, cVal);
     if (stricmp(cKey, "newsMaxMsg") == 0)       settingNewsMaxMsg       = atoi(cVal);
     if (stricmp(cKey, "newsInterval") == 0)     settingNewsInterval     = atoi(cVal);
 
@@ -206,8 +206,8 @@ void updateSetting(const char *field, const char *newValue)
   DebugTf("-> field[%s], newValue[%s]\r\n", field, newValue);
 
   if (!stricmp(field, "Hostname")) {
-    strCopy(settingHostname, sizeof(settingHostname), newValue); 
-    if (strlen(settingHostname) < 1) strCopy(settingHostname, sizeof(settingHostname), _HOSTNAME); 
+    strCopy(settingHostname, HOSTNAME_SIZE, newValue); 
+    if (strlen(settingHostname) < 1) strCopy(settingHostname, HOSTNAME_SIZE, _HOSTNAME); 
     char *dotPntr = strchr(settingHostname, '.') ;
     if (dotPntr != NULL)
     {
@@ -223,18 +223,18 @@ void updateSetting(const char *field, const char *newValue)
   if (!stricmp(field, "LDRhighOffset"))    settingLDRhighOffset = String(newValue).toInt();  
   if (!stricmp(field, "maxIntensity"))     settingMaxIntensity  = String(newValue).toInt();  
 
-  if (!stricmp(field, "weerLiveAUTH"))     strCopy(settingWeerLiveAUTH, sizeof(settingWeerLiveAUTH), newValue);   
-  if (!stricmp(field, "weerLiveLocation")) strCopy(settingWeerLiveLocation, sizeof(settingWeerLiveLocation), newValue);
+  if (!stricmp(field, "weerLiveAUTH"))     strCopy(settingWeerLiveAUTH, WEER_AUTH_SIZE, newValue);   
+  if (!stricmp(field, "weerLiveLocation")) strCopy(settingWeerLiveLocation, WEER_LIVE_LOC_SIZE, newValue);
   if (!stricmp(field, "weerLiveInterval")) settingWeerLiveInterval  = String(newValue).toInt();  
   
-  if (!stricmp(field, "newsapiAUTH"))      strCopy(settingNewsAUTH, sizeof(settingNewsAUTH), newValue);   
-  if (!stricmp(field, "newsNoWords"))      strCopy(settingNewsNoWords, sizeof(settingNewsNoWords), newValue);   
+  if (!stricmp(field, "newsapiAUTH"))      strCopy(settingNewsAUTH, NEWS_AUTH_SIZE, newValue);   
+  if (!stricmp(field, "newsNoWords"))      strCopy(settingNewsNoWords, LOCAL_SIZE, newValue);   
   if (!stricmp(field, "newsapiMaxMsg"))    settingNewsMaxMsg   = String(newValue).toInt();
   if (!stricmp(field, "newsapiInterval"))  settingNewsInterval = String(newValue).toInt();
 
   writeSettings(false);
 
-  if (settingWeerLiveInterval == 0)      memset(tempMessage, 0, sizeof(tempMessage));
+  if (settingWeerLiveInterval == 0)      memset(tempMessage, 0, LOCAL_SIZE);
   else if (settingWeerLiveInterval < 15) settingWeerLiveInterval = 15;
   if (settingNewsInterval == 0)          removeNewsData();
   else if (settingNewsInterval < 15)     settingNewsInterval = 15;

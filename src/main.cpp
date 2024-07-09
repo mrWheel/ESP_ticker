@@ -1,9 +1,9 @@
 /*
 ***************************************************************************  
 **  Program  : ESP_ticker (lichtkrant)
-*/
-#define _FW_VERSION "v1.8.0 (08-07-2023)"
-/* 
+**
+**  See "allDefines.h" for _FW_VERSION 
+** 
 **  Copyright (c) 2021 .. 2023 Willem Aandewiel
 **
 **  TERMS OF USE: MIT License. See bottom of file.                                                            
@@ -134,7 +134,7 @@ int16_t calculateIntensity()
 //---------------------------------------------------------------------
 char *updateTime()
 {
-  snprintf(timeMsg, 20, "%02d : %02d", hour(), minute()); 
+  snprintf(timeMsg, 20, "%02d : %02d", localtime(&now)->tm_hour, localtime(&now)->tm_min); 
   return timeMsg;
 
 } // updateTime()
@@ -294,6 +294,7 @@ void setup()
   startMDNS(settingHostname);
     
   //--- ezTime initialisation
+  /**
   setDebug(INFO);  
   waitForSync(); 
   CET.setLocation(F("Europe/Amsterdam"));
@@ -301,6 +302,35 @@ void setup()
   
   DebugTln("UTC time: "+ UTC.dateTime());
   DebugTln("CET time: "+ CET.dateTime());
+**/
+  timeSync.setup();
+  timeSync.sync(500);
+  time(&now);
+  if (localtime(&now)->tm_year > 120)
+  {
+    timeSynced = true;
+    Serial.println("Time synchronized with NTP Service");
+  }
+  else  
+  {
+    timeSynced = false;
+    Serial.println("Could not synchronize time with NTP Service");
+  }
+  time(&now);
+  Serial.println("-------------------------------------------------------------------------------");
+  if (!getLocalTime(&timeinfo)) 
+  {
+    Serial.println("Time       : Failed to obtain time!");
+  }
+  else
+  {
+    Serial.printf( "Time       : %04d-%02d-%02d %02d:%02d:%02d\r\n", localtime(&now)->tm_year+1900
+                                                                   , localtime(&now)->tm_mon+1
+                                                                   , localtime(&now)->tm_mday
+                                                                   , localtime(&now)->tm_hour
+                                                                   , localtime(&now)->tm_min
+                                                                   , localtime(&now)->tm_sec);
+  }
 
   nrReboots++;
   writeLastStatus();
@@ -360,7 +390,6 @@ void setup()
 void loop()
 {
 //handleNTP();
-  events(); // trigger ezTime update etc.
   httpServer.handleClient();
   MDNS.update();
   yield();
