@@ -30,50 +30,28 @@
 **      }
 */
 
-
-#include <ESP8266WiFi.h>        //ESP8266 Core WiFi Library         
-#include <ESP8266WebServer.h>   // Version 1.0.0 - part of ESP8266 Core https://github.com/esp8266/Arduino
-#include <ESP8266mDNS.h>        // part of ESP8266 Core https://github.com/esp8266/Arduino
-
-#include <WiFiUdp.h>            // part of ESP8266 Core https://github.com/esp8266/Arduino
-#ifdef USE_UPDATE_SERVER
-//#include "ESP8266HTTPUpdateServer.h"
-  #include <ModUpdateServer.h>   // https://github.com/mrWheel/ModUpdateServer
-  #include "updateServerHtml.h"
-#endif
-#include <WiFiManager.h>       // version 0.15.0 - https://github.com/tzapu/WiFiManager
-// included in main program: #include <TelnetStream.h>       // Version 0.0.1 - https://github.com/jandrassy/TelnetStream
-//#include <FS.h>                // part of ESP8266 Core https://github.com/esp8266/Arduino
-
-
-ESP8266WebServer        httpServer (80);
-ESP8266HTTPUpdateServer httpUpdater(true);
-
-
-static      FSInfo LittleFSinfo;
-bool        LittleFSmounted; 
-bool        isConnected = false;
+#include "networkStuff.h"
 
 //gets called when WiFiManager enters configuration mode
 //===========================================================================================
 void configModeCallback (WiFiManager *myWiFiManager) 
 {
-  DebugTln(F("Entered config mode\r"));
-  DebugTln(WiFi.softAPIP().toString());
+  Serial.println(F("Entered config mode\r"));
+  Serial.println(WiFi.softAPIP().toString());
   //if you used auto generated SSID, print it
-  DebugTln(myWiFiManager->getConfigPortalSSID());
+  Serial.println(myWiFiManager->getConfigPortalSSID());
 
 } // configModeCallback()
 
 
 //===========================================================================================
-void startWiFi(const char* hostname, int timeOut) 
+void startWiFi(const char* hostname, int timeOut, ESP8266WebServer *server) 
 {
   WiFiManager manageWiFi;
   uint32_t lTime = millis();
   String thisAP = String(hostname) + "-" + WiFi.macAddress();
 
-  DebugT("start ...");
+  Serial.print("start ...");
   
   manageWiFi.setDebugOutput(false);
   
@@ -91,26 +69,29 @@ void startWiFi(const char* hostname, int timeOut)
   //--- and goes into a blocking loop awaiting configuration
   if (!manageWiFi.autoConnect(thisAP.c_str())) 
   {
-    DebugTln(F("failed to connect and hit timeout"));
+    Serial.println(F("failed to connect and hit timeout"));
 
     //reset and try again, or maybe put it to deep sleep
     //delay(3000);
     //ESP.reset();
     //delay(2000);
-    DebugTf(" took [%d] seconds ==> ERROR!\r\n", (millis() - lTime) / 1000);
+    Serial.printf(" took [%d] seconds ==> ERROR!\r\n", (millis() - lTime) / 1000);
     return;
   }
   
-  Debugln();
-  DebugT(F("Connected to " )); Debugln (WiFi.SSID());
-  DebugT(F("IP address: " ));  Debugln (WiFi.localIP());
-  DebugT(F("IP gateway: " ));  Debugln (WiFi.gatewayIP());
-  Debugln();
+  Serial.println();
+  Serial.print(F("Connected to " )); Serial.println (WiFi.SSID());
+  Serial.print(F("IP address: " ));  Serial.println (WiFi.localIP());
+  Serial.print(F("IP gateway: " ));  Serial.println (WiFi.gatewayIP());
+  Serial.println();
 
-  httpUpdater.setup(&httpServer);
-  httpUpdater.setIndexPage(UpdateServerIndex);
-  httpUpdater.setSuccessPage(UpdateServerSuccess);
-  DebugTf(" took [%d] seconds => OK!\r\n", (millis() - lTime) / 1000);
+#ifdef USE_UPDATE_SERVER
+    httpUpdater.setup(server);
+    httpUpdater.setIndexPage(UpdateServerIndex);
+    httpUpdater.setSuccessPage(UpdateServerSuccess);
+#endif // USE_UPDATE_SERVER
+
+Serial.printf(" took [%d] seconds => OK!\r\n", (millis() - lTime) / 1000);
   
 } // startWiFi()
 
@@ -119,7 +100,7 @@ void startWiFi(const char* hostname, int timeOut)
 void startTelnet() 
 {
   TelnetStream.begin();
-  DebugTln(F("\nTelnet server started .."));
+  Serial.println(F("\nTelnet server started .."));
   TelnetStream.flush();
 
 } // startTelnet()
@@ -128,14 +109,14 @@ void startTelnet()
 //=======================================================================
 void startMDNS(const char *Hostname) 
 {
-  DebugTf("[1] mDNS setup as [%s.local]\r\n", Hostname);
+  Serial.printf("[1] mDNS setup as [%s.local]\r\n", Hostname);
   if (MDNS.begin(Hostname))               // Start the mDNS responder for Hostname.local
   {
-    DebugTf("[2] mDNS responder started as [%s.local]\r\n", Hostname);
+    Serial.printf("[2] mDNS responder started as [%s.local]\r\n", Hostname);
   } 
   else 
   {
-    DebugTln(F("[3] Error setting up MDNS responder!\r\n"));
+    Serial.println(F("[3] Error setting up MDNS responder!\r\n"));
   }
   MDNS.addService("http", "tcp", 80);
   

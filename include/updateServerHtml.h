@@ -8,6 +8,9 @@
 ***************************************************************************      
 */
 
+#ifndef UPDATESERVERHTML_H
+#define UPDATESERVERHTML_H
+
 static const char UpdateServerIndex[] PROGMEM =
   R"(<html charset="UTF-8">
      <style type='text/css'>
@@ -67,7 +70,7 @@ static const char UpdateServerSuccess[] PROGMEM =
      </script>
      </html>)";
 
-
+#endif // UPDATESERVERHTML_H
 
 /***************************************************************************
 *

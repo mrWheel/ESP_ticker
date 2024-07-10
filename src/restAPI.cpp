@@ -8,27 +8,29 @@
 ***************************************************************************      
 */
 
+#include "restAPI.h"
+
 
 //=======================================================================
 void processAPI() 
 {
-  char fName[40] = "";
+  //char fName[40] = "";
   char URI[50]   = "";
   String words[10];
 
   strncpy( URI, httpServer.uri().c_str(), sizeof(URI) );
 
   if (httpServer.method() == HTTP_GET)
-        DebugTf("from[%s] URI[%s] method[GET] \r\n"
+        Serial.printf("from[%s] URI[%s] method[GET] \r\n"
                                   , httpServer.client().remoteIP().toString().c_str()
                                         , URI); 
-  else  DebugTf("from[%s] URI[%s] method[PUT] \r\n" 
+  else  Serial.printf("from[%s] URI[%s] method[PUT] \r\n" 
                                   , httpServer.client().remoteIP().toString().c_str()
                                         , URI); 
 
   if (ESP.getFreeHeap() < 8500) // to prevent firmware from crashing!
   {
-    DebugTf("==> Bailout due to low heap (%d bytes))\r\n", ESP.getFreeHeap() );
+    Serial.printf("==> Bailout due to low heap (%d bytes))\r\n", ESP.getFreeHeap() );
     httpServer.send(500, "text/plain", "500: internal server error (low heap)\r\n"); 
     return;
   }
@@ -37,12 +39,12 @@ void processAPI()
   
   if (Verbose) 
   {
-    DebugT(">>");
+    Serial.print(">>");
     for (int w=0; w<wc; w++)
     {
-      Debugf("word[%d] => [%s], ", w, words[w].c_str());
+      Serial.printf("word[%d] => [%s], ", w, words[w].c_str());
     }
-    Debugln(" ");
+    Serial.println(" ");
   }
 
   if (words[1] != "api")
@@ -104,7 +106,7 @@ void sendDeviceInfo()
   sendNestedJsonObj("author", "Willem Aandewiel (www.aandewiel.nl)");
   sendNestedJsonObj("fwversion", _FW_VERSION);
 
-  snprintf(cMsg, sizeof(cMsg), "%s %s", __DATE__, __TIME__);
+  snprintf(cMsg, NEWS_SIZE, "%s %s", __DATE__, __TIME__);
   sendNestedJsonObj("compiled", cMsg);
   sendNestedJsonObj("hostname", settingHostname);
   sendNestedJsonObj("ipaddress", WiFi.localIP().toString().c_str());
@@ -118,18 +120,18 @@ void sendDeviceInfo()
   sendNestedJsonObj("sketchsize", formatFloat( (ESP.getSketchSize() / 1024.0), 3));
   sendNestedJsonObj("freesketchspace", formatFloat( (ESP.getFreeSketchSpace() / 1024.0), 3));
 
-  snprintf(cMsg, sizeof(cMsg), "%08X", ESP.getFlashChipId());
+  snprintf(cMsg, NEWS_SIZE, "%08X", ESP.getFlashChipId());
   sendNestedJsonObj("flashchipid", cMsg);  // flashChipId
   sendNestedJsonObj("flashchipsize", formatFloat((ESP.getFlashChipSize() / 1024.0 / 1024.0), 3));
   sendNestedJsonObj("flashchiprealsize", formatFloat((ESP.getFlashChipRealSize() / 1024.0 / 1024.0), 3));
-
+/*** --AaW-
   LittleFS.info(LittleFSinfo);
   sendNestedJsonObj("spiffssize", formatFloat( (LittleFSinfo.totalBytes / (1024.0 * 1024.0)), 0));
-
+***/
   sendNestedJsonObj("flashchipspeed", formatFloat((ESP.getFlashChipSpeed() / 1000.0 / 1000.0), 0));
-
   FlashMode_t ideMode = ESP.getFlashChipMode();
   sendNestedJsonObj("flashchipmode", flashMode[ideMode]);
+/*** --AaW- 
   sendNestedJsonObj("boardtype",
 #ifdef ARDUINO_ESP8266_NODEMCU
      "ESP8266_NODEMCU"
@@ -144,6 +146,7 @@ void sendDeviceInfo()
      "ESP8266_ESP12"
 #endif
   );
+***/
   sendNestedJsonObj("ssid", WiFi.SSID().c_str());
   sendNestedJsonObj("wifirssi", WiFi.RSSI());
 //sendNestedJsonObj("uptime", upTime());
@@ -161,10 +164,12 @@ void sendDeviceTime()
   char actTime[50];
   
   sendStartJsonObj("devtime");
-  snprintf(actTime, 49, "%04d-%02d-%02d %02d:%02d:%02d", year(), month(), day()
-                                                       , hour(), minute(), second());
+  snprintf(actTime, 49, "%04d-%02d-%02d %02d:%02d:%02d"
+                                          , localtime(&now)->tm_year+1900, localtime(&now)->tm_mon+1, localtime(&now)->tm_mday
+                                          , localtime(&now)->tm_hour, localtime(&now)->tm_min, localtime(&now)->tm_sec
+            );
   sendNestedJsonObj("dateTime", actTime); 
-  sendNestedJsonObj("epoch", (int)now());
+  //--aaw- sendNestedJsonObj("epoch", (int)now());
 
   sendEndJsonObj();
 
@@ -174,23 +179,23 @@ void sendDeviceTime()
 //=======================================================================
 void sendDeviceSettings() 
 {
-  DebugTln("sending device settings ...\r");
+  Serial.println("sending device settings ...\r");
 
   sendStartJsonObj("settings");
   
-  sendJsonSettingObj("hostname",          settingHostname,         "s", sizeof(settingHostname) -1);
+  sendJsonSettingObj("hostname",          settingHostname,         "s", HOSTNAME_SIZE -1);
   sendJsonSettingObj("localMaxMsg",       settingLocalMaxMsg,      "i",   1,   20);
   sendJsonSettingObj("textSpeed",         settingTextSpeed,        "i",  10, MAX_SPEED);
   sendJsonSettingObj("LDRlowOffset",      settingLDRlowOffset,     "i",   0,  500);
   sendJsonSettingObj("LDRhighOffset",     settingLDRhighOffset,    "i", 500, 1024);
   sendJsonSettingObj("maxIntensity",      settingMaxIntensity,     "i",   0,   15);
-  sendJsonSettingObj("weerliveAUTH",      settingWeerLiveAUTH,     "s", sizeof(settingWeerLiveAUTH) -1);
-  sendJsonSettingObj("weerliveLocation",  settingWeerLiveLocation, "s", sizeof(settingWeerLiveLocation) -1);
+  sendJsonSettingObj("weerliveAUTH",      settingWeerLiveAUTH,     "s", WEER_AUTH_SIZE -1);
+  sendJsonSettingObj("weerliveLocation",  settingWeerLiveLocation, "s", WEER_LIVE_LOC_SIZE -1);
   sendJsonSettingObj("weerliveInterval",  settingWeerLiveInterval, "i",  15,  120);
-  sendJsonSettingObj("newsapiAUTH",       settingNewsAUTH,         "s", sizeof(settingNewsAUTH) -1);
+  sendJsonSettingObj("newsapiAUTH",       settingNewsAUTH,         "s", NEWS_AUTH_SIZE -1);
   sendJsonSettingObj("newsapiMaxMsg",     settingNewsMaxMsg,       "i",   1,   20);
   sendJsonSettingObj("newsapiInterval",   settingNewsInterval,     "i",  15,  120);
-  sendJsonSettingObj("newsNoWords",       settingNewsNoWords,      "s", sizeof(settingNewsNoWords) -1);
+  sendJsonSettingObj("newsNoWords",       settingNewsNoWords,      "s", LOCAL_SIZE -1);
 
   sendEndJsonObj();
 
@@ -202,7 +207,7 @@ void sendLocalMessages()
 {
   int mID;
   
-  DebugTln("sending local Messages ...\r");
+  Serial.println("sending local Messages ...\r");
 
   sendStartJsonObj("messages");
 
@@ -216,11 +221,11 @@ void sendLocalMessages()
       tmp.replace("\\", "\\\\");
       sprintf(newMsg, "%s", tmp.c_str());
     //sendJsonSettingObj(intToStr(mID), fileMessage, "s", sizeof(fileMessage) -1);
-      sendJsonSettingObj(intToStr(mID), newMsg, "s", sizeof(newMsg) -1);
+      sendJsonSettingObj(intToStr(mID), newMsg, "s", LOCAL_SIZE -1);
     }
     else
     {
-      sendJsonSettingObj(intToStr(mID), "", "s", sizeof(fileMessage) -1);
+      sendJsonSettingObj(intToStr(mID), "", "s", LOCAL_SIZE -1);
     }
   }
   
@@ -234,7 +239,7 @@ void sendNewsMessages()
 {
   int nID;
   
-  DebugTln("sending news Messages ...\r");
+  Serial.println("sending news Messages ...\r");
 
   sendStartJsonObj("newsapi");
 
@@ -242,7 +247,7 @@ void sendNewsMessages()
   {
     if (readFileById("NWS", nID))
     {
-      sendJsonSettingObj(intToStr(nID), fileMessage, "s", sizeof(fileMessage) -1);
+      sendJsonSettingObj(intToStr(nID), fileMessage, "s", LOCAL_SIZE -1);
     }
   }
   
@@ -270,13 +275,13 @@ void postMessages()
       int8_t wp = splitString(jsonIn.c_str(), ',',  wPair, 5) ;
       for (int i=0; i<wp; i++)
       {
-        //DebugTf("[%d] -> pair[%s]\r\n", i, wPair[i].c_str());
+        //Serial.printf("[%d] -> pair[%s]\r\n", i, wPair[i].c_str());
         int8_t wc = splitString(wPair[i].c_str(), ':',  wOut, 5) ;
-        //DebugTf("==> [%s] -> field[%s]->val[%s]\r\n", wPair[i].c_str(), wOut[0].c_str(), wOut[1].c_str());
+        //Serial.printf("==> [%s] -> field[%s]->val[%s]\r\n", wPair[i].c_str(), wOut[0].c_str(), wOut[1].c_str());
         if (wOut[0].equalsIgnoreCase("name"))  strCopy(field, sizeof(field), wOut[1].c_str());
         if (wOut[0].equalsIgnoreCase("value")) strCopy(newValue, sizeof(newValue), wOut[1].c_str());
       }
-      DebugTf("--> field[%s] => newValue[%s]\r\n", field, newValue);
+      Serial.printf("--> field[%s] => newValue[%s]\r\n", field, newValue);
       updateMessage(field, newValue);
       httpServer.send(200, "application/json", httpServer.arg(0));
 
@@ -303,13 +308,13 @@ void postSettings()
       int8_t wp = splitString(jsonIn.c_str(), ',',  wPair, 5) ;
       for (int i=0; i<wp; i++)
       {
-        //DebugTf("[%d] -> pair[%s]\r\n", i, wPair[i].c_str());
+        //Serial.printf("[%d] -> pair[%s]\r\n", i, wPair[i].c_str());
         int8_t wc = splitString(wPair[i].c_str(), ':',  wOut, 5) ;
-        //DebugTf("==> [%s] -> field[%s]->val[%s]\r\n", wPair[i].c_str(), wOut[0].c_str(), wOut[1].c_str());
+        //Serial.printf("==> [%s] -> field[%s]->val[%s]\r\n", wPair[i].c_str(), wOut[0].c_str(), wOut[1].c_str());
         if (wOut[0].equalsIgnoreCase("name"))  strCopy(field, sizeof(field), wOut[1].c_str());
         if (wOut[0].equalsIgnoreCase("value")) strCopy(newValue, sizeof(newValue), wOut[1].c_str());
       }
-      DebugTf("--> field[%s] => newValue[%s]\r\n", field, newValue);
+      Serial.printf("--> field[%s] => newValue[%s]\r\n", field, newValue);
       updateSetting(field, newValue);
       httpServer.send(200, "application/json", httpServer.arg(0));
 
@@ -323,19 +328,19 @@ void sendApiNotFound(const char *URI)
   httpServer.setContentLength(CONTENT_LENGTH_UNKNOWN);
   httpServer.send ( 404, "text/html", "<!DOCTYPE HTML><html><head>");
 
-  strCopy(cMsg,   sizeof(cMsg), "<style>body { background-color: lightgray; font-size: 15pt;}");
-  strConcat(cMsg, sizeof(cMsg), "</style></head><body>");
+  strCopy(cMsg,   NEWS_SIZE, "<style>body { background-color: lightgray; font-size: 15pt;}");
+  strConcat(cMsg, NEWS_SIZE, "</style></head><body>");
   httpServer.sendContent(cMsg);
 
-  strCopy(cMsg,   sizeof(cMsg), "<h1>ESP - lichtKrant</h1><b1>");
+  strCopy(cMsg,   NEWS_SIZE, "<h1>ESP - lichtKrant</h1><b1>");
   httpServer.sendContent(cMsg);
 
-  strCopy(cMsg,   sizeof(cMsg), "<br>[<b>");
-  strConcat(cMsg, sizeof(cMsg), URI);
-  strConcat(cMsg, sizeof(cMsg), "</b>] is not a valid ");
+  strCopy(cMsg,   NEWS_SIZE, "<br>[<b>");
+  strConcat(cMsg, NEWS_SIZE, URI);
+  strConcat(cMsg, NEWS_SIZE, "</b>] is not a valid ");
   httpServer.sendContent(cMsg);
   
-  strCopy(cMsg, sizeof(cMsg), "</body></html>\r\n");
+  strCopy(cMsg, NEWS_SIZE, "</body></html>\r\n");
   httpServer.sendContent(cMsg);
 
 } // sendApiNotFound()

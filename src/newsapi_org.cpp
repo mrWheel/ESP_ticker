@@ -8,6 +8,8 @@
 ***************************************************************************      
 */
 
+#include "newsapi_org.h"
+
 //-- http://newsapi.org/v2/top-headlines?country=nl&apiKey=API_KEY
 
 //----------------------------------------------------------------------
@@ -19,29 +21,29 @@ bool getNewsapiData()
   char        newsMessage[NEWS_SIZE] = {};
   int         startPos, endPos;
   int32_t     maxWait;
-  char        jsonResponse[1024];
+  char        jsonResponse[JSON_RESPONSE_SIZE] = {};
   char        val[51] = "";
   
   WiFiClient newsapiClient;
 
-  Debugln();
-  DebugTf("getNewsapiData(%s)\r\n", newsapiHost);
+  Serial.println();
+  Serial.printf("getNewsapiData(%s)\r\n", newsapiHost);
 
   // We now create a URI for the request
   String url = "/v2/top-headlines?country=nl&apiKey=";
   url += settingNewsAUTH;
 
-  DebugTf("Requesting URL: %s/v2/top-headlines?country=nl&apiKey=secret\r\n", newsapiHost);
-  DebugFlush();
-  //Debugln("\r\n=======================================");
-  //DebugFlush();
-  //Debug(newsapiHost);
-  //Debugln(url);
-  //Debugln("=======================================");
+  Serial.printf("Requesting URL: %s/v2/top-headlines?country=nl&apiKey=secret\r\n", newsapiHost);
+  Serial.flush();
+  //Serial.println("\r\n=======================================");
+  //Serial.printFlush();
+  //Serial.print(newsapiHost);
+  //Serial.println(url);
+  //Serial.println("=======================================");
   
   if (!newsapiClient.connect(newsapiHost, httpPort)) 
   {
-    DebugTln("connection failed");
+    Serial.println("connection failed");
     sprintf(tempMessage, "connection to %s failed", newsapiHost);
     //-- empty newsMessage store --
     for(int i=0; i<=settingNewsMaxMsg; i++)
@@ -69,22 +71,22 @@ bool getNewsapiData()
     yield();
     while(newsapiClient.available())
     {
-      Debugln();
+      Serial.println();
       //--- skip to find HTTP/1.1
       //--- then parse response code
       if (newsapiClient.find("HTTP/1.1"))
       {
         newsapiStatus = newsapiClient.parseInt(); // parse status code
-        DebugTf("Statuscode: [%d] ", newsapiStatus); 
+        Serial.printf("Statuscode: [%d] ", newsapiStatus); 
         if (newsapiStatus != 200)
         {
-          Debugln(" ERROR!");
+          Serial.println(" ERROR!");
           while(newsapiClient.available())
           {
             char nC = newsapiClient.read();
-            Debug(nC);
+            Serial.print(nC);
           }
-          Debugln();
+          Serial.println();
           newsapiClient.flush();
           newsapiClient.stop();
           for(int i=0; i<=settingNewsMaxMsg; i++)
@@ -97,11 +99,11 @@ bool getNewsapiData()
           newsapiClient.stop();
           return false;  
         }
-        Debugln(" OK!");
+        Serial.println(" OK!");
       }
       else
       {
-        DebugTln("Error reading newsapi.org.. -> bailout!");
+        Serial.println("Error reading newsapi.org.. -> bailout!");
         for(int i=0; i<=settingNewsMaxMsg; i++)
         {
           //sprintf(newsMessage, "");
@@ -125,7 +127,7 @@ bool getNewsapiData()
         }
         newsMessage[msgIdx] = '\0';
         if (msgIdx > 30)  newsMessage[msgIdx - 16] = 0;
-        Debugf("\t[%2d] %s\r\n", msgNr, newsMessage);
+        Serial.printf("\t[%2d] %s\r\n", msgNr, newsMessage);
         if (!hasNoNoWord(newsMessage) && strlen(newsMessage) > 15)
         {
           if (msgNr <= settingNewsMaxMsg)
@@ -151,12 +153,12 @@ bool getNewsapiData()
 //----------------------------------------------------------------------
 void removeNewsData()
 {
-  char nwsName[15];
+  char nwsName[32];
 
   for(int n=0; n<=settingNewsMaxMsg; n++)
   {
     sprintf(nwsName, "/newsFiles/NWS-%03d", n);
-    DebugTf("Remove [%s] from LittleFS ..\r\n", nwsName);
+    Serial.printf("Remove [%s] from LittleFS ..\r\n", nwsName);
     LittleFS.remove(nwsName);
   }
 

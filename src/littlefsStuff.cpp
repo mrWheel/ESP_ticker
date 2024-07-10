@@ -8,6 +8,8 @@
 ***************************************************************************      
 */
 
+#include "littlefsStuff.h"
+
 //====================================================================
 void readLastStatus()
 {
@@ -17,14 +19,14 @@ void readLastStatus()
   File _file = LittleFS.open("/sysStatus.csv", "r");
   if (!_file)
   {
-    DebugTln("read(): No /sysStatus.csv found ..");
+    Serial.println("read(): No /sysStatus.csv found ..");
   }
   if(_file.available()) {
     int l = _file.readBytesUntil('\n', buffer, sizeof(buffer));
     buffer[l] = 0;
-    DebugTf("read lastUpdate[%s]\r\n", buffer);
+    Serial.printf("read lastUpdate[%s]\r\n", buffer);
     sscanf(buffer, "%[^;]; %[^;]; %u; %[^;]", cDate, cTime, &nrReboots, dummy);
-    DebugTf("values timestamp[%s %s], nrReboots[%u], dummy[%s]\r\n"
+    Serial.printf("values timestamp[%s %s], nrReboots[%u], dummy[%s]\r\n"
                                                     , cDate
                                                     , cTime
                                                     , nrReboots
@@ -41,21 +43,21 @@ void writeLastStatus()
 {
   if (ESP.getFreeHeap() < 8500) // to prevent firmware from crashing!
   {
-    DebugTf("Bailout due to low heap (%d bytes)\r\n", ESP.getFreeHeap());
+    Serial.printf("Bailout due to low heap (%d bytes)\r\n", ESP.getFreeHeap());
     return;
   }
   char buffer[50] = "";
   snprintf(buffer, sizeof(buffer), "%04d-%02d-%02d; %02d:%02d:%02d; %010u; %s;\n"
-                                          , year(), month(), day()
-                                          , hour(), minute(), second()
+                                          , localtime(&now)->tm_year+1900, localtime(&now)->tm_mon+1, localtime(&now)->tm_mday
+                                          , localtime(&now)->tm_hour, localtime(&now)->tm_min, localtime(&now)->tm_sec
                                           , nrReboots
                                           , "meta data");
-  DebugTf("writeLastStatus() => %s\r\n", buffer);
+  Serial.printf("writeLastStatus() => %s\r\n", buffer);
 
   File _file = LittleFS.open("/sysStatus.csv", "w");
   if (!_file)
   {
-    DebugTln("write(): No /sysStatus.csv found ..");
+    Serial.println("write(): No /sysStatus.csv found ..");
   }
   _file.print(buffer);
   _file.flush();
@@ -74,11 +76,11 @@ bool readFileById(const char* fType, uint8_t mId)
   
   sprintf(fName, "/newsFiles/%s-%03d", fType, mId);
 
-  DebugTf("read [%s] ", fName);
+  Serial.printf("read [%s] ", fName);
   
   if (!LittleFS.exists(fName)) 
   {
-    Debugln("Does not exist!");
+    Serial.println("Does not exist!");
     return false;
   }
 
@@ -87,7 +89,7 @@ bool readFileById(const char* fType, uint8_t mId)
   while(f.available()) 
   {
     rTmp = f.readStringUntil('\n');
-    //Debugf("rTmp(in)  [%s]\r\n", rTmp.c_str());
+    //Serial.printf("rTmp(in)  [%s]\r\n", rTmp.c_str());
     rTmp.replace("\r", "");
   }
   f.close();
@@ -98,20 +100,20 @@ bool readFileById(const char* fType, uint8_t mId)
   rTmp.replace("@4@", ",");
   rTmp.replace("@5@", backSlash);
   rTmp.replace("@6@", percChar);
-  //DebugTf("rTmp(out) [%s]\r\n", rTmp.c_str());
+  //Serial.printf("rTmp(out) [%s]\r\n", rTmp.c_str());
     
   snprintf(fileMessage, LOCAL_SIZE, rTmp.c_str());
   if (strlen(fileMessage) == 0)
   {
-    Debugln("file is zero bytes long");
+    Serial.println("file is zero bytes long");
     return false;
   }
-  Debugf("OK! \r\n\t[%s]\r\n", fileMessage);
+  Serial.printf("OK! \r\n\t[%s]\r\n", fileMessage);
 
   if (mId == 0)
   {
     LittleFS.remove("/newsFiles/LCL-000");
-    DebugTln("Remove LCL-000 ..");
+    Serial.println("Remove LCL-000 ..");
   }
 
   return true;
@@ -125,31 +127,31 @@ bool writeFileById(const char* fType, uint8_t mId, const char *msg)
   char fName[50] = "";
   sprintf(fName, "/newsFiles/%s-%03d", fType, mId);
 
-  DebugTf("write [%s]-> [%s]\r\n", fName, msg);
+  Serial.printf("write [%s]-> [%s]\r\n", fName, msg);
 
   if (strlen(msg) < 3)
   {
     LittleFS.remove(fName);
-    Debugln("Empty message, file removed!");
+    Serial.println("Empty message, file removed!");
     return true;
   }
 
-  DebugTln("LittleFS.open()...");
+  Serial.println("LittleFS.open()...");
   File file = LittleFS.open(fName, "w");
   if (!file) 
   {
-    Debugf("open(%s, 'w') FAILED!!! --> Bailout\r\n", fName);
+    Serial.printf("open(%s, 'w') FAILED!!! --> Bailout\r\n", fName);
     return false;
   }
   yield();
 
-  Debugln(F("Start writing data .. \r"));
-  DebugFlush();
-  Debugln(msg);
+  Serial.println(F("Start writing data .. \r"));
+  Serial.flush();
+  Serial.println(msg);
   file.println(msg);
   file.close();
 
-  DebugTln("Exit writeFileById()!");
+  Serial.println("Exit writeFileById()!");
   return true;
   
 } // writeFileById()
@@ -160,11 +162,11 @@ void updateMessage(const char *field, const char *newValue)
 {
   int8_t msgId = String(field).toInt();
   
-  DebugTf("-> field[%s], newValue[%s]\r\n", field, newValue);
+  Serial.printf("-> field[%s], newValue[%s]\r\n", field, newValue);
 
   if (msgId < 0 || msgId > settingLocalMaxMsg)
   {
-    DebugTf("msgId[%d] is out of scope! Bailing out!\r\n", msgId);
+    Serial.printf("msgId[%d] is out of scope! Bailing out!\r\n", msgId);
     return;
   }
 
@@ -178,19 +180,19 @@ void writeToLog(const char *logLine)
 {
   if (ESP.getFreeHeap() < 8500) // to prevent firmware from crashing!
   {
-    DebugTf("Bailout due to low heap (%d bytes)\r\n", ESP.getFreeHeap());
+    Serial.printf("Bailout due to low heap (%d bytes)\r\n", ESP.getFreeHeap());
     return;
   }
   char buffer[150] = "";
   snprintf(buffer, sizeof(buffer), "%04d-%02d-%02d; %02d:%02d:%02d; %s;\n"
-                                          , year(), month(), day()
-                                          , hour(), minute(), second()
+                                          , localtime(&now)->tm_year+1900, localtime(&now)->tm_mon+1, localtime(&now)->tm_mday
+                                          , localtime(&now)->tm_hour, localtime(&now)->tm_min, localtime(&now)->tm_sec
                                           , logLine);
-  DebugTf("writeToLogs() => %s\r\n", buffer);
+  Serial.printf("writeToLogs() => %s\r\n", buffer);
   File _file = LittleFS.open("/sysLog.csv", "a");
   if (!_file)
   {
-    DebugTln("write(): No /sysLog.csv found ..");
+    Serial.println("write(): No /sysLog.csv found ..");
   }
   _file.print(buffer);
   _file.flush();

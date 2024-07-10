@@ -1,9 +1,9 @@
 /*
 ***************************************************************************  
 **  Program  : ESP_ticker (lichtkrant)
-*/
-#define _FW_VERSION "v1.7.3 (04-05-2023)"
-/* 
+**
+**  See "allDefines.h" for _FW_VERSION 
+** 
 **  Copyright (c) 2021 .. 2023 Willem Aandewiel
 **
 **  TERMS OF USE: MIT License. See bottom of file.                                                            
@@ -19,8 +19,8 @@
     - Flash mode: "DIO" / "DOUT"
     - Flash Frequency: "40MHz"
     - Reset Method: "nodemcu" or something else
-    - Debug port: "Disabled"
-    - Debug Level: "None"
+    - Serial.print port: "Disabled"
+    - Serial.print Level: "None"
     - IwIP Variant: "v2 Lower Memory"
     - VTables: "Flash"
     - Exceptions: "Legacy (new can return nullptr)"
@@ -47,19 +47,12 @@
 // MD_MAX72XX library can be found at https://github.com/MajicDesigns/MD_MAX72XX
 //
 
-#define USE_UPDATE_SERVER
-
-#define _HOSTNAME   "ESPticker"
-#include "ESP_ticker.h"
+#include "main.h"
 
 // HARDWARE SPI
 MD_Parola P = MD_Parola(HARDWARE_TYPE, CS_PIN, MAX_DEVICES);
 
-// WiFi Server object and parameters
-WiFiServer server(80);
-
 // Scrolling parameters
-
 uint8_t  inFX, outFX;
 textEffect_t  effect[] =
   {
@@ -102,17 +95,17 @@ int16_t calculateIntensity()
   }
   a0In = a0In / 2;  //-- smooth things up a bit
   
-  DebugTf("analogRead[%d], ", a0In);
+  Serial.printf("analogRead[%d], ", a0In);
   //---test if (a0In < settingLDRlowOffset) a0In = settingLDRlowOffset;
-  Debugf(" LDRlowOffset[%d] LDRhighOffset[%d] ", settingLDRlowOffset, settingLDRhighOffset);
+  Serial.printf(" LDRlowOffset[%d] LDRhighOffset[%d] ", settingLDRlowOffset, settingLDRhighOffset);
   valueLDR = (valueLDR + a0In) / 2;
   if (valueLDR < settingLDRlowOffset)   valueLDR = settingLDRlowOffset;
   if (valueLDR > settingLDRhighOffset)  valueLDR = settingLDRhighOffset;
-  Debugf(" ==> valueLDR[%d]\r\n", valueLDR);
+  Serial.printf(" ==> valueLDR[%d]\r\n", valueLDR);
 
   //--- map LDR to offset..1024 -> 0..settingMax
   int intensity = map(valueLDR, settingLDRlowOffset, settingLDRhighOffset,  0, settingMaxIntensity);
-  //DebugTf("map(%d, %d, %d, 0, %d) => [%d]\r\n", valueLDR, settingLDRlowOffset, settingLDRhighOffset
+  //Serial.printf("map(%d, %d, %d, 0, %d) => [%d]\r\n", valueLDR, settingLDRlowOffset, settingLDRhighOffset
   //                                                      , 0                  , settingMaxIntensity);
 
 
@@ -135,47 +128,11 @@ int16_t calculateIntensity()
 //---------------------------------------------------------------------
 char *updateTime()
 {
-  snprintf(timeMsg, 20, "%02d : %02d", hour(), minute()); 
+  time(&now);
+  snprintf(timeMsg, 20, "%02d : %02d", localtime(&now)->tm_hour, localtime(&now)->tm_min); 
   return timeMsg;
 
 } // updateTime()
-
-
-//---------------------------------------------------------------------
-void splitNewsNoWords(const char *noNo)
-{
-  DebugTln(noNo);
-  int8_t wc = splitString(String(noNo), ' ', noWords, MAX_NO_NO_WORDS);
-  for(int8_t i=0; i<wc; i++)
-  {
-    noWords[i].trim();
-    if (noWords[i].length() > 1)
-    {
-      noWords[i].toLowerCase();
-      DebugTf("NoNoWord[%d] [%s]\r\n", i, noWords[i].c_str());
-    }
-  }
-  
-} // splitNewsNoWords()
-
-//---------------------------------------------------------------------
-bool hasNoNoWord(const char *cIn)
-{
-  for(int8_t i=0; i<MAX_NO_NO_WORDS; i++)
-  {
-    String sIn = String(cIn);
-    sIn.toLowerCase();
-    int idx = sIn.indexOf(noWords[i]);
-    if ((idx > -1) && (noWords[i].length() > 1))  // yes! it's in there somewhere
-    {
-      DebugTf("found [%s]\r\n", noWords[i].c_str());
-      return true;      
-    }
-  }
-  //DebugTln("no NoNo words found!");
-  return false;
-  
-} // hasNoNoWord()
 
 
 //---------------------------------------------------------------------
@@ -186,7 +143,7 @@ void nextNieuwsBericht()
   if (newsMsgID >= settingNewsMaxMsg) newsMsgID = 0;
   while (!readFileById("NWS", newsMsgID))
   {
-    DebugTln("File not found!");
+    Serial.println("File not found!");
     newsMsgID++;
     if (newsMsgID > settingNewsMaxMsg) 
     {
@@ -198,7 +155,7 @@ void nextNieuwsBericht()
   if (!breakOut)
   {
     snprintf(actMessage, NEWS_SIZE, "** %s **", fileMessage);
-    //DebugTf("newsMsgID[%d] %s\r\n", newsMsgID, actMessage);
+    //Serial.printf("newsMsgID[%d] %s\r\n", newsMsgID, actMessage);
     utf8Ascii(actMessage);
     P.displayScroll(actMessage, PA_LEFT, PA_SCROLL_LEFT, (MAX_SPEED - settingTextSpeed));
   }
@@ -219,11 +176,11 @@ void nextLocalBericht()
   }
   while (!readFileById("LCL", localMsgID))
   {
-    DebugTf("File [/newsFiles/LCL-%03d] not found!\r\n", localMsgID);
+    Serial.printf("File [/newsFiles/LCL-%03d] not found!\r\n", localMsgID);
     localMsgID++;
     if (localMsgID > settingLocalMaxMsg) 
     {
-      DebugTln("Back to LCL-000, exit while-loop");
+      Serial.println("Back to LCL-000, exit while-loop");
       localMsgID = 0;
       continue;
     }
@@ -231,19 +188,19 @@ void nextLocalBericht()
   if (nothingThere && (localMsgID == 0)) 
   { 
     nothingThere = true;
-    getRevisionData();
+    getRevisionData(_FW_VERSION);
   }
   else  nothingThere = false;
 
   snprintf(actMessage, LOCAL_SIZE, "** %s **", fileMessage);
-  //DebugTf("localMsgID[%d] %s\r\n", localMsgID, actMessage);
+  TelnetStream.printf("localMsgID[%d] %s\r\n", localMsgID, actMessage);
   utf8Ascii(actMessage);
   P.displayScroll(actMessage, PA_LEFT, PA_SCROLL_LEFT, (MAX_SPEED - settingTextSpeed));
     
   if ((millis() - revisionTimer) > 900000)
   {
     revisionTimer = millis();
-    getRevisionData();
+    getRevisionData(_FW_VERSION);
   }
 
 } // nextLocalBericht()
@@ -259,8 +216,9 @@ void setup()
 
   startTelnet();
   
-  DebugTln("\r\n[MD_Parola WiFi Message Display]\r\n");
-  DebugTf("Booting....[%s]\r\n\r\n", String(_FW_VERSION).c_str());
+  Serial.println("\r\n[MD_Parola WiFi Message Display]\r\n");
+  Serial.printf("Booting....[%s]\r\n\r\n", String(_FW_VERSION).c_str());
+  TelnetStream.printf("Booting....[%s]\r\n\r\n", String(_FW_VERSION).c_str());
   
   P.begin();
   P.displayClear();
@@ -272,7 +230,7 @@ void setup()
 //================ LittleFS ===========================================
   if (LittleFS.begin()) 
   {
-    DebugTln(F("LittleFS Mount succesfull\r"));
+    Serial.println(F("LittleFS Mount succesfull\r"));
     LittleFSmounted = true;
        
     readSettings(true);
@@ -301,7 +259,7 @@ void setup()
   } 
   else 
   { 
-    DebugTln(F("LittleFS Mount failed\r"));   // Serious problem with LittleFS 
+    Serial.println(F("LittleFS Mount failed\r"));   // Serious problem with LittleFS 
     LittleFSmounted = false;
   }
   //==========================================================//
@@ -311,46 +269,73 @@ void setup()
 
   // attempt to connect to Wifi network:
   int t = 0;
+  Serial.println("Attempting to connect to WiFi network ");
+  /****
   while ((WiFi.status() != WL_CONNECTED) && (t < 25))
   {
     delay(500);
     Serial.print(".");
     t++;
   }
-  if ( WiFi.status() != WL_CONNECTED) {
-    DebugTln("Attempting to connect to WiFi network\r");
+  
+  if ( WiFi.status() != WL_CONNECTED) 
+  {
+    Serial.println(" no network found!");
     sprintf(actMessage, "Connect to AP '%s' and configure WiFi on  192.168.4.1   ", _HOSTNAME);
+    Serial.println(actMessage);
     P.setTextEffect(PA_SCROLL_LEFT, PA_NO_EFFECT);
     do { yield(); } while( !P.displayAnimate() );
     //P.print("   192.168.4.1");
   }
+  ***/
   // Connect to and initialise WiFi network
   digitalWrite(LED_BUILTIN, HIGH);
-  startWiFi(_HOSTNAME, 240);  // timeout 4 minuten
+  startWiFi(_HOSTNAME, 240, &httpServer);  // timeout 4 minuten
   digitalWrite(LED_BUILTIN, LOW);
 
   startMDNS(settingHostname);
     
-  //--- ezTime initialisation
-  setDebug(INFO);  
-  waitForSync(); 
-  CET.setLocation(F("Europe/Amsterdam"));
-  CET.setDefault(); 
-  
-  DebugTln("UTC time: "+ UTC.dateTime());
-  DebugTln("CET time: "+ CET.dateTime());
+  timeSync.setup();
+  timeSync.sync(500);
+  time(&now);
+  if (localtime(&now)->tm_year > 120)
+  {
+    timeSynced = true;
+    Serial.println("Time synchronized with NTP Service");
+  }
+  else  
+  {
+    timeSynced = false;
+    Serial.println("Could not synchronize time with NTP Service");
+  }
+  time(&now);
+  Serial.println("-------------------------------------------------------------------------------");
+  if (!getLocalTime(&timeinfo)) 
+  {
+    Serial.println("Time       : Failed to obtain time!");
+  }
+  else
+  {
+    Serial.printf( "Time       : %04d-%02d-%02d %02d:%02d:%02d\r\n", localtime(&now)->tm_year+1900
+                                                                   , localtime(&now)->tm_mon+1
+                                                                   , localtime(&now)->tm_mday
+                                                                   , localtime(&now)->tm_hour
+                                                                   , localtime(&now)->tm_min
+                                                                   , localtime(&now)->tm_sec);
+  }
 
   nrReboots++;
   writeLastStatus();
   //writeToLog("=========REBOOT==========================");
 
   snprintf(cMsg, sizeof(cMsg), "Last reset reason: [%s]", ESP.getResetReason().c_str());
-  DebugTln(cMsg);
+  Serial.println(cMsg);
+  TelnetStream.println(cMsg);
   //writeToLog(cMsg);
 
   Serial.print("\nGebruik 'telnet ");
   Serial.print (WiFi.localIP());
-  Serial.println("' voor verdere debugging\r\n");
+  Serial.println("' voor verdere Serial.printging\r\n");
 
 //================ Start HTTP Server ================================
   setupFSexplorer();
@@ -365,11 +350,11 @@ void setup()
 
 
   httpServer.begin();
-  DebugTln("\nServer started\r");
+  Serial.println("\nServer started\r");
   
   // Set up first message as the IP address
   sprintf(actMessage, "%03d.%03d.%d.%d", WiFi.localIP()[0], WiFi.localIP()[1], WiFi.localIP()[2], WiFi.localIP()[3]);
-  DebugTf("\nAssigned IP[%s]\r\n", actMessage);
+  Serial.printf("\nAssigned IP[%s]\r\n", actMessage);
   P.displayScroll(actMessage, PA_LEFT, PA_NO_EFFECT, (MAX_SPEED - settingTextSpeed));
   P.setTextEffect(PA_SCROLL_LEFT, PA_NO_EFFECT);
   
@@ -387,7 +372,7 @@ void setup()
   for (int i=0; i<=settingNewsMaxMsg; i++)
   {
     writeFileById("NWS", i, "");
-    //DebugTf("readFileById(NWS, %d)\r\n", i);
+    //Serial.printf("readFileById(NWS, %d)\r\n", i);
     //readFileById("NWS", i);
   }
   
@@ -398,7 +383,6 @@ void setup()
 void loop()
 {
 //handleNTP();
-  events(); // trigger ezTime update etc.
   httpServer.handleClient();
   MDNS.update();
   yield();
@@ -430,16 +414,17 @@ void loop()
   {
     yield();
     msgType++;
-    DebugTf("msgType[%d]\r\n", msgType);
+    Serial.printf("msgType[%d]\r\n", msgType);
     
     switch(msgType)
     {
       case 1:   if (!(millis() > timeTimer))  return;
                 inFX  = random(0, ARRAY_SIZE(effect));
                 outFX = random(0, ARRAY_SIZE(effect));
-                snprintf(actMessage, LOCAL_SIZE, weekDayName[weekday()]);
+                snprintf(actMessage, LOCAL_SIZE, weekDayName[localtime(&now)->tm_wday+1]);
+                //snprintf(actMessage, LOCAL_SIZE, weekDayName[1]);
                 P.displayText(actMessage, PA_CENTER, (MAX_SPEED - settingTextSpeed), 1000, effect[inFX], effect[outFX]);
-                DebugTf("Animate IN[%d], OUT[%d] %s\r\n", inFX, outFX, actMessage);
+                Serial.printf("Animate IN[%d], OUT[%d] %s\r\n", inFX, outFX, actMessage);
                 break;
       case 2:   if (!(millis() > timeTimer))  return;
                 timeTimer = millis() + 60000;
@@ -447,7 +432,7 @@ void loop()
                 outFX = random(0, ARRAY_SIZE(effect));
                 sprintf(actMessage, "%s", updateTime());
                 P.displayText(actMessage, PA_CENTER, (MAX_SPEED - settingTextSpeed), 2000, effect[inFX], effect[outFX]);
-                DebugTf("Animate IN[%d], OUT[%d] %s\r\n", inFX, outFX, actMessage);
+                Serial.printf("Animate IN[%d], OUT[%d] %s\r\n", inFX, outFX, actMessage);
                 break;
       case 3:   nextLocalBericht();
                 P.setTextEffect(PA_SCROLL_LEFT, PA_NO_EFFECT);
@@ -466,7 +451,7 @@ void loop()
       case 9:   if (settingWeerLiveInterval > 0)
                 {
                   snprintf(actMessage, LOCAL_SIZE, "** %s **", tempMessage);
-                  Debugf("\t[%s]\r\n", actMessage);
+                  Serial.printf("\t[%s]\r\n", actMessage);
                   utf8Ascii(actMessage);
                 }
                 else  nextLocalBericht();
@@ -481,13 +466,15 @@ void loop()
                 
     } // switch()
 
-    //DebugTln(actMessage);
+    //Serial.println(actMessage);
     valueIntensity = calculateIntensity(); // read analog input pin 0
-    DebugTf("Intensity set to [%d]\r\n", valueIntensity);
+    Serial.printf("Intensity set to [%d]\r\n", valueIntensity);
+    TelnetStream.printf("Intensity set to [%d]\r\n", valueIntensity);
     P.setIntensity(valueIntensity);
     // Tell Parola we have a new animation
     P.displayReset();
-    DebugTln("End of displayAnimate()..");
+    Serial.println("End of displayAnimate()..");
+    TelnetStream.println("End of displayAnimate()..");
     
   } // dislayAnimate()
 

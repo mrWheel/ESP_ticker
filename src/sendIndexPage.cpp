@@ -8,6 +8,8 @@
 ***************************************************************************      
 */
 
+#include "sendIndexPage.h"
+
 static const char indexPage[] =
 R"(
 <!DOCTYPE html>

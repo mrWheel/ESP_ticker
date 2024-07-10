@@ -8,44 +8,46 @@
 ***************************************************************************      
 */
 
-//#include <ESP8266WiFi.h>
+#include <Arduino.h>
+#include <ESP8266WiFi.h>
+#include <ESP8266WebServer.h>
 #include <LittleFS.h>
-
-#include <ezTime.h>             // https://github.com/ropg/ezTime
-#include <TelnetStream.h>       // https://github.com/jandrassy/TelnetStream/commit/1294a9ee5cc9b1f7e51005091e351d60c8cddecf
-#include "Debug.h"
-#include "networkStuff.h"
-
+#include <TelnetStream.h>
 #include <MD_Parola.h>
 #include <MD_MAX72xx.h>
-#include "parola_Fonts_data.h"
 #include <SPI.h>
 
-// Define the number of devices we have in the chain and the hardware interface
-// NOTE: These pin numbers are for ESP8266 hardware SPI and will probably not
-// work with your hardware and may need to be adapted
-//#define HARDWARE_TYPE MD_MAX72XX::PAROLA_HW
-#define HARDWARE_TYPE MD_MAX72XX::FC16_HW
-//#define HARDWARE_TYPE MD_MAX72XX::GENERIC_HW
-#define MAX_DEVICES  8
-#define MAX_SPEED   50
+#include "allDefines.h"
+#include "networkStuff.h"
+#include "parola_Fonts_data.h"
+#include "FSexplorer.h"
+#include "helperStuff.h"
+#include "jsonStuff.h"
+#include "littlefsStuff.h"
+#include "newsapi_org.h"
+#include "restAPI.h"
+#include "sendIndexPage.h"
+#include "settingStuff.h"
+//#include "timeStuff.h"
+#include "weerlive_nl.h"
+//#include "Debug.h"
+#include "TimeSync.h"
 
-//#define CLK_PIN   14 // or SCK
-//#define DATA_PIN  13 // or MOSI
-#define CS_PIN      15 // or SS
 
-#define SETTINGS_FILE   "/settings.ini"
-#define LOCAL_SIZE      255
-#define NEWS_SIZE       512
-#define JSON_BUFF_MAX   255
-#define MAX_NO_NO_WORDS  20
+// WiFi Server object and parameters
+ESP8266WebServer httpServer(80);
+#ifdef USE_UPDATE_SERVER
+  ESP8266HTTPUpdateServer httpUpdater(true);
+#endif
+
+void splitNewsNoWords(const char *noNo);
 
 bool      Verbose = false;
 char      cDate[15], cTime[10];
 uint32_t  nrReboots;
 // Global message buffers shared by Wifi and Scrolling functions
 char      cMsg[NEWS_SIZE];
-char      tempMessage[LOCAL_SIZE] = "";
+char      tempMessage[WEER_SIZE] = "";
 uint8_t   msgType;
 char      actMessage[NEWS_SIZE], timeMsg[20];
 char      fileMessage[LOCAL_SIZE];
@@ -60,16 +62,21 @@ uint32_t  weerTimer   = 0;
 uint32_t  newsapiTimer = 0;
 uint32_t  revisionTimer = 0;
 String    noWords[MAX_NO_NO_WORDS+1];
-char      settingHostname[41];
+char      settingHostname[HOSTNAME_SIZE];
 char      settingNewsNoWords[LOCAL_SIZE];
 uint8_t   settingLocalMaxMsg, settingTextSpeed, settingMaxIntensity;
 uint16_t  settingLDRlowOffset, settingLDRhighOffset;
-char      settingWeerLiveAUTH[51], settingWeerLiveLocation[51];
+char      settingWeerLiveAUTH[WEER_AUTH_SIZE], settingWeerLiveLocation[WEER_LIVE_LOC_SIZE];
 uint8_t   settingWeerLiveInterval;
-char      settingNewsAUTH[51];
+char      settingNewsAUTH[NEWS_AUTH_SIZE];
 uint8_t   settingNewsInterval, settingNewsMaxMsg;
+bool      LittleFSmounted; 
+time_t    now; 
+struct tm timeinfo;
+bool      timeSynced = false;
 
-Timezone  CET;
+
+TimeSync        timeSync;
 
 const char *weekDayName[]  {  "Unknown", "Zondag", "Maandag", "Dinsdag", "Woensdag"
                             , "Donderdag", "Vrijdag", "Zaterdag", "Unknown" };

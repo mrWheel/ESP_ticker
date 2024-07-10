@@ -8,24 +8,26 @@
 **  TERMS OF USE: MIT License. See bottom of file.                                                            
 ***************************************************************************      
 */
+#ifndef _DEBUG_H
+#define  _DEBUG_H
+
 
 /*---- start macro's ------------------------------------------------------------------*/
 
 #define Debug(...)      ({ Serial.print(__VA_ARGS__);         \
-                           TelnetStream.print(__VA_ARGS__);   \
                         })
 #define Debugln(...)    ({ Serial.println(__VA_ARGS__);       \
-                           TelnetStream.println(__VA_ARGS__); \
                         })
 #define Debugf(...)     ({ Serial.printf(__VA_ARGS__);        \
-                           TelnetStream.printf(__VA_ARGS__);  \
                         })
 
 #define DebugFlush()    ({ Serial.flush(); \
-                           TelnetStream.flush(); \
                         })
 
-
+#define DebugT(...)     Debug(__VA_ARGS__)
+#define DebugTln(...)   Debugln(__VA_ARGS__)
+#define DebugTf(...)    Debugf(__VA_ARGS__)
+/***
 #define DebugT(...)     ({ _debugBOL(__FUNCTION__, __LINE__);  \
                            Debug(__VA_ARGS__);                 \
                         })
@@ -35,24 +37,24 @@
 #define DebugTf(...)    ({ _debugBOL(__FUNCTION__, __LINE__);  \
                            Debugf(__VA_ARGS__);                \
                         })
-
+***/
 /*---- einde macro's ------------------------------------------------------------------*/
-
+/*** 
 // needs #include <TelnetStream.h>       // Version 0.0.1 - https://github.com/jandrassy/TelnetStream
 
 char _bol[128];
 void _debugBOL(const char *fn, int line)
 {
    
-  snprintf(_bol, sizeof(_bol), "[%02d:%02d:%02d][%7u|%6u] %-12.12s(%4d): ", \
-                hour(), minute(), second(), \
+  snprintf(_bol, sizeof(_bol), "[%7u|%6u] %-12.12s(%4d): ", \
+                //hour(), minute(), second(), \
                 ESP.getFreeHeap(), ESP.getMaxFreeBlockSize(),\
                 fn, line);
                  
   Serial.print (_bol);
-  TelnetStream.print (_bol);
+  //TelnetStream.print (_bol);
 }
-
+***/
 /***************************************************************************
 *
 * Permission is hereby granted, free of charge, to any person obtaining a
@@ -76,3 +78,5 @@ void _debugBOL(const char *fn, int line)
 * 
 ****************************************************************************
 */
+
+#endif
