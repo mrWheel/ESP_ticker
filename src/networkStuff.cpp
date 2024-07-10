@@ -47,7 +47,7 @@
 //#include <FS.h>                // part of ESP8266 Core https://github.com/esp8266/Arduino
 
 
-ESP8266WebServer        httpServer (80);
+extern ESP8266WebServer httpServer;
 #ifdef USE_UPDATE_SERVER
   ESP8266HTTPUpdateServer httpUpdater(true);
 #endif

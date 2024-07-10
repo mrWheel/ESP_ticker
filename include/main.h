@@ -10,14 +10,13 @@
 
 #include <Arduino.h>
 #include <ESP8266WiFi.h>
+#include <ESP8266WebServer.h>
 #include <LittleFS.h>
-//#include <ezTime.h>
 #include <TelnetStream.h>
 #include <MD_Parola.h>
 #include <MD_MAX72xx.h>
 #include <SPI.h>
 
-#include "Debug.h"
 #include "allDefines.h"
 #include "networkStuff.h"
 #include "parola_Fonts_data.h"
@@ -34,6 +33,8 @@
 #include "Debug.h"
 #include "TimeSync.h"
 
+// WiFi Server object and parameters
+ESP8266WebServer httpServer(80);
 
 
 void splitNewsNoWords(const char *noNo);

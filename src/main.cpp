@@ -54,11 +54,7 @@
 // HARDWARE SPI
 MD_Parola P = MD_Parola(HARDWARE_TYPE, CS_PIN, MAX_DEVICES);
 
-// WiFi Server object and parameters
-WiFiServer server(80);
-
 // Scrolling parameters
-
 uint8_t  inFX, outFX;
 textEffect_t  effect[] =
   {
@@ -198,7 +194,7 @@ void nextLocalBericht()
   else  nothingThere = false;
 
   snprintf(actMessage, LOCAL_SIZE, "** %s **", fileMessage);
-  //DebugTf("localMsgID[%d] %s\r\n", localMsgID, actMessage);
+  TelnetStream.printf("localMsgID[%d] %s\r\n", localMsgID, actMessage);
   utf8Ascii(actMessage);
   P.displayScroll(actMessage, PA_LEFT, PA_SCROLL_LEFT, (MAX_SPEED - settingTextSpeed));
     
@@ -223,6 +219,7 @@ void setup()
   
   DebugTln("\r\n[MD_Parola WiFi Message Display]\r\n");
   DebugTf("Booting....[%s]\r\n\r\n", String(_FW_VERSION).c_str());
+  TelnetStream.printf("Booting....[%s]\r\n\r\n", String(_FW_VERSION).c_str());
   
   P.begin();
   P.displayClear();
@@ -338,6 +335,7 @@ void setup()
 
   snprintf(cMsg, sizeof(cMsg), "Last reset reason: [%s]", ESP.getResetReason().c_str());
   DebugTln(cMsg);
+  TelnetStream.println(cMsg);
   //writeToLog(cMsg);
 
   Serial.print("\nGebruik 'telnet ");
@@ -476,10 +474,12 @@ void loop()
     //DebugTln(actMessage);
     valueIntensity = calculateIntensity(); // read analog input pin 0
     DebugTf("Intensity set to [%d]\r\n", valueIntensity);
+    TelnetStream.printf("Intensity set to [%d]\r\n", valueIntensity);
     P.setIntensity(valueIntensity);
     // Tell Parola we have a new animation
     P.displayReset();
     DebugTln("End of displayAnimate()..");
+    TelnetStream.println("End of displayAnimate()..");
     
   } // dislayAnimate()
 

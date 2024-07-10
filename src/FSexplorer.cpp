@@ -82,22 +82,29 @@ void setupFSexplorer()    // Funktionsaufruf "spiffs();" muss im Setup eingebund
   httpServer.onNotFound([]() 
   {
     if (Verbose) DebugTf("in 'onNotFound()'!! [%s] => \r\n", String(httpServer.uri()).c_str());
+    TelnetStream.printf("in 'onNotFound()'!! [%s] => \r\n", String(httpServer.uri()).c_str());
     if (httpServer.uri().indexOf("/api/") == 0) 
     {
       if (Verbose) DebugTf("next: processAPI(%s)\r\n", String(httpServer.uri()).c_str());
+      TelnetStream.printf("next: processAPI(%s)\r\n", String(httpServer.uri()).c_str());
       processAPI();
     }
     else if (httpServer.uri() == "/")
     {
       DebugTln("index requested..");
+      TelnetStream.println("index requested..");
       sendIndexPage();
     }
     else
     {
       DebugTf("next: handleFile(%s)\r\n"
                       , String(httpServer.urlDecode(httpServer.uri())).c_str());
+      TelnetStream.printf("next: handleFile(%s)\r\n"
+                      , String(httpServer.urlDecode(httpServer.uri())).c_str());
       if (!handleFile(httpServer.urlDecode(httpServer.uri())))
       {
+        DebugTln("File not found");
+        TelnetStream.println("File not found");
         httpServer.send(404, "text/plain", "FileNotFound\r\n");
       }
     }

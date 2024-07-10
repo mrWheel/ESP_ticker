@@ -11,15 +11,18 @@
 #ifndef _DEBUG_H
 #define  _DEBUG_H
 
-//#include <TelnetStream.h>
 
 /*---- start macro's ------------------------------------------------------------------*/
 
-#define Debug(...)      ({ Serial.print(__VA_ARGS__);    })
-#define Debugln(...)    ({ Serial.println(__VA_ARGS__); })
-#define Debugf(...)     ({ Serial.printf(__VA_ARGS__);  })
+#define Debug(...)      ({ Serial.print(__VA_ARGS__);         \
+                        })
+#define Debugln(...)    ({ Serial.println(__VA_ARGS__);       \
+                        })
+#define Debugf(...)     ({ Serial.printf(__VA_ARGS__);        \
+                        })
 
-#define DebugFlush()    ({ Serial.flush(); })
+#define DebugFlush()    ({ Serial.flush(); \
+                        })
 
 #define DebugT(...)     Debug(__VA_ARGS__)
 #define DebugTln(...)   Debugln(__VA_ARGS__)

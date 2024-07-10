@@ -1,6 +1,8 @@
 #ifndef FSEXPLORER_H
 #define FSEXPLORER_H
 
+#include <ESP8266WiFi.h>
+#include <ESP8266WebServer.h>
 #include <FS.h>
 #include <LittleFS.h>
 #include "allDefines.h"
@@ -29,6 +31,8 @@ void reBootESP();
 void updateFirmware();
 
 //extern const char* rootPath;
+extern ESP8266WebServer httpServer;
+
 extern bool Verbose;
 
 #endif
