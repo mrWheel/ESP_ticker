@@ -30,12 +30,15 @@
 #include "settingStuff.h"
 //#include "timeStuff.h"
 #include "weerlive_nl.h"
-#include "Debug.h"
+//#include "Debug.h"
 #include "TimeSync.h"
+
 
 // WiFi Server object and parameters
 ESP8266WebServer httpServer(80);
-
+#ifdef USE_UPDATE_SERVER
+  ESP8266HTTPUpdateServer httpUpdater(true);
+#endif
 
 void splitNewsNoWords(const char *noNo);
 
@@ -44,7 +47,7 @@ char      cDate[15], cTime[10];
 uint32_t  nrReboots;
 // Global message buffers shared by Wifi and Scrolling functions
 char      cMsg[NEWS_SIZE];
-char      tempMessage[LOCAL_SIZE] = "";
+char      tempMessage[WEER_SIZE] = "";
 uint8_t   msgType;
 char      actMessage[NEWS_SIZE], timeMsg[20];
 char      fileMessage[LOCAL_SIZE];

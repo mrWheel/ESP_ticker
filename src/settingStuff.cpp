@@ -13,51 +13,51 @@
 //=======================================================================
 void writeSettings(bool show) 
 {
-  DebugTf("Writing to [%s] ..\r\n", SETTINGS_FILE);
+  Serial.printf("Writing to [%s] ..\r\n", SETTINGS_FILE);
   File file = LittleFS.open(SETTINGS_FILE, "w"); // open for reading and writing
   if (!file) 
   {
-    DebugTf("open(%s, 'w') FAILED!!! --> Bailout\r\n", SETTINGS_FILE);
+    Serial.printf("open(%s, 'w') FAILED!!! --> Bailout\r\n", SETTINGS_FILE);
     return;
   }
   yield();
 
-  DebugT(F("Start writing setting data "));
+  Serial.print(F("Start writing setting data "));
 
-  file.print("Hostname = ");          file.println(settingHostname);            Debug(F("."));
-  file.print("localMaxMsg = ");       file.println(settingLocalMaxMsg);         Debug(F("."));
-  file.print("textSpeed = ");         file.println(settingTextSpeed);           Debug(F("."));
-  file.print("maxIntensity = ");      file.println(settingMaxIntensity);        Debug(F("."));
-  file.print("LDRlowOffset = ");      file.println(settingLDRlowOffset);        Debug(F("."));
-  file.print("LDRhighOffset = ");     file.println(settingLDRhighOffset);       Debug(F("."));
-  file.print("weerLiveAUTH = ");      file.println(settingWeerLiveAUTH);        Debug(F("."));
-  file.print("weerLiveLocatie = ");   file.println(settingWeerLiveLocation);    Debug(F("."));
-  file.print("weerLiveInterval = ");  file.println(settingWeerLiveInterval);    Debug(F("."));
-  file.print("newsAUTH = ");          file.println(settingNewsAUTH);            Debug(F("."));
-  file.print("newsNoWords = ");       file.println(settingNewsNoWords);         Debug(F("."));
-  file.print("newsMaxMsg = ");        file.println(settingNewsMaxMsg);          Debug(F("."));
-  file.print("newsInterval = ");      file.println(settingNewsInterval);        Debug(F("."));
+  file.print("Hostname = ");          file.println(settingHostname);            Serial.print(F("."));
+  file.print("localMaxMsg = ");       file.println(settingLocalMaxMsg);         Serial.print(F("."));
+  file.print("textSpeed = ");         file.println(settingTextSpeed);           Serial.print(F("."));
+  file.print("maxIntensity = ");      file.println(settingMaxIntensity);        Serial.print(F("."));
+  file.print("LDRlowOffset = ");      file.println(settingLDRlowOffset);        Serial.print(F("."));
+  file.print("LDRhighOffset = ");     file.println(settingLDRhighOffset);       Serial.print(F("."));
+  file.print("weerLiveAUTH = ");      file.println(settingWeerLiveAUTH);        Serial.print(F("."));
+  file.print("weerLiveLocatie = ");   file.println(settingWeerLiveLocation);    Serial.print(F("."));
+  file.print("weerLiveInterval = ");  file.println(settingWeerLiveInterval);    Serial.print(F("."));
+  file.print("newsAUTH = ");          file.println(settingNewsAUTH);            Serial.print(F("."));
+  file.print("newsNoWords = ");       file.println(settingNewsNoWords);         Serial.print(F("."));
+  file.print("newsMaxMsg = ");        file.println(settingNewsMaxMsg);          Serial.print(F("."));
+  file.print("newsInterval = ");      file.println(settingNewsInterval);        Serial.print(F("."));
 
   file.close();  
   
-  Debugln(F(" done"));
+  Serial.println(F(" done"));
 
   if (show) 
   {
-    DebugTln(F("Wrote this:"));
-    DebugT(F("        Hostname = ")); Debugln(settingHostname);
-    DebugT(F("     newsNoWords = ")); Debugln(settingNewsNoWords);
-    DebugT(F("     localMaxMsg = ")); Debugln(settingLocalMaxMsg);     
-    DebugT(F("       textSpeed = ")); Debugln(settingTextSpeed);     
-    DebugT(F("    LDRlowOffset = ")); Debugln(settingLDRlowOffset);     
-    DebugT(F("   LDRhighOffset = ")); Debugln(settingLDRhighOffset);     
-    DebugT(F("    maxIntensity = ")); Debugln(settingMaxIntensity);     
-    DebugT(F("    weerLiveAUTH = ")); Debugln(settingWeerLiveAUTH);     
-    DebugT(F(" weerLiveLocatie = ")); Debugln(settingWeerLiveLocation);     
-    DebugT(F("weerLiveInterval = ")); Debugln(settingWeerLiveInterval);     
-    DebugT(F("        newsAUTH = ")); Debugln(settingNewsAUTH);     
-    DebugT(F("      newsMaxMsg = ")); Debugln(settingNewsMaxMsg);    
-    DebugT(F("    newsInterval = ")); Debugln(settingNewsInterval);    
+    Serial.println(F("Wrote this:"));
+    Serial.print(F("        Hostname = ")); Serial.println(settingHostname);
+    Serial.print(F("     newsNoWords = ")); Serial.println(settingNewsNoWords);
+    Serial.print(F("     localMaxMsg = ")); Serial.println(settingLocalMaxMsg);     
+    Serial.print(F("       textSpeed = ")); Serial.println(settingTextSpeed);     
+    Serial.print(F("    LDRlowOffset = ")); Serial.println(settingLDRlowOffset);     
+    Serial.print(F("   LDRhighOffset = ")); Serial.println(settingLDRhighOffset);     
+    Serial.print(F("    maxIntensity = ")); Serial.println(settingMaxIntensity);     
+    Serial.print(F("    weerLiveAUTH = ")); Serial.println(settingWeerLiveAUTH);     
+    Serial.print(F(" weerLiveLocatie = ")); Serial.println(settingWeerLiveLocation);     
+    Serial.print(F("weerLiveInterval = ")); Serial.println(settingWeerLiveInterval);     
+    Serial.print(F("        newsAUTH = ")); Serial.println(settingNewsAUTH);     
+    Serial.print(F("      newsMaxMsg = ")); Serial.println(settingNewsMaxMsg);    
+    Serial.print(F("    newsInterval = ")); Serial.println(settingNewsInterval);    
 
   } // Verbose
   
@@ -73,7 +73,7 @@ void readSettings(bool show)
   
   File file;
   
-  DebugTf(" %s ..\r\n", SETTINGS_FILE);
+  Serial.printf(" %s ..\r\n", SETTINGS_FILE);
 
   snprintf(settingHostname,    HOSTNAME_SIZE, "%s", _HOSTNAME);
   snprintf(settingNewsNoWords, LOCAL_SIZE,"Voetbal, show, UEFA, KNVB");
@@ -91,7 +91,7 @@ void readSettings(bool show)
 
   if (!LittleFS.exists(SETTINGS_FILE)) 
   {
-    DebugTln(F(" .. file not found! --> created file!"));
+    Serial.println(F(" .. file not found! --> created file!"));
     writeSettings(show);
   }
 
@@ -100,27 +100,27 @@ void readSettings(bool show)
     file = LittleFS.open(SETTINGS_FILE, "r");
     if (!file) 
     {
-      if (T == 0) DebugTf(" .. something went wrong opening [%s]\r\n", SETTINGS_FILE);
-      else        DebugT(T);
+      if (T == 0) Serial.printf(" .. something went wrong opening [%s]\r\n", SETTINGS_FILE);
+      else        Serial.print(T);
       delay(100);
     }
   } // try T times ..
 
-  DebugTln(F("Reading settings:\r"));
+  Serial.println(F("Reading settings:\r"));
   while(file.available()) 
   {
     sTmp = file.readStringUntil('\n');
     snprintf(cTmp, sizeof(cTmp), "%s", sTmp.c_str());
     //strTrim(cTmp, sizeof(cTmp), '\r');
     strTrimCntr(cTmp, sizeof(cTmp));
-    //DebugTf("cTmp[%s] (%d)\r\n", cTmp, strlen(cTmp));
+    //Serial.printf("cTmp[%s] (%d)\r\n", cTmp, strlen(cTmp));
     int sEq = strIndex(cTmp, "=");
     strCopy(cKey, 100, cTmp, 0, sEq -1);
     strCopy(cVal, 100, cTmp, sEq +1, strlen(cTmp));
-    //DebugTf("cKey[%s], cVal[%s]\r\n", cKey, cVal);
+    //Serial.printf("cKey[%s], cVal[%s]\r\n", cKey, cVal);
     strTrim(cKey, sizeof(cKey), ' ');
     strTrim(cVal, sizeof(cVal), ' ');
-    //DebugTf("cKey[%s], cVal[%s]\r\n", cKey, cVal);
+    //Serial.printf("cKey[%s], cVal[%s]\r\n", cKey, cVal);
 
     //strToLower(cKey);
     if (stricmp(cKey, "hostname") == 0)         strCopy(settingHostname,         HOSTNAME_SIZE, cVal);
@@ -176,26 +176,26 @@ void readSettings(bool show)
     if (settingNewsInterval <  15)    settingNewsInterval     =   15;
   }
 
-  DebugTln(F(" .. done\r"));
+  Serial.println(F(" .. done\r"));
 
   if (!show) return;
   
-  Debugln(F("\r\n==== read Settings ===================================================\r"));
-  Debugf("                 Hostname : %s\r\n",  settingHostname);
-  Debugf("           local Max. Msg : %d\r\n",  settingLocalMaxMsg);
-  Debugf("               text Speed : %d\r\n",  settingTextSpeed);
-  Debugf("           LDR low offset : %d\r\n",  settingLDRlowOffset);
-  Debugf("          LDR high offset : %d\r\n",  settingLDRhighOffset);
-  Debugf("            max Intensity : %d\r\n",  settingMaxIntensity);
-  Debugf("         WeerLive.nl AUTH : %s\r\n",  settingWeerLiveAUTH);
-  Debugf("      WeerLive.nl Locatie : %s\r\n",  settingWeerLiveLocation);
-  Debugf("     WeerLive.nl Interval : %d\r\n",  settingWeerLiveInterval);
-  Debugf("         newsapi.org AUTH : %s\r\n",  settingNewsAUTH);
-  Debugf("      newsapi.org NoWords : %s\r\n",  settingNewsNoWords);
-  Debugf("     newsapi.org Max. Msg : %d\r\n",  settingNewsMaxMsg);
-  Debugf("     newsapi.org Interval : %d\r\n",  settingNewsInterval);
+  Serial.println(F("\r\n==== read Settings ===================================================\r"));
+  Serial.printf("                 Hostname : %s\r\n",  settingHostname);
+  Serial.printf("           local Max. Msg : %d\r\n",  settingLocalMaxMsg);
+  Serial.printf("               text Speed : %d\r\n",  settingTextSpeed);
+  Serial.printf("           LDR low offset : %d\r\n",  settingLDRlowOffset);
+  Serial.printf("          LDR high offset : %d\r\n",  settingLDRhighOffset);
+  Serial.printf("            max Intensity : %d\r\n",  settingMaxIntensity);
+  Serial.printf("         WeerLive.nl AUTH : %s\r\n",  settingWeerLiveAUTH);
+  Serial.printf("      WeerLive.nl Locatie : %s\r\n",  settingWeerLiveLocation);
+  Serial.printf("     WeerLive.nl Interval : %d\r\n",  settingWeerLiveInterval);
+  Serial.printf("         newsapi.org AUTH : %s\r\n",  settingNewsAUTH);
+  Serial.printf("      newsapi.org NoWords : %s\r\n",  settingNewsNoWords);
+  Serial.printf("     newsapi.org Max. Msg : %d\r\n",  settingNewsMaxMsg);
+  Serial.printf("     newsapi.org Interval : %d\r\n",  settingNewsInterval);
   
-  Debugln(F("-\r"));
+  Serial.println(F("-\r"));
 
 } // readSettings()
 
@@ -203,7 +203,7 @@ void readSettings(bool show)
 //=======================================================================
 void updateSetting(const char *field, const char *newValue)
 {
-  DebugTf("-> field[%s], newValue[%s]\r\n", field, newValue);
+  Serial.printf("-> field[%s], newValue[%s]\r\n", field, newValue);
 
   if (!stricmp(field, "Hostname")) {
     strCopy(settingHostname, HOSTNAME_SIZE, newValue); 
@@ -214,8 +214,8 @@ void updateSetting(const char *field, const char *newValue)
       byte dotPos = (dotPntr-settingHostname);
       if (dotPos > 0)  settingHostname[dotPos] = '\0';
     }
-    Debugln();
-    DebugTf("Need reboot before new %s.local will be available!\r\n\n", settingHostname);
+    Serial.println();
+    Serial.printf("Need reboot before new %s.local will be available!\r\n\n", settingHostname);
   }
   if (!stricmp(field, "localMaxMsg"))      settingLocalMaxMsg   = String(newValue).toInt();  
   if (!stricmp(field, "textSpeed"))        settingTextSpeed     = String(newValue).toInt();  

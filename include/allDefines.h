@@ -14,6 +14,8 @@
 #define _FW_VERSION "v1.8.0 (08-07-2023)"
 
 
+#define USE_UPDATE_SERVER
+
 // Define the number of devices we have in the chain and the hardware interface
 // NOTE: These pin numbers are for ESP8266 hardware SPI and will probably not
 // work with your hardware and may need to be adapted
@@ -31,6 +33,7 @@
 #define HOSTNAME_SIZE    40
 #define LOCAL_SIZE      255
 #define NEWS_SIZE       512
+#define WEER_SIZE       512
 #define JSON_BUFF_MAX   255
 #define JSON_RESPONSE_SIZE 1024
 #define MAX_NO_NO_WORDS  20

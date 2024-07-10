@@ -5,7 +5,7 @@
 #include <ESP8266WebServer.h>
 #include <LittleFS.h>
 #include <ArduinoJson.h>
-#include "Debug.h"
+//#include "Debug.h"
 #include "allDefines.h"
 #include "littlefsSTuff.h"
 #include "jsonStuff.h"
@@ -42,5 +42,6 @@ extern char settingNewsNoWords[];
 extern char fileMessage[];
 //extern char _FW_VERSION[];
 extern String lastReset;
+extern const char *flashMode[];
 
 #endif // RESTAPI_H

@@ -81,29 +81,29 @@ void setupFSexplorer()    // Funktionsaufruf "spiffs();" muss im Setup eingebund
   httpServer.on("/update", updateFirmware);
   httpServer.onNotFound([]() 
   {
-    if (Verbose) DebugTf("in 'onNotFound()'!! [%s] => \r\n", String(httpServer.uri()).c_str());
+    if (Verbose) Serial.printf("in 'onNotFound()'!! [%s] => \r\n", String(httpServer.uri()).c_str());
     TelnetStream.printf("in 'onNotFound()'!! [%s] => \r\n", String(httpServer.uri()).c_str());
     if (httpServer.uri().indexOf("/api/") == 0) 
     {
-      if (Verbose) DebugTf("next: processAPI(%s)\r\n", String(httpServer.uri()).c_str());
+      if (Verbose) Serial.printf("next: processAPI(%s)\r\n", String(httpServer.uri()).c_str());
       TelnetStream.printf("next: processAPI(%s)\r\n", String(httpServer.uri()).c_str());
       processAPI();
     }
     else if (httpServer.uri() == "/")
     {
-      DebugTln("index requested..");
+      Serial.println("index requested..");
       TelnetStream.println("index requested..");
       sendIndexPage();
     }
     else
     {
-      DebugTf("next: handleFile(%s)\r\n"
+      Serial.printf("next: handleFile(%s)\r\n"
                       , String(httpServer.urlDecode(httpServer.uri())).c_str());
       TelnetStream.printf("next: handleFile(%s)\r\n"
                       , String(httpServer.urlDecode(httpServer.uri())).c_str());
       if (!handleFile(httpServer.urlDecode(httpServer.uri())))
       {
-        DebugTln("File not found");
+        Serial.println("File not found");
         TelnetStream.println("File not found");
         httpServer.send(404, "text/plain", "FileNotFound\r\n");
       }
@@ -146,21 +146,21 @@ void APIlistFiles()             // Senden aller Daten an den Client
       fileNr++;
     //}
   }
-  DebugTf("fileNr[%d], Max[%d]\r\n", fileNr, MAX_FILES_IN_LIST);
+  Serial.printf("fileNr[%d], Max[%d]\r\n", fileNr, MAX_FILES_IN_LIST);
 
   // -- bubble sort dirMap op .Name--
   for (int8_t y = 0; y < fileNr; y++) {
     yield();
     for (int8_t x = y + 1; x < fileNr; x++)  {
-      //DebugTf("y[%d], x[%d] => seq[y][%s] / seq[x][%s] ", y, x, dirMap[y].Name, dirMap[x].Name);
+      //Serial.printf("y[%d], x[%d] => seq[y][%s] / seq[x][%s] ", y, x, dirMap[y].Name, dirMap[x].Name);
       if (compare(String(dirMap[x].Name), String(dirMap[y].Name)))  
       {
-        //Debug(" !switch!");
+        //Serial.print(" !switch!");
         fileMeta temp = dirMap[y];
         dirMap[y] = dirMap[x];
         dirMap[x] = temp;
       } /* end if */
-      //Debugln();
+      //Serial.println();
     } /* end for */
   } /* end for */
   
@@ -178,7 +178,7 @@ void APIlistFiles()             // Senden aller Daten an den Client
   String temp = "[";
   for (int f=0; f < fileNr; f++)  
   {
-    DebugTf("[%3d] >> [%s]\r\n", f, dirMap[f].Name);
+    Serial.printf("[%3d] >> [%s]\r\n", f, dirMap[f].Name);
     if (temp != "[") temp += ",";
     temp += R"({"name":")" + String(dirMap[f].Name) + R"(","size":")" + formatBytes(dirMap[f].Size) + R"("})";
   }
@@ -198,7 +198,7 @@ bool handleFile(String&& path)
 {
   if (httpServer.hasArg("delete")) 
   {
-    DebugTf("Delete -> [%s]\n\r",  httpServer.arg("delete").c_str());
+    Serial.printf("Delete -> [%s]\n\r",  httpServer.arg("delete").c_str());
     LittleFS.remove(httpServer.arg("delete"));    // Datei löschen
     httpServer.sendContent(Header);
     return true;
@@ -221,12 +221,12 @@ void handleFileUpload()
     {
       upload.filename = upload.filename.substring(upload.filename.length() - 30, upload.filename.length());  // Dateinamen auf 30 Zeichen kürzen
     }
-    Debugln("FileUpload Name: " + upload.filename);
+    Serial.println("FileUpload Name: " + upload.filename);
     fsUploadFile = LittleFS.open("/" + httpServer.urlDecode(upload.filename), "w");
   } 
   else if (upload.status == UPLOAD_FILE_WRITE) 
   {
-    Debugln("FileUpload Data: " + (String)upload.currentSize);
+    Serial.println("FileUpload Data: " + (String)upload.currentSize);
     if (fsUploadFile)
       fsUploadFile.write(upload.buf, upload.currentSize);
   } 
@@ -234,7 +234,7 @@ void handleFileUpload()
   {
     if (fsUploadFile)
       fsUploadFile.close();
-    Debugln("FileUpload Size: " + (String)upload.totalSize);
+    Serial.println("FileUpload Size: " + (String)upload.totalSize);
     httpServer.sendContent(Header);
   }
   
@@ -245,7 +245,7 @@ void handleFileUpload()
 void formatLittleFS() 
 {       //Formatiert den Speicher
   if (!LittleFS.exists("/!format")) return;
-  DebugTln(F("Format LittleFS"));
+  Serial.println(F("Format LittleFS"));
   LittleFS.format();
   httpServer.sendContent(Header);
   
@@ -276,7 +276,7 @@ bool freeSpace(uint16_t const& printsize)
 {    
   FSInfo LittleFSinfo;
   LittleFS.info(LittleFSinfo);
-  Debugln(formatBytes(LittleFSinfo.totalBytes - (LittleFSinfo.usedBytes * 1.05)) + " im Spiffs frei");
+  Serial.println(formatBytes(LittleFSinfo.totalBytes - (LittleFSinfo.usedBytes * 1.05)) + " im Spiffs frei");
   return (LittleFSinfo.totalBytes - (LittleFSinfo.usedBytes * 1.05) > printsize) ? true : false;
   
 } // freeSpace()
@@ -285,21 +285,21 @@ bool freeSpace(uint16_t const& printsize)
 //=====================================================================================
 void updateFirmware()
 {
-  DebugTln(F("Redirect to updateIndex .."));
-  //--aaw- doRedirect("wait ... ", 1, "/updateIndex", false);
+  Serial.println(F("Redirect to updateIndex .."));
+  doRedirect("wait ... ", 1, "/updateIndex", false);
       
 } // updateFirmware()
 
 //=====================================================================================
 void reBootESP()
 {
-  DebugTln(F("Redirect and ReBoot .."));
-  //-aaw- doRedirect("Reboot ESP - lichtKrant ..", 60, "/", true);
+  Serial.println(F("Redirect and ReBoot .."));
+  doRedirect("Reboot ESP - lichtKrant ..", 60, "/", true);
       
 } // reBootESP()
 
 //=====================================================================================
-void doRedirect(String msg, int wait, const char* URL, bool reboot)
+void doRedirect(const char *msg, int wait, const char* URL, bool reboot)
 {
   String redirectHTML = 
   "<!DOCTYPE HTML><html lang='en-US'>"
@@ -311,7 +311,7 @@ void doRedirect(String msg, int wait, const char* URL, bool reboot)
   "<title>Redirect to Main Program</title>"
   "</head>"
   "<body><h1>FSexplorer</h1>"
-  "<h3>"+msg+"</h3>"
+  "<h3>"+String(msg)+"</h3>"
   "<br><div style='width: 500px; position: relative; font-size: 25px;'>"
   "  <div style='float: left;'>Redirect over &nbsp;</div>"
   "  <div style='float: left;' id='counter'>"+String(wait)+"</div>"
@@ -332,7 +332,7 @@ void doRedirect(String msg, int wait, const char* URL, bool reboot)
   "  </script> "
   "</body></html>\r\n";
   
-  DebugTln(msg);
+  Serial.println(msg);
   httpServer.send(200, "text/html", redirectHTML);
   if (reboot) 
   {

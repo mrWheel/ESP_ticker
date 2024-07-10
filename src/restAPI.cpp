@@ -21,16 +21,16 @@ void processAPI()
   strncpy( URI, httpServer.uri().c_str(), sizeof(URI) );
 
   if (httpServer.method() == HTTP_GET)
-        DebugTf("from[%s] URI[%s] method[GET] \r\n"
+        Serial.printf("from[%s] URI[%s] method[GET] \r\n"
                                   , httpServer.client().remoteIP().toString().c_str()
                                         , URI); 
-  else  DebugTf("from[%s] URI[%s] method[PUT] \r\n" 
+  else  Serial.printf("from[%s] URI[%s] method[PUT] \r\n" 
                                   , httpServer.client().remoteIP().toString().c_str()
                                         , URI); 
 
   if (ESP.getFreeHeap() < 8500) // to prevent firmware from crashing!
   {
-    DebugTf("==> Bailout due to low heap (%d bytes))\r\n", ESP.getFreeHeap() );
+    Serial.printf("==> Bailout due to low heap (%d bytes))\r\n", ESP.getFreeHeap() );
     httpServer.send(500, "text/plain", "500: internal server error (low heap)\r\n"); 
     return;
   }
@@ -39,12 +39,12 @@ void processAPI()
   
   if (Verbose) 
   {
-    DebugT(">>");
+    Serial.print(">>");
     for (int w=0; w<wc; w++)
     {
-      Debugf("word[%d] => [%s], ", w, words[w].c_str());
+      Serial.printf("word[%d] => [%s], ", w, words[w].c_str());
     }
-    Debugln(" ");
+    Serial.println(" ");
   }
 
   if (words[1] != "api")
@@ -129,10 +129,8 @@ void sendDeviceInfo()
   sendNestedJsonObj("spiffssize", formatFloat( (LittleFSinfo.totalBytes / (1024.0 * 1024.0)), 0));
 ***/
   sendNestedJsonObj("flashchipspeed", formatFloat((ESP.getFlashChipSpeed() / 1000.0 / 1000.0), 0));
-/*** --AaW-
   FlashMode_t ideMode = ESP.getFlashChipMode();
   sendNestedJsonObj("flashchipmode", flashMode[ideMode]);
-***/
 /*** --AaW- 
   sendNestedJsonObj("boardtype",
 #ifdef ARDUINO_ESP8266_NODEMCU
@@ -181,7 +179,7 @@ void sendDeviceTime()
 //=======================================================================
 void sendDeviceSettings() 
 {
-  DebugTln("sending device settings ...\r");
+  Serial.println("sending device settings ...\r");
 
   sendStartJsonObj("settings");
   
@@ -209,7 +207,7 @@ void sendLocalMessages()
 {
   int mID;
   
-  DebugTln("sending local Messages ...\r");
+  Serial.println("sending local Messages ...\r");
 
   sendStartJsonObj("messages");
 
@@ -241,7 +239,7 @@ void sendNewsMessages()
 {
   int nID;
   
-  DebugTln("sending news Messages ...\r");
+  Serial.println("sending news Messages ...\r");
 
   sendStartJsonObj("newsapi");
 
@@ -277,13 +275,13 @@ void postMessages()
       int8_t wp = splitString(jsonIn.c_str(), ',',  wPair, 5) ;
       for (int i=0; i<wp; i++)
       {
-        //DebugTf("[%d] -> pair[%s]\r\n", i, wPair[i].c_str());
+        //Serial.printf("[%d] -> pair[%s]\r\n", i, wPair[i].c_str());
         int8_t wc = splitString(wPair[i].c_str(), ':',  wOut, 5) ;
-        //DebugTf("==> [%s] -> field[%s]->val[%s]\r\n", wPair[i].c_str(), wOut[0].c_str(), wOut[1].c_str());
+        //Serial.printf("==> [%s] -> field[%s]->val[%s]\r\n", wPair[i].c_str(), wOut[0].c_str(), wOut[1].c_str());
         if (wOut[0].equalsIgnoreCase("name"))  strCopy(field, sizeof(field), wOut[1].c_str());
         if (wOut[0].equalsIgnoreCase("value")) strCopy(newValue, sizeof(newValue), wOut[1].c_str());
       }
-      DebugTf("--> field[%s] => newValue[%s]\r\n", field, newValue);
+      Serial.printf("--> field[%s] => newValue[%s]\r\n", field, newValue);
       updateMessage(field, newValue);
       httpServer.send(200, "application/json", httpServer.arg(0));
 
@@ -310,13 +308,13 @@ void postSettings()
       int8_t wp = splitString(jsonIn.c_str(), ',',  wPair, 5) ;
       for (int i=0; i<wp; i++)
       {
-        //DebugTf("[%d] -> pair[%s]\r\n", i, wPair[i].c_str());
+        //Serial.printf("[%d] -> pair[%s]\r\n", i, wPair[i].c_str());
         int8_t wc = splitString(wPair[i].c_str(), ':',  wOut, 5) ;
-        //DebugTf("==> [%s] -> field[%s]->val[%s]\r\n", wPair[i].c_str(), wOut[0].c_str(), wOut[1].c_str());
+        //Serial.printf("==> [%s] -> field[%s]->val[%s]\r\n", wPair[i].c_str(), wOut[0].c_str(), wOut[1].c_str());
         if (wOut[0].equalsIgnoreCase("name"))  strCopy(field, sizeof(field), wOut[1].c_str());
         if (wOut[0].equalsIgnoreCase("value")) strCopy(newValue, sizeof(newValue), wOut[1].c_str());
       }
-      DebugTf("--> field[%s] => newValue[%s]\r\n", field, newValue);
+      Serial.printf("--> field[%s] => newValue[%s]\r\n", field, newValue);
       updateSetting(field, newValue);
       httpServer.send(200, "application/json", httpServer.arg(0));
 

@@ -7,7 +7,7 @@
 #include <ArduinoJson.h>
 #include <WiFiClient.h>
 
-#include "Debug.h"
+//#include "Debug.h"
 #include "allDefines.h"
 #include "helperStuff.h"
 #include "jsonStuff.h"
@@ -18,8 +18,8 @@ void getWeerLiveData();
 // External global variables
 extern char settingWeerLiveAUTH[WEER_AUTH_SIZE];
 extern char settingWeerLiveLocation[WEER_LIVE_LOC_SIZE];
-extern char tempMessage[LOCAL_SIZE];
-extern char cMsg[NEWS_SIZE];
+extern char tempMessage[WEER_SIZE];
+extern char cMsg[WEER_SIZE];
 
 
 // Utility function prototypes (assuming they are defined elsewhere in your project)

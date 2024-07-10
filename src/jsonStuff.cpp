@@ -58,7 +58,7 @@ void sendNestedJsonObj(const char *cName, String sValue)
   
   if (sValue.length() > (JSON_BUFF_MAX - 65) )
   {
-    DebugTf("[2] sValue.length() [%d]\r\n", sValue.length());
+    Serial.printf("[2] sValue.length() [%d]\r\n", sValue.length());
   }
   
     snprintf(jsonBuff, sizeof(jsonBuff), "%s{\"name\": \"%s\", \"value\": \"%s\"}"

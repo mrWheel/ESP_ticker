@@ -80,11 +80,11 @@ boolean isValidIP(IPAddress ip)
   _isValidIP &= !(ip[0]==127 && ip[1]==0 && ip[2]==0 && ip[3]==1);                 // if not 127.0.0.0 then it might be valid
   _isValidIP &= !(ip[0]>=224);                                                     // if ip[0] >=224 then reserved space  
   
-  DebugTf( "%d.%d.%d.%d", ip[0], ip[1], ip[2], ip[3]);
+  Serial.printf( "%d.%d.%d.%d", ip[0], ip[1], ip[2], ip[3]);
   if (_isValidIP) 
-    Debugln(F(" = Valid IP")); 
+    Serial.println(F(" = Valid IP")); 
   else 
-    Debugln(F(" = Invalid IP!"));
+    Serial.println(F(" = Invalid IP!"));
     
   return _isValidIP;
   
@@ -117,7 +117,7 @@ int8_t splitString(String inStrng, char delimiter, String wOut[], uint8_t maxWor
       inxE  = inStrng.indexOf(delimiter, inxS);         //finds location of first ,
       wOut[wordCount] = inStrng.substring(inxS, inxE);  //captures first data String
       wOut[wordCount].trim();
-      //DebugTf("[%d] => [%c] @[%d] found[%s]\r\n", wordCount, delimiter, inxE, wOut[wordCount].c_str());
+      //Serial.printf("[%d] => [%c] @[%d] found[%s]\r\n", wordCount, delimiter, inxE, wOut[wordCount].c_str());
       inxS = inxE;
       inxS++;
       wordCount++;
@@ -148,7 +148,7 @@ void strConcat(char *dest, int maxLen, const char *src)
   } 
   else
   {
-    DebugTf("Combined string > %d chars\r\n", maxLen);
+    Serial.printf("Combined string > %d chars\r\n", maxLen);
   }
   
 } // strConcat()
@@ -172,7 +172,7 @@ void strConcat(char *dest, int maxLen, float v, int dec)
   } 
   else
   {
-    DebugTf("Combined string > %d chars\r\n", maxLen);
+    Serial.printf("Combined string > %d chars\r\n", maxLen);
   }
   
 } // strConcat()
@@ -190,7 +190,7 @@ void strConcat(char *dest, int maxLen, int v)
   } 
   else
   {
-    DebugTf("Combined string > %d chars\r\n", maxLen);
+    Serial.printf("Combined string > %d chars\r\n", maxLen);
   }
   
 } // strConcat()
@@ -212,7 +212,7 @@ void strToLower(char *src)
 void strCopy(char *dest, int maxLen, const char *src, int frm, int to)
 {
   int d=0;
-//DebugTf("dest[%s], src[%s] max[%d], frm[%d], to[%d] =>\r\n", dest, src, maxLen, frm, to);
+//Serial.printf("dest[%s], src[%s] max[%d], frm[%d], to[%d] =>\r\n", dest, src, maxLen, frm, to);
   dest[0] = '\0';
   for (int i=0; i<=frm; i++)
   {
@@ -345,7 +345,7 @@ int strIndex(const char *haystack, const char *needle, int start)
   // strindex(hay, needle) ????
   char *p = strstr(haystack+start, needle);
   if (p) {
-    //DebugTf("found [%s] at position [%d]\r\n", needle, (p - haystack));
+    //Serial.printf("found [%s] at position [%d]\r\n", needle, (p - haystack));
     return (p - haystack);
   }
   return -1;
@@ -411,7 +411,7 @@ float strToFloat(const char *s, int dec)
   r = strtof(s, NULL);
   p = (int)(r*pow(10, dec));
   r = p / pow(10, dec);
-  //DebugTf("[%s][%d] => p[%d] -> r[%f]\r\n", s, dec, p, r);
+  //Serial.printf("[%s][%d] => p[%d] -> r[%f]\r\n", s, dec, p, r);
   return r; 
 
 } //  strToFloat()
@@ -473,8 +473,8 @@ uint8_t utf8Ascii(uint8_t ascii)
     }
     cPrev = ascii;   // save last char
   }
-  //Debugf("\nConverted 0x%02x", ascii);
-  //Debugf(" to 0x%02x", c);
+  //Serial.printf("\nConverted 0x%02x", ascii);
+  //Serial.printf(" to 0x%02x", c);
 
   return(c);
   
@@ -488,7 +488,7 @@ void utf8Ascii(char* s)
   uint8_t c;
   char *cp = s;
 
-  //DebugTf("\nConverting: %c", s);
+  //Serial.printf("\nConverting: %c", s);
 
   while (*s != '\0')
   {
@@ -515,7 +515,7 @@ void getRevisionData(const char* fwVersion)
 //---------------------------------------------------------------------
 void splitNewsNoWords(const char *noNo)
 {
-  DebugTln(noNo);
+  Serial.println(noNo);
   int8_t wc = splitString(String(noNo), ' ', noWords, MAX_NO_NO_WORDS);
   for(int8_t i=0; i<wc; i++)
   {
@@ -523,7 +523,7 @@ void splitNewsNoWords(const char *noNo)
     if (noWords[i].length() > 1)
     {
       noWords[i].toLowerCase();
-      DebugTf("NoNoWord[%d] [%s]\r\n", i, noWords[i].c_str());
+      Serial.printf("NoNoWord[%d] [%s]\r\n", i, noWords[i].c_str());
     }
   }
   
@@ -539,11 +539,11 @@ bool hasNoNoWord(const char *cIn)
     int idx = sIn.indexOf(noWords[i]);
     if ((idx > -1) && (noWords[i].length() > 1))  // yes! it's in there somewhere
     {
-      DebugTf("found [%s]\r\n", noWords[i].c_str());
+      Serial.printf("found [%s]\r\n", noWords[i].c_str());
       return true;      
     }
   }
-  //DebugTln("no NoNo words found!");
+  //Serial.println("no NoNo words found!");
   return false;
   
 } // hasNoNoWord()

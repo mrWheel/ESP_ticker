@@ -24,7 +24,7 @@ void getWeerLiveData()
   
   WiFiClient weerliveClient;
 
-  DebugTf("getWeerLiveData(%s)\r\n", weerliveHost);
+  Serial.printf("getWeerLiveData(%s)\r\n", weerliveHost);
 
   // We now create a URI for the request
   String url = "/api/json-data-10min.php?key=";
@@ -32,11 +32,11 @@ void getWeerLiveData()
   url += "&locatie=";
   url += settingWeerLiveLocation;
 
-  DebugTf("Requesting URL: %s/api/json-data-10min.php?key=secret&locatie=%s\r\n", weerliveHost, settingWeerLiveLocation);
-  Debugln(url);
+  Serial.printf("Requesting URL: %s/api/json-data-10min.php?key=secret&locatie=%s\r\n", weerliveHost, settingWeerLiveLocation);
+  Serial.println(url);
   if (!weerliveClient.connect(weerliveHost, httpPort)) 
   {
-    DebugTln("connection failed");
+    Serial.println("connection failed");
     sprintf(tempMessage, "connection to %s failed", weerliveHost);
     weerliveClient.flush();
     weerliveClient.stop();
@@ -61,19 +61,19 @@ void getWeerLiveData()
       if (weerliveClient.find("HTTP/1.1"))
       {
         weerliveStatus = weerliveClient.parseInt(); // parse status code
-        DebugTf("Statuscode: [%d] ", weerliveStatus); 
+        Serial.printf("Statuscode: [%d] ", weerliveStatus); 
         if (weerliveStatus != 200)
         {
-          Debugln(" ERROR!");
+          Serial.println(" ERROR!");
           weerliveClient.flush();
           weerliveClient.stop();
           return;  
         }
-        Debugln(" OK!");
+        Serial.println(" OK!");
       }
       else
       {
-        DebugTln("Error reading weerLive.. -> bailout!");
+        Serial.println("Error reading weerLive.. -> bailout!");
         weerliveClient.flush();
         weerliveClient.stop();
         return;
@@ -85,7 +85,7 @@ void getWeerLiveData()
         charsRead = weerliveClient.readBytesUntil('\0',  jsonResponse, sizeof(jsonResponse));
         jsonResponse[(charsRead -1)] = '\0';
         gotData = true;
-        DebugTln("Got weer data!");
+        Serial.println("Got weer data!");
       }
     } // while available ..
     
@@ -98,8 +98,8 @@ void getWeerLiveData()
   
   int prevLength = strlen(jsonResponse);
   strTrimCntr(jsonResponse, 1534);
-  DebugTf("jsonResponse now [%d]chars (before trim [%d]chars)\r\n", strlen(jsonResponse), prevLength);
-  DebugTf("jsonResponse is [%s]\r\n\n", jsonResponse);
+  Serial.printf("jsonResponse now [%d]chars (before trim [%d]chars)\r\n", strlen(jsonResponse), prevLength);
+  Serial.printf("jsonResponse is [%s]\r\n\n", jsonResponse);
   
   parseJsonKey(jsonResponse, "plaats", val, 50);
   snprintf(tempMessage, LOCAL_SIZE, val);
@@ -120,8 +120,8 @@ void getWeerLiveData()
   snprintf(cMsg, LOCAL_SIZE, "%s max %s°C", tempMessage, val);
 
   snprintf(tempMessage, LOCAL_SIZE, "%s", cMsg);
-  Debugln("\r\n");
-  Debugf("\tWeer[%s]\r\n", tempMessage);
+  Serial.println("\r\n");
+  Serial.printf("\tWeer[%s]\r\n", tempMessage);
   
 } // getWeerLiveData()
 
