@@ -1,9 +1,9 @@
 /*
 ***************************************************************************  
 **  Program  : index.js, part of ESP_ticker
-**  Version  : v1.6.0   (02-01-2021)
+**  Version  : v1.8.0   (12-07-2024)
 **
-**  Copyright (c) 2021 Willem Aandewiel
+**  Copyright (c) 2024 Willem Aandewiel
 **
 **  TERMS OF USE: MIT License. See bottom of file.                                                            
 ***************************************************************************      
@@ -44,8 +44,12 @@
                                                 {saveSettings();});
     needReload = false;
     refreshDevTime();
+    // Set interval to call refreshDevTime() every 10 seconds (10000 milliseconds)
+    setInterval(refreshDevTime, 10000);    
     refreshDevInfo();
     refreshMessages();
+    refreshOnTickerMessage()
+    setInterval(refreshOnTickerMessage, 10000);    
 
     document.getElementById("displayMainPage").style.display       = "block";
     document.getElementById("displaySettingsPage").style.display   = "none";
@@ -87,7 +91,6 @@
       });     
       
   } // refreshDevTime()
-    
   
   //============================================================================  
   function refreshDevInfo()
@@ -204,6 +207,34 @@
 
   } // refreshMessages()
   
+  
+  //============================================================================  
+  function refreshOnTickerMessage()
+  {
+    //console.log("Refresh api/v0/devtime ..");
+    fetch(APIGW+"v0/onticker")
+      .then(response => response.json())
+      .then(json => {
+        console.log("parsed .., data is ["+ JSON.stringify(json)+"]");
+        for( let i in json.onticker )
+        {
+          console.log("json.onticker[i].name ["+json.onticker[i].name+"] value["+json.onticker[i].value+"]");
+          if (json.onticker[i].name == "onticker")
+          {
+            //console.log("Got new time ["+json.devtime[i].value+"]");
+            document.getElementById('onticker').innerHTML = json.onticker[i].value;
+          }
+        }
+    })
+      .catch(function(error) {
+        var p = document.createElement('p');
+        p.appendChild(
+          document.createTextNode('Error: ' + error.message)
+        );
+      });     
+      
+  } // refreshOnTickerMessage()
+
     
   //============================================================================  
   function refreshSettings()
@@ -312,7 +343,7 @@
     {
       //do something to each div like
       var msgId = mRow[i].getAttribute("id");
-      var field = msgId.substr(2);
+      var field = msgId.substring(2);
       //console.log("msgId["+msgId+", msgNr["+field+"]");
       value = document.getElementById(msgId).value;
       //console.log("==> name["+field+"], value["+value+"]");

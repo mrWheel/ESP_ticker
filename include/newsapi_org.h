@@ -4,6 +4,7 @@
 #include <Arduino.h>
 #include <WiFiClient.h>
 #include <LittleFS.h>
+#include <TelnetStream.h>
 #include "allDefines.h"
 #include "helperStuff.h"
 #include "littlefsStuff.h"
@@ -27,6 +28,7 @@ extern int newsapiStatus;
 extern char newsMessage[];
 extern int32_t maxWait;
 extern char jsonResponse[];
+extern char onTickerMessage[];
 extern char val[];
 extern WiFiClient newsapiClient;
 

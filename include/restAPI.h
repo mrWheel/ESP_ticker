@@ -18,6 +18,7 @@ void sendDeviceTime();
 void sendDeviceSettings();
 void sendLocalMessages();
 void sendNewsMessages();
+void sendTickerMessage();
 void postMessages();
 void postSettings();
 void sendApiNotFound(const char *URI);
@@ -25,6 +26,7 @@ void sendApiNotFound(const char *URI);
 // External variables
 extern ESP8266WebServer httpServer;
 extern char cMsg[];
+extern char onTickerMessage[];
 extern bool Verbose;
 extern char settingHostname[];
 extern uint8_t settingLocalMaxMsg;

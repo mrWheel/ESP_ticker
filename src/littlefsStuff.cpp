@@ -124,6 +124,7 @@ bool readFileById(const char* fType, uint8_t mId)
 bool writeFileById(const char* fType, uint8_t mId, const char *msg)
 {
   String rTmp;
+  char fmsg[LOCAL_SIZE] = "";
   char fName[50] = "";
   sprintf(fName, "/newsFiles/%s-%03d", fType, mId);
 
@@ -147,8 +148,9 @@ bool writeFileById(const char* fType, uint8_t mId, const char *msg)
 
   Serial.println(F("Start writing data .. \r"));
   Serial.flush();
-  Serial.println(msg);
-  file.println(msg);
+  snprintf(fmsg, LOCAL_SIZE, "%s", msg);
+  Serial.println(fmsg);
+  file.println(fmsg);
   file.close();
 
   Serial.println("Exit writeFileById()!");
