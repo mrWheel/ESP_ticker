@@ -8,28 +8,6 @@
 **
 **  TERMS OF USE: MIT License. See bottom of file.                                                            
 ***************************************************************************      
-
-    Arduino-IDE settings for ESP-12E:
-
-    - Board: "Generic ESP8266 Module" (ALLWAYS!!!!!)
-    - Buildin Led: "2"
-    - Upload Speed: "115200"
-    - CPU Frequency: "80 MHz" (or if you need the speed: 160MHz)
-    - Flash size: "4MB (FS:2M OTA~1019KB)"
-    - Flash mode: "DIO" / "DOUT"
-    - Flash Frequency: "40MHz"
-    - Reset Method: "nodemcu" or something else
-    - Serial.print port: "Disabled"
-    - Serial.print Level: "None"
-    - IwIP Variant: "v2 Lower Memory"
-    - VTables: "Flash"
-    - Exceptions: "Legacy (new can return nullptr)"
-    - Erase Flash: "Only Sketch"
-    - Espressif FW: "nonos-sdk 2.2.1+100 (190703)"
-    - SSL Support: "All SSL ciphers (most compatible)"
-    - Port: "ESPticker at <-- IP address -->"
-
-    Arduino ESP8266 core v2.7.+
 */
 
 
@@ -229,7 +207,7 @@ void setup()
   P.displayClear();
   P.displaySuspend(false);
   P.setIntensity(2);
-  P.displayScroll(actMessage, PA_LEFT, PA_NO_EFFECT, 100);
+  P.displayScroll(actMessage, PA_LEFT, PA_NO_EFFECT, 10);
   P.setTextEffect(PA_SCROLL_LEFT, PA_NO_EFFECT);
   do { yield(); } while( !P.displayAnimate() );
 
@@ -284,7 +262,7 @@ void setup()
   // Set up first message as the IP address
   sprintf(actMessage, "%03d.%03d.%d.%d", WiFi.localIP()[0], WiFi.localIP()[1], WiFi.localIP()[2], WiFi.localIP()[3]);
   Serial.printf("\nAssigned IP[%s]\r\n", actMessage);
-  P.displayScroll(actMessage, PA_LEFT, PA_NO_EFFECT, 100);
+  P.displayScroll(actMessage, PA_LEFT, PA_NO_EFFECT, 5);
   P.setTextEffect(PA_SCROLL_LEFT, PA_NO_EFFECT);
   do { yield(); } while( !P.displayAnimate() );
 
