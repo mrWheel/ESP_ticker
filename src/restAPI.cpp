@@ -93,6 +93,11 @@ void processAPI()
   {
     sendNewsMessages();
   }
+  else if (words[3] == "onticker")
+  {
+    Serial.println("words[3] is \"onticker\"!!!");
+    sendTickerMessage();
+  }
   else sendApiNotFound(URI);
   
 } // processAPI()
@@ -164,10 +169,9 @@ void sendDeviceTime()
   char actTime[50];
   
   sendStartJsonObj("devtime");
-  snprintf(actTime, 49, "%04d-%02d-%02d %02d:%02d:%02d"
-                                          , localtime(&now)->tm_year+1900, localtime(&now)->tm_mon+1, localtime(&now)->tm_mday
-                                          , localtime(&now)->tm_hour, localtime(&now)->tm_min, localtime(&now)->tm_sec
-            );
+  snprintf(actTime, 49, "%02d-%02d-%04d %02d:%02d"
+                                          , localtime(&now)->tm_mday, localtime(&now)->tm_mon+1, localtime(&now)->tm_year+1900
+                                          , localtime(&now)->tm_hour, localtime(&now)->tm_min);
   sendNestedJsonObj("dateTime", actTime); 
   //--aaw- sendNestedJsonObj("epoch", (int)now());
 
@@ -219,13 +223,13 @@ void sendLocalMessages()
       char   newMsg[LOCAL_SIZE] = "";
       String tmp = String(fileMessage);
       tmp.replace("\\", "\\\\");
-      sprintf(newMsg, "%s", tmp.c_str());
+      snprintf(newMsg, LOCAL_SIZE, "%s", tmp.c_str());
     //sendJsonSettingObj(intToStr(mID), fileMessage, "s", sizeof(fileMessage) -1);
-      sendJsonSettingObj(intToStr(mID), newMsg, "s", LOCAL_SIZE -1);
+      sendJsonSettingObj(intToStr(mID), newMsg, "s", JSON_RESPONSE_SIZE -1);
     }
     else
     {
-      sendJsonSettingObj(intToStr(mID), "", "s", LOCAL_SIZE -1);
+      sendJsonSettingObj(intToStr(mID), "", "s", JSON_RESPONSE_SIZE -1);
     }
   }
   
@@ -250,6 +254,20 @@ void sendNewsMessages()
       sendJsonSettingObj(intToStr(nID), fileMessage, "s", LOCAL_SIZE -1);
     }
   }
+  
+  sendEndJsonObj();
+
+} // sendNewsMessages()
+
+
+//=======================================================================
+void sendTickerMessage() 
+{
+  Serial.printf("sending on Ticker Message ...[%s]\r\n", onTickerMessage);
+
+  sendStartJsonObj("onticker");
+
+  sendJsonSettingObj("onticker", onTickerMessage, "s", LOCAL_SIZE -1);
   
   sendEndJsonObj();
 

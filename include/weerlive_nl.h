@@ -6,6 +6,7 @@
 #include <WiFiClientSecure.h>
 #include <ArduinoJson.h>
 #include <WiFiClient.h>
+#include <TelnetStream.h>
 
 //#include "Debug.h"
 #include "allDefines.h"

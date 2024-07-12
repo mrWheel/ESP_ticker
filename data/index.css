@@ -210,12 +210,14 @@ input {
 
 .bottom { 
   position: fixed;
+  /**
   font-size: small;
-  color: gray;
+  color: gray; 
+  **/
   bottom:0;
 } 
-.right-0  {right: 0; padding-right: 10px; }
-.left-0   {left:  0; padding-left:  10px; }
+.right-0  {font-size: small; color: gray; right: 0; padding-right: 10px; }
+.left-0   {font-weight: bold; color: black; left:  0; padding-left:  10px; }
             
 //--- next 4 are for the API doc page --------
 .div1 { 

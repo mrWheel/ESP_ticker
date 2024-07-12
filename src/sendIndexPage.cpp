@@ -65,10 +65,10 @@ R"(
     <!-- KEEP THIS --->
 
     <!-- Pin to bottom right corner -->
-    <div class="bottom right-0">2021 &copy; Willem Aandewiel</div>
+    <div class="bottom right-0">2024 &copy; Willem Aandewiel</div>
 
     <!-- Pin to bottom left corner -->
-    <div id="message" class="bottom left-0">-</div>
+    <div id="onticker" class="bottom left-0">-</div>
   
     <script>
        window.onload=bootsTrapMain;

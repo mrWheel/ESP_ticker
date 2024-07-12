@@ -50,6 +50,7 @@ char      cMsg[NEWS_SIZE];
 char      tempMessage[WEER_SIZE] = "";
 uint8_t   msgType;
 char      actMessage[NEWS_SIZE], timeMsg[20];
+char      onTickerMessage[LOCAL_SIZE] = {};
 char      fileMessage[LOCAL_SIZE];
 uint8_t   newsMsgID   = 0;
 uint8_t   localMsgID  = 0;

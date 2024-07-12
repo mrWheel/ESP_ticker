@@ -61,7 +61,7 @@ void sendNestedJsonObj(const char *cName, String sValue)
     Serial.printf("[2] sValue.length() [%d]\r\n", sValue.length());
   }
   
-    snprintf(jsonBuff, sizeof(jsonBuff), "%s{\"name\": \"%s\", \"value\": \"%s\"}"
+  snprintf(jsonBuff, sizeof(jsonBuff), "%s{\"name\": \"%s\", \"value\": \"%s\"}"
                                      , objSprtr, cName, sValue.c_str());
 
   httpServer.sendContent(jsonBuff);
@@ -73,7 +73,7 @@ void sendNestedJsonObj(const char *cName, String sValue)
 //=======================================================================
 void sendNestedJsonObj(const char *cName, int32_t iValue)
 {
-  char jsonBuff[200] = "";
+  char jsonBuff[LOCAL_SIZE+25] = "";
   
   snprintf(jsonBuff, sizeof(jsonBuff), "%s{\"name\": \"%s\", \"value\": %d}"
                                       , objSprtr, cName, iValue);
@@ -86,7 +86,7 @@ void sendNestedJsonObj(const char *cName, int32_t iValue)
 //=======================================================================
 void sendNestedJsonObj(const char *cName, uint32_t uValue)
 {
-  char jsonBuff[200] = "";
+  char jsonBuff[LOCAL_SIZE+25] = "";
   
   snprintf(jsonBuff, sizeof(jsonBuff), "%s{\"name\": \"%s\", \"value\": %u }"
                                       , objSprtr, cName, uValue);
@@ -100,7 +100,7 @@ void sendNestedJsonObj(const char *cName, uint32_t uValue)
 //=======================================================================
 void sendNestedJsonObj(const char *cName, float fValue)
 {
-  char jsonBuff[200] = "";
+  char jsonBuff[LOCAL_SIZE+25] = "";
   
   snprintf(jsonBuff, sizeof(jsonBuff), "%s{\"name\": \"%s\", \"value\": %.3f }"
                                       , objSprtr, cName, fValue);
@@ -116,7 +116,7 @@ void sendNestedJsonObj(const char *cName, float fValue)
 //=======================================================================
 void sendJsonSettingObj(const char *cName, float fValue, const char *fType, int minValue, int maxValue)
 {
-  char jsonBuff[200] = "";
+  char jsonBuff[LOCAL_SIZE+25] = "";
 
   snprintf(jsonBuff, sizeof(jsonBuff), "%s{\"name\": \"%s\", \"value\": %.3f, \"type\": \"%s\", \"min\": %d, \"max\": %d}"
                                       , objSprtr, cName, fValue, fType, minValue, maxValue);
@@ -130,7 +130,7 @@ void sendJsonSettingObj(const char *cName, float fValue, const char *fType, int 
 //=======================================================================
 void sendJsonSettingObj(const char *cName, float fValue, const char *fType, int minValue, int maxValue, int decPlaces)
 {
-  char jsonBuff[200] = "";
+  char jsonBuff[LOCAL_SIZE+25] = "";
 
   switch(decPlaces) {
     case 0:
@@ -160,7 +160,7 @@ void sendJsonSettingObj(const char *cName, float fValue, const char *fType, int 
 //=======================================================================
 void sendJsonSettingObj(const char *cName, int iValue, const char *iType, int minValue, int maxValue)
 {
-  char jsonBuff[200] = "";
+  char jsonBuff[LOCAL_SIZE+25] = "";
 
   snprintf(jsonBuff, sizeof(jsonBuff), "%s{\"name\": \"%s\", \"value\": %d, \"type\": \"%s\", \"min\": %d, \"max\": %d}"
                                       , objSprtr, cName, iValue, iType, minValue, maxValue);
@@ -174,7 +174,7 @@ void sendJsonSettingObj(const char *cName, int iValue, const char *iType, int mi
 //=======================================================================
 void sendJsonSettingObj(const char *cName, const char *cValue, const char *sType, int maxLen)
 {
-  char jsonBuff[200] = "";
+  char jsonBuff[LOCAL_SIZE+25] = "";
 
   snprintf(jsonBuff, sizeof(jsonBuff), "%s{\"name\": \"%s\", \"value\":\"%s\", \"type\": \"%s\", \"maxlen\": %d}"
                                       , objSprtr, cName, cValue, sType, maxLen);

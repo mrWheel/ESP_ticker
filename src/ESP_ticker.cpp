@@ -47,7 +47,7 @@
 // MD_MAX72XX library can be found at https://github.com/MajicDesigns/MD_MAX72XX
 //
 
-#include "main.h"
+#include "ESP_ticker.h"
 
 // HARDWARE SPI
 MD_Parola P = MD_Parola(HARDWARE_TYPE, CS_PIN, MAX_DEVICES);
@@ -155,7 +155,9 @@ void nextNieuwsBericht()
   if (!breakOut)
   {
     snprintf(actMessage, NEWS_SIZE, "** %s **", fileMessage);
-    //Serial.printf("newsMsgID[%d] %s\r\n", newsMsgID, actMessage);
+    snprintf(onTickerMessage, 120, "%s", actMessage);
+    Serial.printf("newsMsgID[%d] %s\r\n", newsMsgID, actMessage);
+    TelnetStream.printf("newsMsgID[%d] %s\r\n", newsMsgID, actMessage);
     utf8Ascii(actMessage);
     P.displayScroll(actMessage, PA_LEFT, PA_SCROLL_LEFT, (MAX_SPEED - settingTextSpeed));
   }
@@ -193,6 +195,7 @@ void nextLocalBericht()
   else  nothingThere = false;
 
   snprintf(actMessage, LOCAL_SIZE, "** %s **", fileMessage);
+  snprintf(onTickerMessage, 120, "%s", actMessage);
   TelnetStream.printf("localMsgID[%d] %s\r\n", localMsgID, actMessage);
   utf8Ascii(actMessage);
   P.displayScroll(actMessage, PA_LEFT, PA_SCROLL_LEFT, (MAX_SPEED - settingTextSpeed));
@@ -219,11 +222,16 @@ void setup()
   Serial.println("\r\n[MD_Parola WiFi Message Display]\r\n");
   Serial.printf("Booting....[%s]\r\n\r\n", String(_FW_VERSION).c_str());
   TelnetStream.printf("Booting....[%s]\r\n\r\n", String(_FW_VERSION).c_str());
-  
+
+  sprintf(actMessage, "[%s] Booting ....", String(_FW_VERSION).c_str());
+ 
   P.begin();
   P.displayClear();
   P.displaySuspend(false);
-  P.displayScroll(actMessage, PA_LEFT, PA_SCROLL_LEFT, (MAX_SPEED - settingTextSpeed));
+  P.setIntensity(2);
+  P.displayScroll(actMessage, PA_LEFT, PA_NO_EFFECT, 100);
+  P.setTextEffect(PA_SCROLL_LEFT, PA_NO_EFFECT);
+  do { yield(); } while( !P.displayAnimate() );
 
   actMessage[0]  = '\0';
   
@@ -270,27 +278,16 @@ void setup()
   // attempt to connect to Wifi network:
   int t = 0;
   Serial.println("Attempting to connect to WiFi network ");
-  /****
-  while ((WiFi.status() != WL_CONNECTED) && (t < 25))
-  {
-    delay(500);
-    Serial.print(".");
-    t++;
-  }
-  
-  if ( WiFi.status() != WL_CONNECTED) 
-  {
-    Serial.println(" no network found!");
-    sprintf(actMessage, "Connect to AP '%s' and configure WiFi on  192.168.4.1   ", _HOSTNAME);
-    Serial.println(actMessage);
-    P.setTextEffect(PA_SCROLL_LEFT, PA_NO_EFFECT);
-    do { yield(); } while( !P.displayAnimate() );
-    //P.print("   192.168.4.1");
-  }
-  ***/
   // Connect to and initialise WiFi network
   digitalWrite(LED_BUILTIN, HIGH);
   startWiFi(_HOSTNAME, 240, &httpServer);  // timeout 4 minuten
+  // Set up first message as the IP address
+  sprintf(actMessage, "%03d.%03d.%d.%d", WiFi.localIP()[0], WiFi.localIP()[1], WiFi.localIP()[2], WiFi.localIP()[3]);
+  Serial.printf("\nAssigned IP[%s]\r\n", actMessage);
+  P.displayScroll(actMessage, PA_LEFT, PA_NO_EFFECT, 100);
+  P.setTextEffect(PA_SCROLL_LEFT, PA_NO_EFFECT);
+  do { yield(); } while( !P.displayAnimate() );
+
   digitalWrite(LED_BUILTIN, LOW);
 
   startMDNS(settingHostname);
@@ -335,7 +332,7 @@ void setup()
 
   Serial.print("\nGebruik 'telnet ");
   Serial.print (WiFi.localIP());
-  Serial.println("' voor verdere Serial.printging\r\n");
+  Serial.println("' voor verdere Serial.printing\r\n");
 
 //================ Start HTTP Server ================================
   setupFSexplorer();
@@ -351,13 +348,7 @@ void setup()
 
   httpServer.begin();
   Serial.println("\nServer started\r");
-  
-  // Set up first message as the IP address
-  sprintf(actMessage, "%03d.%03d.%d.%d", WiFi.localIP()[0], WiFi.localIP()[1], WiFi.localIP()[2], WiFi.localIP()[3]);
-  Serial.printf("\nAssigned IP[%s]\r\n", actMessage);
-  P.displayScroll(actMessage, PA_LEFT, PA_NO_EFFECT, (MAX_SPEED - settingTextSpeed));
-  P.setTextEffect(PA_SCROLL_LEFT, PA_NO_EFFECT);
-  
+    
   valueIntensity = calculateIntensity(); // read analog input pin 0
 
   P.setIntensity(valueIntensity);
@@ -415,6 +406,7 @@ void loop()
     yield();
     msgType++;
     Serial.printf("msgType[%d]\r\n", msgType);
+    time(&now);
     
     switch(msgType)
     {
@@ -422,17 +414,21 @@ void loop()
                 inFX  = random(0, ARRAY_SIZE(effect));
                 outFX = random(0, ARRAY_SIZE(effect));
                 snprintf(actMessage, LOCAL_SIZE, weekDayName[localtime(&now)->tm_wday+1]);
+                snprintf(onTickerMessage, 120, "%s", actMessage);
                 //snprintf(actMessage, LOCAL_SIZE, weekDayName[1]);
                 P.displayText(actMessage, PA_CENTER, (MAX_SPEED - settingTextSpeed), 1000, effect[inFX], effect[outFX]);
-                Serial.printf("Animate IN[%d], OUT[%d] %s\r\n", inFX, outFX, actMessage);
+                Serial.printf("[1] %s\r\n", actMessage);
+                TelnetStream.printf("%s ", actMessage);
                 break;
       case 2:   if (!(millis() > timeTimer))  return;
                 timeTimer = millis() + 60000;
                 inFX  = random(0, ARRAY_SIZE(effect));
                 outFX = random(0, ARRAY_SIZE(effect));
                 sprintf(actMessage, "%s", updateTime());
+                snprintf(onTickerMessage, 120, "%s", actMessage);
                 P.displayText(actMessage, PA_CENTER, (MAX_SPEED - settingTextSpeed), 2000, effect[inFX], effect[outFX]);
-                Serial.printf("Animate IN[%d], OUT[%d] %s\r\n", inFX, outFX, actMessage);
+                Serial.printf("[2] %s\r\n", actMessage);
+                TelnetStream.printf("[%s]\r\n", actMessage);
                 break;
       case 3:   nextLocalBericht();
                 P.setTextEffect(PA_SCROLL_LEFT, PA_NO_EFFECT);
@@ -451,7 +447,9 @@ void loop()
       case 9:   if (settingWeerLiveInterval > 0)
                 {
                   snprintf(actMessage, LOCAL_SIZE, "** %s **", tempMessage);
-                  Serial.printf("\t[%s]\r\n", actMessage);
+                  snprintf(onTickerMessage, 120, "%s", actMessage);
+                  Serial.printf("WeerLive \t[%s]\r\n", actMessage);
+                  TelnetStream.printf("WeerLive \t[%s]\r\n", actMessage);
                   utf8Ascii(actMessage);
                 }
                 else  nextLocalBericht();
@@ -469,12 +467,12 @@ void loop()
     //Serial.println(actMessage);
     valueIntensity = calculateIntensity(); // read analog input pin 0
     Serial.printf("Intensity set to [%d]\r\n", valueIntensity);
-    TelnetStream.printf("Intensity set to [%d]\r\n", valueIntensity);
+    //TelnetStream.printf("Intensity set to [%d]\r\n", valueIntensity);
     P.setIntensity(valueIntensity);
     // Tell Parola we have a new animation
     P.displayReset();
     Serial.println("End of displayAnimate()..");
-    TelnetStream.println("End of displayAnimate()..");
+    //TelnetStream.println("End of displayAnimate()..");
     
   } // dislayAnimate()
 

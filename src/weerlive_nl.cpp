@@ -122,6 +122,7 @@ void getWeerLiveData()
   snprintf(tempMessage, LOCAL_SIZE, "%s", cMsg);
   Serial.println("\r\n");
   Serial.printf("\tWeer[%s]\r\n", tempMessage);
+  TelnetStream.printf("\tWeer[%s]\r\n", tempMessage);
   
 } // getWeerLiveData()
 
