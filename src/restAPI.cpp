@@ -2,7 +2,7 @@
 ***************************************************************************  
 **  Program  : restAPI, part of ESP_ticker
 **
-**  Copyright (c) 2021 Willem Aandewiel
+**  Copyright (c) 2021 .. 2024 Willem Aandewiel
 **
 **  TERMS OF USE: MIT License. See bottom of file.                                                            
 ***************************************************************************      
@@ -199,7 +199,7 @@ void sendDeviceSettings()
   sendJsonSettingObj("newsapiAUTH",       settingNewsAUTH,         "s", NEWS_AUTH_SIZE -1);
   sendJsonSettingObj("newsapiMaxMsg",     settingNewsMaxMsg,       "i",   1,   20);
   sendJsonSettingObj("newsapiInterval",   settingNewsInterval,     "i",  15,  120);
-  sendJsonSettingObj("newsNoWords",       settingNewsNoWords,      "s", LOCAL_SIZE -1);
+  sendJsonSettingObj("newsNoWords",       settingNewsNoWords,      "s", LCL_SIZE -1);
 
   sendEndJsonObj();
 
@@ -220,10 +220,10 @@ void sendLocalMessages()
     if (readFileById("LCL", mID))
     {
       //--- next 5 lines are realy dirty ...
-      char   newMsg[LOCAL_SIZE] = "";
+      char   newMsg[LCL_SIZE] = "";
       String tmp = String(fileMessage);
       tmp.replace("\\", "\\\\");
-      snprintf(newMsg, LOCAL_SIZE, "%s", tmp.c_str());
+      snprintf(newMsg, LCL_SIZE, "%s", tmp.c_str());
     //sendJsonSettingObj(intToStr(mID), fileMessage, "s", sizeof(fileMessage) -1);
       sendJsonSettingObj(intToStr(mID), newMsg, "s", JSON_RESPONSE_SIZE -1);
     }
@@ -251,7 +251,7 @@ void sendNewsMessages()
   {
     if (readFileById("NWS", nID))
     {
-      sendJsonSettingObj(intToStr(nID), fileMessage, "s", LOCAL_SIZE -1);
+      sendJsonSettingObj(intToStr(nID), fileMessage, "s", LCL_SIZE -1);
     }
   }
   
@@ -267,7 +267,7 @@ void sendTickerMessage()
 
   sendStartJsonObj("onticker");
 
-  sendJsonSettingObj("onticker", onTickerMessage, "s", LOCAL_SIZE -1);
+  sendJsonSettingObj("onticker", onTickerMessage, "s", LCL_SIZE -1);
   
   sendEndJsonObj();
 

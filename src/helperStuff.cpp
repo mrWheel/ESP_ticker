@@ -2,7 +2,7 @@
 ***************************************************************************  
 **  Program  : helperStuff, part of ESP_ticker
 **
-**  Copyright (c) 2021 Willem Aandewiel
+**  Copyright (c) 2021 .. 2024 Willem Aandewiel
 **
 **  TERMS OF USE: MIT License. See bottom of file.                                                            
 ***************************************************************************      

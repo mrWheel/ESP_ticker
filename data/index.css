@@ -163,6 +163,12 @@ input {
   background: skyblue; /* only for FSexplorer - Rest does not work */
 }
 
+.onticker-container {
+  color: black;
+  background: lightgray; 
+  text-align: center;
+}
+
 .nav-clock {
   //top: 1px;
   color: black;
@@ -210,14 +216,26 @@ input {
 
 .bottom { 
   position: fixed;
-  /**
   font-size: small;
   color: gray; 
-  **/
   bottom:0;
 } 
-.right-0  {font-size: small; color: gray; right: 0; padding-right: 10px; }
-.left-0   {font-weight: bold; color: black; left:  0; padding-left:  10px; }
+.bottom-right  {
+  position: fixed; 
+  bottom: 0; 
+  font-size: small; 
+  color: gray; 
+  right: 0; 
+  padding-right: 10px; 
+}
+.bottom-left   {
+  position: absolute; 
+  bottom: 20; 
+  font-weight: bold; 
+  color: black; 
+/*  left:  0; */ 
+  padding-left:  10px; 
+}
             
 //--- next 4 are for the API doc page --------
 .div1 { 

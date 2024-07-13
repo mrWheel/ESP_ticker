@@ -4,7 +4,7 @@
 **
 **  See "allDefines.h" for _FW_VERSION 
 ** 
-**  Copyright (c) 2021 .. 2023 Willem Aandewiel
+**  Copyright (c) 2021 .. 2024 Willem Aandewiel
 **
 **  TERMS OF USE: MIT License. See bottom of file.                                                            
 ***************************************************************************      
@@ -114,6 +114,26 @@ char *updateTime()
 
 
 //---------------------------------------------------------------------
+bool getTheLocalTime(struct tm * info, uint32_t ms)
+{
+    //-- getLocalTime() is not implemented in the ArduinoIDE
+    //-- so this is a 'work around' function
+    uint32_t start = millis();
+    time_t now;
+    while((millis()-start) <= ms) {
+        time(&now);
+        localtime_r(&now, info);
+        if(info->tm_year > (2016 - 1900)){
+            return true;
+        }
+        delay(10);
+    }
+    return false;
+
+} // getTheLocalTime()
+
+
+//---------------------------------------------------------------------
 void nextNieuwsBericht()
 {
   bool breakOut  = false;
@@ -172,7 +192,7 @@ void nextLocalBericht()
   }
   else  nothingThere = false;
 
-  snprintf(actMessage, LOCAL_SIZE, "** %s **", fileMessage);
+  snprintf(actMessage, LCL_SIZE, "** %s **", fileMessage);
   snprintf(onTickerMessage, 120, "%s", actMessage);
   TelnetStream.printf("localMsgID[%d] %s\r\n", localMsgID, actMessage);
   utf8Ascii(actMessage);
@@ -201,13 +221,13 @@ void setup()
   Serial.printf("Booting....[%s]\r\n\r\n", String(_FW_VERSION).c_str());
   TelnetStream.printf("Booting....[%s]\r\n\r\n", String(_FW_VERSION).c_str());
 
-  sprintf(actMessage, "[%s] Booting ....", String(_FW_VERSION).c_str());
+  sprintf(actMessage, "[%s]  Booting . . . . ", String(_FW_VERSION).c_str());
  
   P.begin();
   P.displayClear();
   P.displaySuspend(false);
   P.setIntensity(2);
-  P.displayScroll(actMessage, PA_LEFT, PA_NO_EFFECT, 10);
+  P.displayScroll(actMessage, PA_LEFT, PA_NO_EFFECT, 20);
   P.setTextEffect(PA_SCROLL_LEFT, PA_NO_EFFECT);
   do { yield(); } while( !P.displayAnimate() );
 
@@ -256,13 +276,20 @@ void setup()
   // attempt to connect to Wifi network:
   int t = 0;
   Serial.println("Attempting to connect to WiFi network ");
+  P.displayClear();
+  P.displaySuspend(false);
+  P.displayScroll("connect to WiFi", PA_LEFT, PA_NO_EFFECT, 25);
+  P.setTextEffect(PA_SCROLL_LEFT, PA_NO_EFFECT);
+  do { yield(); } while( !P.displayAnimate() );
   // Connect to and initialise WiFi network
   digitalWrite(LED_BUILTIN, HIGH);
   startWiFi(_HOSTNAME, 240, &httpServer);  // timeout 4 minuten
   // Set up first message as the IP address
   sprintf(actMessage, "%03d.%03d.%d.%d", WiFi.localIP()[0], WiFi.localIP()[1], WiFi.localIP()[2], WiFi.localIP()[3]);
   Serial.printf("\nAssigned IP[%s]\r\n", actMessage);
-  P.displayScroll(actMessage, PA_LEFT, PA_NO_EFFECT, 5);
+  P.displayClear();
+  P.displaySuspend(false);
+  P.displayScroll(actMessage, PA_LEFT, PA_NO_EFFECT, 25);
   P.setTextEffect(PA_SCROLL_LEFT, PA_NO_EFFECT);
   do { yield(); } while( !P.displayAnimate() );
 
@@ -270,8 +297,12 @@ void setup()
 
   startMDNS(settingHostname);
     
+  Serial.println("Get time from NTP");
+  P.displayScroll("    Get time from NTP", PA_LEFT, PA_NO_EFFECT, 25);
+  P.setTextEffect(PA_SCROLL_LEFT, PA_NO_EFFECT);
+  do { yield(); } while( !P.displayAnimate() );
   timeSync.setup();
-  timeSync.sync(500);
+  timeSync.sync(100);
   time(&now);
   if (localtime(&now)->tm_year > 120)
   {
@@ -283,9 +314,17 @@ void setup()
     timeSynced = false;
     Serial.println("Could not synchronize time with NTP Service");
   }
+
+  Serial.printf("\nAssigned IP[%s]\r\n", actMessage);
+  P.displayClear();
+  P.displayScroll(actMessage, PA_LEFT, PA_NO_EFFECT, 25);
+  P.setTextEffect(PA_SCROLL_LEFT, PA_NO_EFFECT);
+  do { yield(); } while( !P.displayAnimate() );
+
   time(&now);
   Serial.println("-------------------------------------------------------------------------------");
-  if (!getLocalTime(&timeinfo)) 
+  //if (localtime(&now)->tm_year <= 120)
+  if (!getTheLocalTime(&timeinfo, 10000)) 
   {
     Serial.println("Time       : Failed to obtain time!");
   }
@@ -385,20 +424,23 @@ void loop()
     msgType++;
     Serial.printf("msgType[%d]\r\n", msgType);
     time(&now);
+    if (localtime(&now)->tm_year > 120) timeSynced = true;
     
     switch(msgType)
     {
       case 1:   if (!(millis() > timeTimer))  return;
+                if (!timeSynced)              return;
                 inFX  = random(0, ARRAY_SIZE(effect));
                 outFX = random(0, ARRAY_SIZE(effect));
-                snprintf(actMessage, LOCAL_SIZE, weekDayName[localtime(&now)->tm_wday+1]);
+                snprintf(actMessage, LCL_SIZE, weekDayName[localtime(&now)->tm_wday+1]);
                 snprintf(onTickerMessage, 120, "%s", actMessage);
-                //snprintf(actMessage, LOCAL_SIZE, weekDayName[1]);
+                //snprintf(actMessage, LCL_SIZE, weekDayName[1]);
                 P.displayText(actMessage, PA_CENTER, (MAX_SPEED - settingTextSpeed), 1000, effect[inFX], effect[outFX]);
                 Serial.printf("[1] %s\r\n", actMessage);
                 TelnetStream.printf("%s ", actMessage);
                 break;
       case 2:   if (!(millis() > timeTimer))  return;
+                if (!timeSynced)              return;
                 timeTimer = millis() + 60000;
                 inFX  = random(0, ARRAY_SIZE(effect));
                 outFX = random(0, ARRAY_SIZE(effect));
@@ -424,7 +466,7 @@ void loop()
                 break;
       case 9:   if (settingWeerLiveInterval > 0)
                 {
-                  snprintf(actMessage, LOCAL_SIZE, "** %s **", tempMessage);
+                  snprintf(actMessage, LCL_SIZE, "** %s **", tempMessage);
                   snprintf(onTickerMessage, 120, "%s", actMessage);
                   Serial.printf("WeerLive \t[%s]\r\n", actMessage);
                   TelnetStream.printf("WeerLive \t[%s]\r\n", actMessage);

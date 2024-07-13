@@ -2,7 +2,7 @@
 ***************************************************************************  
 **  Program  : settingsStuff, part of ESP_ticker
 **
-**  Copyright (c) 2021 Willem Aandewiel
+**  Copyright (c) 2021 .. 2024 Willem Aandewiel
 **
 **  TERMS OF USE: MIT License. See bottom of file.                                                            
 ***************************************************************************      
@@ -69,14 +69,14 @@ void readSettings(bool show)
 {
   String sTmp;
   String words[10];
-  char cTmp[LOCAL_SIZE], cVal[101], cKey[101];
+  char cTmp[LCL_SIZE], cVal[101], cKey[101];
   
   File file;
   
   Serial.printf(" %s ..\r\n", SETTINGS_FILE);
 
   snprintf(settingHostname,    HOSTNAME_SIZE, "%s", _HOSTNAME);
-  snprintf(settingNewsNoWords, LOCAL_SIZE,"Voetbal, show, UEFA, KNVB");
+  snprintf(settingNewsNoWords, LCL_SIZE,"Voetbal, show, UEFA, KNVB");
   settingLocalMaxMsg        =   5;
   settingTextSpeed          =  25;
   settingLDRlowOffset       =  70;
@@ -133,7 +133,7 @@ void readSettings(bool show)
     if (stricmp(cKey, "weerlivelocatie") == 0)  strCopy(settingWeerLiveLocation, WEER_LIVE_LOC_SIZE, cVal);
     if (stricmp(cKey, "weerLiveInterval") == 0) settingWeerLiveInterval = atoi(cVal);
     if (stricmp(cKey, "newsAUTH") == 0)         strCopy(settingNewsAUTH,         NEWS_AUTH_SIZE, cVal);
-    if (stricmp(cKey, "newsNoWords") == 0)      strCopy(settingNewsNoWords,      LOCAL_SIZE, cVal);
+    if (stricmp(cKey, "newsNoWords") == 0)      strCopy(settingNewsNoWords,      LCL_SIZE, cVal);
     if (stricmp(cKey, "newsMaxMsg") == 0)       settingNewsMaxMsg       = atoi(cVal);
     if (stricmp(cKey, "newsInterval") == 0)     settingNewsInterval     = atoi(cVal);
 
@@ -228,13 +228,13 @@ void updateSetting(const char *field, const char *newValue)
   if (!stricmp(field, "weerLiveInterval")) settingWeerLiveInterval  = String(newValue).toInt();  
   
   if (!stricmp(field, "newsapiAUTH"))      strCopy(settingNewsAUTH, NEWS_AUTH_SIZE, newValue);   
-  if (!stricmp(field, "newsNoWords"))      strCopy(settingNewsNoWords, LOCAL_SIZE, newValue);   
+  if (!stricmp(field, "newsNoWords"))      strCopy(settingNewsNoWords, LCL_SIZE, newValue);   
   if (!stricmp(field, "newsapiMaxMsg"))    settingNewsMaxMsg   = String(newValue).toInt();
   if (!stricmp(field, "newsapiInterval"))  settingNewsInterval = String(newValue).toInt();
 
   writeSettings(false);
 
-  if (settingWeerLiveInterval == 0)      memset(tempMessage, 0, LOCAL_SIZE);
+  if (settingWeerLiveInterval == 0)      memset(tempMessage, 0, LCL_SIZE);
   else if (settingWeerLiveInterval < 15) settingWeerLiveInterval = 15;
   if (settingNewsInterval == 0)          removeNewsData();
   else if (settingNewsInterval < 15)     settingNewsInterval = 15;

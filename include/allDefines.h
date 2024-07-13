@@ -2,7 +2,7 @@
 ***************************************************************************  
 **  Program  : allDefines.h, part of ESP_ticker
 **
-**  Copyright (c) 2021 Willem Aandewiel
+**  Copyright (c) 2021 .. 2024 Willem Aandewiel
 **
 **  TERMS OF USE: MIT License. See bottom of file.                                                            
 ***************************************************************************      
@@ -11,7 +11,7 @@
 #define  _ALLDEFINES_H
 
 #define _HOSTNAME   "ESPticker"
-#define _FW_VERSION "v1.8.0 (12-07-2024)"
+#define _FW_VERSION "v1.8.0 (13-07-2024)"
 
 
 #define USE_UPDATE_SERVER
@@ -31,7 +31,7 @@
 
 #define SETTINGS_FILE   "/settings.ini"
 #define HOSTNAME_SIZE    40
-#define LOCAL_SIZE      512
+#define LCL_SIZE      512
 #define NEWS_SIZE       512
 #define WEER_SIZE       512
 #define JSON_BUFF_MAX   255

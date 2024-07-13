@@ -2,7 +2,7 @@
 ***************************************************************************  
 **  Program : sendIndexPage
 **
-**  Copyright (c) 2021 Willem Aandewiel
+**  Copyright (c) 2021 .. 2024 Willem Aandewiel
 **
 **  TERMS OF USE: MIT License. See bottom of file.                                                            
 ***************************************************************************      
@@ -31,8 +31,14 @@ R"(
         <span id="devVersion" style='font-size: small;'>[version]</span>
         <span id='theTime' class='nav-item nav-clock'>00:00</span>
       </h1>
+      <div class="onticket-container">
+        <div class='nav-left' style="background: lightblue;">
+          <a id='onticker'>onTicker</a>
+        </div>
+      </div>
     </div>
     </font>
+    <br/>
     <div id="displayMainPage"      style="display:none">
       <div class="nav-container">
         <div class='nav-left'>
@@ -65,10 +71,12 @@ R"(
     <!-- KEEP THIS --->
 
     <!-- Pin to bottom right corner -->
-    <div class="bottom right-0">2024 &copy; Willem Aandewiel</div>
+    <div class="bottom-right">2024 &copy; Willem Aandewiel</div>
 
     <!-- Pin to bottom left corner -->
-    <div id="onticker" class="bottom left-0">-</div>
+    <!--
+     <div id="onticker" class="nav-container bottom-left">onTicker</div>
+    -->
   
     <script>
        window.onload=bootsTrapMain;

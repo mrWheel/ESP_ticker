@@ -2,7 +2,7 @@
 ***************************************************************************  
 **  Program : newsapi_org
 **
-**  Copyright (c) 2021 .. 2023 Willem Aandewiel
+**  Copyright (c) 2021 .. 2024 Willem Aandewiel
 **
 **  TERMS OF USE: MIT License. See bottom of file.                                                            
 ***************************************************************************      
@@ -84,7 +84,7 @@ bool getNewsapiData()
           while(newsapiClient.available())
           {
             char nC = newsapiClient.read();
-            Serial.print(nC);
+            if (nC >= 32 && nC <= 126) Serial.print(nC);
           }
           Serial.println();
           newsapiClient.flush();
@@ -92,8 +92,11 @@ bool getNewsapiData()
           for(int i=0; i<=settingNewsMaxMsg; i++)
           {
             //sprintf(newsMessage, "");
-            if (i==1) writeFileById("NWS", i, "There is No News ....");
-            else      writeFileById("NWS", i, "");
+            if (i==1) 
+                  writeFileById("NWS", i, "There is No News ....");
+            else if (newsapiStatus == 429)      
+                  writeFileById("NWS", i, "You have made too many news requests recently . . please try again later");
+            else  writeFileById("NWS", i, "");
           }
           newsapiClient.flush();
           newsapiClient.stop();
@@ -101,7 +104,7 @@ bool getNewsapiData()
         }
         Serial.println(" OK!");
       }
-      else
+      else 
       {
         Serial.println("Error reading newsapi.org.. -> bailout!");
         for(int i=0; i<=settingNewsMaxMsg; i++)
@@ -123,7 +126,9 @@ bool getNewsapiData()
         msgIdx          = 0;
         while( (strIndex(newsMessage, "\"description\":") == -1) && (msgIdx < (NEWS_SIZE - 2)) )
         {
-          newsMessage[msgIdx++] = (char)newsapiClient.read();
+          char cN = newsapiClient.read();
+          if (cN >= 32 && cN <= 126) newsMessage[msgIdx++] = cN;
+          //newsMessage[msgIdx++] = (char)newsapiClient.read();
         }
         newsMessage[msgIdx] = '\0';
         if (msgIdx > 30)  newsMessage[msgIdx - 16] = 0;

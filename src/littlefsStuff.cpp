@@ -2,7 +2,7 @@
 ***************************************************************************  
 **  Program  : littlefsStuff, part of ESP_ticker
 **
-**  Copyright (c) 2021 Willem Aandewiel
+**  Copyright (c) 2021 .. 2024 Willem Aandewiel
 **
 **  TERMS OF USE: MIT License. See bottom of file.                                                            
 ***************************************************************************      
@@ -102,7 +102,7 @@ bool readFileById(const char* fType, uint8_t mId)
   rTmp.replace("@6@", percChar);
   //Serial.printf("rTmp(out) [%s]\r\n", rTmp.c_str());
     
-  snprintf(fileMessage, LOCAL_SIZE, rTmp.c_str());
+  snprintf(fileMessage, LCL_SIZE, rTmp.c_str());
   if (strlen(fileMessage) == 0)
   {
     Serial.println("file is zero bytes long");
@@ -124,7 +124,7 @@ bool readFileById(const char* fType, uint8_t mId)
 bool writeFileById(const char* fType, uint8_t mId, const char *msg)
 {
   String rTmp;
-  char fmsg[LOCAL_SIZE] = "";
+  char fmsg[LCL_SIZE] = "";
   char fName[50] = "";
   sprintf(fName, "/newsFiles/%s-%03d", fType, mId);
 
@@ -148,7 +148,7 @@ bool writeFileById(const char* fType, uint8_t mId, const char *msg)
 
   Serial.println(F("Start writing data .. \r"));
   Serial.flush();
-  snprintf(fmsg, LOCAL_SIZE, "%s", msg);
+  snprintf(fmsg, LCL_SIZE, "%s", msg);
   Serial.println(fmsg);
   file.println(fmsg);
   file.close();

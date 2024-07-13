@@ -44,8 +44,12 @@ bool TimeSync::sync(uint16_t maxTry)
 
 void TimeSync::logTime() 
 {
+    time_t now;
+    time(&now);
     struct tm timeinfo;
-    if (!getLocalTime(&timeinfo)) {
+
+    if (localtime(&now)->tm_year <= 120)
+    {
         Serial.println("Failed to obtain time");
         return;
     }

@@ -2,7 +2,7 @@
 ***************************************************************************  
 **  Program : weerlive_nl
 **
-**  Copyright (c) 2021 .. 2023 Willem Aandewiel
+**  Copyright (c) 2021 .. 2024 Willem Aandewiel
 **
 **  TERMS OF USE: MIT License. See bottom of file.                                                            
 ***************************************************************************      
@@ -102,24 +102,24 @@ void getWeerLiveData()
   Serial.printf("jsonResponse is [%s]\r\n\n", jsonResponse);
   
   parseJsonKey(jsonResponse, "plaats", val, 50);
-  snprintf(tempMessage, LOCAL_SIZE, val);
+  snprintf(tempMessage, LCL_SIZE, val);
   parseJsonKey(jsonResponse, "samenv", val, 50);
-  snprintf(cMsg, LOCAL_SIZE, " %s %s ", tempMessage, val);
+  snprintf(cMsg, LCL_SIZE, " %s %s ", tempMessage, val);
   parseJsonKey(jsonResponse, "d0tmin", val, 50);
-  snprintf(tempMessage, LOCAL_SIZE, "%s min %s°C ", cMsg, val);
+  snprintf(tempMessage, LCL_SIZE, "%s min %s°C ", cMsg, val);
   parseJsonKey(jsonResponse, "d0tmax", val, 50);
-  snprintf(cMsg, LOCAL_SIZE, "%s max %s°C", tempMessage, val);
+  snprintf(cMsg, LCL_SIZE, "%s max %s°C", tempMessage, val);
   parseJsonKey(jsonResponse, "luchtd", val, 50);
-  snprintf(tempMessage, LOCAL_SIZE, "%s - luchtdruk %s hPa ", cMsg, val);
+  snprintf(tempMessage, LCL_SIZE, "%s - luchtdruk %s hPa ", cMsg, val);
 
   parseJsonKey(jsonResponse, "d1weer", val, 50);
-  snprintf(cMsg, LOCAL_SIZE, "%s - morgen %s ", tempMessage, val);
+  snprintf(cMsg, LCL_SIZE, "%s - morgen %s ", tempMessage, val);
   parseJsonKey(jsonResponse, "d1tmin", val, 50);
-  snprintf(tempMessage, LOCAL_SIZE, "%s min %s°C ", cMsg, val);
+  snprintf(tempMessage, LCL_SIZE, "%s min %s°C ", cMsg, val);
   parseJsonKey(jsonResponse, "d1tmax", val, 50);
-  snprintf(cMsg, LOCAL_SIZE, "%s max %s°C", tempMessage, val);
+  snprintf(cMsg, LCL_SIZE, "%s max %s°C", tempMessage, val);
 
-  snprintf(tempMessage, LOCAL_SIZE, "%s", cMsg);
+  snprintf(tempMessage, LCL_SIZE, "%s", cMsg);
   Serial.println("\r\n");
   Serial.printf("\tWeer[%s]\r\n", tempMessage);
   TelnetStream.printf("\tWeer[%s]\r\n", tempMessage);

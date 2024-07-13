@@ -2,7 +2,7 @@
 ***************************************************************************  
 **  Program  : ESP_ticker.h, part of ESP_ticker
 **
-**  Copyright (c) 2021 Willem Aandewiel
+**  Copyright (c) 2021 .. 2024 Willem Aandewiel
 **
 **  TERMS OF USE: MIT License. See bottom of file.                                                            
 ***************************************************************************      
@@ -50,8 +50,8 @@ char      cMsg[NEWS_SIZE];
 char      tempMessage[WEER_SIZE] = "";
 uint8_t   msgType;
 char      actMessage[NEWS_SIZE], timeMsg[20];
-char      onTickerMessage[LOCAL_SIZE] = {};
-char      fileMessage[LOCAL_SIZE];
+char      onTickerMessage[LCL_SIZE] = {};
+char      fileMessage[LCL_SIZE];
 uint8_t   newsMsgID   = 0;
 uint8_t   localMsgID  = 0;
 int16_t   valueLDR, valueIntensity;
@@ -64,7 +64,7 @@ uint32_t  newsapiTimer = 0;
 uint32_t  revisionTimer = 0;
 String    noWords[MAX_NO_NO_WORDS+1];
 char      settingHostname[HOSTNAME_SIZE];
-char      settingNewsNoWords[LOCAL_SIZE];
+char      settingNewsNoWords[LCL_SIZE];
 uint8_t   settingLocalMaxMsg, settingTextSpeed, settingMaxIntensity;
 uint16_t  settingLDRlowOffset, settingLDRhighOffset;
 char      settingWeerLiveAUTH[WEER_AUTH_SIZE], settingWeerLiveLocation[WEER_LIVE_LOC_SIZE];
