@@ -42,14 +42,10 @@ void configModeCallback (WiFiManager *myWiFiManager)
   P.displayScroll("Enter WiFi configuration mode", PA_LEFT, PA_NO_EFFECT, 25);
   P.setTextEffect(PA_SCROLL_LEFT, PA_NO_EFFECT);
   do { yield(); } while( !P.displayAnimate() );
-  delay(5000);
-  P.displayClear();
-  P.displayScroll("Connect to AP ESPticker-xx:yy", PA_LEFT, PA_NO_EFFECT, 25);
+  P.displayScroll("Connect to AP", PA_LEFT, PA_NO_EFFECT, 25);
   P.setTextEffect(PA_SCROLL_LEFT, PA_NO_EFFECT);
   do { yield(); } while( !P.displayAnimate() );
-  delay(5000);
-  P.displayClear();
-  P.displayScroll("and brows to    192.168.4.1", PA_LEFT, PA_NO_EFFECT, 25);
+  P.displayScroll("and brows to 192.168.1.4", PA_LEFT, PA_NO_EFFECT, 25);
   P.setTextEffect(PA_SCROLL_LEFT, PA_NO_EFFECT);
   do { yield(); } while( !P.displayAnimate() );
 
