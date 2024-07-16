@@ -221,7 +221,7 @@ void setup()
   Serial.printf("Booting....[%s]\r\n\r\n", String(_FW_VERSION).c_str());
   TelnetStream.printf("Booting....[%s]\r\n\r\n", String(_FW_VERSION).c_str());
 
-  sprintf(actMessage, "[%s]  Booting . . . . ", String(_FW_VERSION).c_str());
+  sprintf(actMessage, "[%s]  Booting . . . . . . . . .  ", String(_FW_VERSION).c_str());
  
   P.begin();
   P.displayClear();
@@ -276,7 +276,7 @@ void setup()
   // attempt to connect to Wifi network:
   int t = 0;
   Serial.println("Attempting to connect to WiFi network ");
-  P.displayClear();
+  //P.displayClear();
   P.displaySuspend(false);
   P.displayScroll("connect to WiFi", PA_LEFT, PA_NO_EFFECT, 25);
   P.setTextEffect(PA_SCROLL_LEFT, PA_NO_EFFECT);
@@ -298,9 +298,9 @@ void setup()
   startMDNS(settingHostname);
     
   Serial.println("Get time from NTP");
-  P.displayScroll("    Get time from NTP", PA_LEFT, PA_NO_EFFECT, 25);
-  P.setTextEffect(PA_SCROLL_LEFT, PA_NO_EFFECT);
-  do { yield(); } while( !P.displayAnimate() );
+  //P.displayScroll("    Get time from NTP", PA_LEFT, PA_NO_EFFECT, 25);
+  //P.setTextEffect(PA_SCROLL_LEFT, PA_NO_EFFECT);
+  //do { yield(); } while( !P.displayAnimate() );
   timeSync.setup();
   timeSync.sync(100);
   time(&now);
@@ -316,10 +316,10 @@ void setup()
   }
 
   Serial.printf("\nAssigned IP[%s]\r\n", actMessage);
-  P.displayClear();
-  P.displayScroll(actMessage, PA_LEFT, PA_NO_EFFECT, 25);
-  P.setTextEffect(PA_SCROLL_LEFT, PA_NO_EFFECT);
-  do { yield(); } while( !P.displayAnimate() );
+  //P.displayClear();
+  //P.displayScroll(actMessage, PA_LEFT, PA_NO_EFFECT, 25);
+  //P.setTextEffect(PA_SCROLL_LEFT, PA_NO_EFFECT);
+  //do { yield(); } while( !P.displayAnimate() );
 
   time(&now);
   Serial.println("-------------------------------------------------------------------------------");
@@ -342,14 +342,20 @@ void setup()
   writeLastStatus();
   //writeToLog("=========REBOOT==========================");
 
+  Serial.flush();
   snprintf(cMsg, sizeof(cMsg), "Last reset reason: [%s]", ESP.getResetReason().c_str());
   Serial.println(cMsg);
   TelnetStream.println(cMsg);
   //writeToLog(cMsg);
 
+  Serial.flush();
   Serial.print("\nGebruik 'telnet ");
   Serial.print (WiFi.localIP());
-  Serial.println("' voor verdere Serial.printing\r\n");
+  Serial.println("' voor verdere logging ...\r\n");
+  Serial.flush();
+
+  weerlive.setup(settingWeerLiveAUTH, settingWeerLiveLocation);
+  Serial.flush();
 
 //================ Start HTTP Server ================================
   setupFSexplorer();
@@ -364,7 +370,7 @@ void setup()
 
 
   httpServer.begin();
-  Serial.println("\nServer started\r");
+  Serial.println("\nServer started\r\n");
     
   valueIntensity = calculateIntensity(); // read analog input pin 0
 
@@ -398,7 +404,14 @@ void loop()
   if ((millis() > weerTimer) && (strlen(settingWeerLiveAUTH) > 5))
   {
     weerTimer = millis() + (settingWeerLiveInterval * (60 * 1000)); // Interval in Minutes!
-    if (settingWeerLiveInterval > 0)  getWeerLiveData();
+    if (settingWeerLiveInterval > 0)
+    {
+      const char* weatherInfo = weerlive.request();
+      Serial.println(weatherInfo);
+      snprintf(lastWeerMessage, WEER_SIZE, "%s", weatherInfo);
+      Serial.printf("ticker Weer[%s]\r\n", lastWeerMessage);
+      TelnetStream.printf("ticker Weer[%s]\r\n", lastWeerMessage);
+    }
   }
 
   if ((millis() > newsapiTimer) && (strlen(settingNewsAUTH) > 5))
@@ -435,6 +448,7 @@ void loop()
                 snprintf(actMessage, LCL_SIZE, weekDayName[localtime(&now)->tm_wday+1]);
                 snprintf(onTickerMessage, 120, "%s", actMessage);
                 //snprintf(actMessage, LCL_SIZE, weekDayName[1]);
+                P.displayClear();
                 P.displayText(actMessage, PA_CENTER, (MAX_SPEED - settingTextSpeed), 1000, effect[inFX], effect[outFX]);
                 Serial.printf("[1] %s\r\n", actMessage);
                 TelnetStream.printf("%s ", actMessage);
@@ -466,7 +480,7 @@ void loop()
                 break;
       case 9:   if (settingWeerLiveInterval > 0)
                 {
-                  snprintf(actMessage, LCL_SIZE, "** %s **", tempMessage);
+                  snprintf(actMessage, WEER_SIZE, "** %s **", lastWeerMessage);
                   snprintf(onTickerMessage, 120, "%s", actMessage);
                   Serial.printf("WeerLive \t[%s]\r\n", actMessage);
                   TelnetStream.printf("WeerLive \t[%s]\r\n", actMessage);

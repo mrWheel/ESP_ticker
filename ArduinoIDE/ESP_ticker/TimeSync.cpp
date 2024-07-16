@@ -36,7 +36,7 @@ bool TimeSync::sync(uint16_t maxTry)
 
   if (localtime(&now)->tm_year > 120)
         Serial.println(" Synchronized with NTP Service!");
-  else  Serial.println(" NOT SYNCED!");  
+  else  Serial.println(" NOT (YET) SYNCED!");  
 
   return localtime(&now)->tm_year > 120;
 
