@@ -28,11 +28,12 @@
 #include "restAPI.h"
 #include "sendIndexPage.h"
 #include "settingStuff.h"
-//#include "timeStuff.h"
-#include "weerlive_nl.h"
-//#include "Debug.h"
+#include "WeerliveClass.h"
 #include "TimeSync.h"
 
+
+WiFiClient weerliveClient;
+Weerlive weerlive(weerliveClient);
 
 // WiFi Server object and parameters
 ESP8266WebServer httpServer(80);
@@ -47,9 +48,10 @@ char      cDate[15], cTime[10];
 uint32_t  nrReboots;
 // Global message buffers shared by Wifi and Scrolling functions
 char      cMsg[NEWS_SIZE];
-char      tempMessage[WEER_SIZE] = "";
+char      tempMessage[LCL_SIZE] = "";
+char      lastWeerMessage[WEER_SIZE] = {};
 uint8_t   msgType;
-char      actMessage[NEWS_SIZE], timeMsg[20];
+char      actMessage[WEER_SIZE], timeMsg[20];
 char      onTickerMessage[LCL_SIZE] = {};
 char      fileMessage[LCL_SIZE];
 uint8_t   newsMsgID   = 0;
