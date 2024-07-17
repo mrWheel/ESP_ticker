@@ -28,7 +28,7 @@ void processAPI()
                                   , httpServer.client().remoteIP().toString().c_str()
                                         , URI); 
 
-  if (ESP.getFreeHeap() < 8500) // to prevent firmware from crashing!
+  if (ESP.getFreeHeap() < 2500) // to prevent firmware from crashing!
   {
     Serial.printf("==> Bailout due to low heap (%d bytes))\r\n", ESP.getFreeHeap() );
     httpServer.send(500, "text/plain", "500: internal server error (low heap)\r\n"); 
