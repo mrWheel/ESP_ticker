@@ -383,6 +383,18 @@ void setup()
   inFX = 0;
   outFX= 0;
 
+  snprintf(actMessage, NEWS_SIZE, "ESP_ticker designed by Willem Aandewiel                       ");
+  utf8Ascii(actMessage);
+  P.displayScroll(actMessage, PA_LEFT, PA_SCROLL_LEFT, (MAX_SPEED - settingTextSpeed));
+  valueIntensity = calculateIntensity(); // read analog input pin 0
+  P.setIntensity(valueIntensity);
+  P.displayClear();
+  P.displaySuspend(false);
+  P.displayScroll(actMessage, PA_LEFT, PA_NO_EFFECT, 25);
+  P.setTextEffect(PA_SCROLL_LEFT, PA_NO_EFFECT);
+
+  do { yield(); } while( !P.displayAnimate() );
+
   for (int i=0; i<=settingNewsMaxMsg; i++)
   {
     writeFileById("NWS", i, "");

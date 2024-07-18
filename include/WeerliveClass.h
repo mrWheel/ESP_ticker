@@ -28,7 +28,7 @@ class Weerlive
       String apiUrl;
       static const char* apiHost;
       //-- if the payload string is to large you will get a deserial error
-      StaticJsonDocument<7000> doc;
+      StaticJsonDocument<8000> doc;
       //-- if you select to many fields you will get a deserial error
       StaticJsonDocument<800> filter;
       String payload;

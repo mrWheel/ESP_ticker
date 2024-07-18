@@ -11,7 +11,7 @@
 #define  _ALLDEFINES_H
 
 #define _HOSTNAME   "ESPticker"
-#define _FW_VERSION "v1.8.0 (17-07-2024)"
+#define _FW_VERSION "v1.8.0 (18-07-2024)"
 
 
 #define USE_UPDATE_SERVER

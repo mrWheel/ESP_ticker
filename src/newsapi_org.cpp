@@ -13,8 +13,6 @@
 //-- http://newsapi.org/v2/top-headlines?country=nl&apiKey=API_KEY
 
 
-int myID = 0;
-
 //----------------------------------------------------------------------
 bool getNewsapiData() 
 {
@@ -92,7 +90,6 @@ bool getNewsapiData()
           Serial.println();
           newsapiClient.flush();
           newsapiClient.stop();
-          myID = 0;
           for(int i=0; i<=settingNewsMaxMsg; i++)
           {
             //sprintf(newsMessage, "");
@@ -102,14 +99,11 @@ bool getNewsapiData()
                   writeFileById("NWS", i, "You have made too many news requests recently . . please try again later");
             else  
             {
-              if (myID == 0) myID = i;
               writeFileById("NWS", i, "");
             }
           }
           newsapiClient.flush();
           newsapiClient.stop();
-          if (myID <= settingNewsMaxMsg) writeFileById("NWS", myID++, "  This ESP_ticker is designed by Willem Aandewiel  ");
-          if (myID <= settingNewsMaxMsg) writeFileById("NWS", myID++, "  See github 'https://github.com/mrWheel/ESP_ticker'   ");
 
           return false;  
         }
@@ -117,7 +111,6 @@ bool getNewsapiData()
       }
       else 
       {
-        myID = 0;
         Serial.println("Error reading newsapi.org.. -> bailout!");
         for(int i=0; i<=settingNewsMaxMsg; i++)
         {
@@ -125,14 +118,11 @@ bool getNewsapiData()
           if (i==1) writeFileById("NWS", i, "There is No News ....");
           else 
           {
-            if (myID == 0) myID = i;
             writeFileById("NWS", i, "");
           }
         }
         newsapiClient.flush();
         newsapiClient.stop();
-        if (myID <= settingNewsMaxMsg) writeFileById("NWS", myID++, "  This ESP_ticker is designed by Willem Aandewiel  ");
-        if (myID <= settingNewsMaxMsg) writeFileById("NWS", myID++, "  See github 'https://github.com/mrWheel/ESP_ticker'   ");
         return false;
       }
       //--- skip headers
@@ -158,15 +148,11 @@ bool getNewsapiData()
             writeFileById("NWS", msgNr, newsMessage);
           }
           msgNr++;
-          myID = msgNr;
         }
       } // while find(title)
     } // while available ..
     
   } // connected ..
-
-  if (myID <= settingNewsMaxMsg) writeFileById("NWS", myID++, "  This ESP_ticker is designed by Willem Aandewiel  ");
-  if (myID <= settingNewsMaxMsg) writeFileById("NWS", myID++, "  See github 'https://github.com/mrWheel/ESP_ticker'   ");
 
   newsapiClient.flush();
   newsapiClient.stop();
