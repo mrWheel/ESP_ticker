@@ -46,7 +46,7 @@ void Weerlive::setup(const char* key, const char* city)
 void Weerlive::configureFilters() 
 {
     filter["liveweer"][0]["plaats"]   = true;
-    filter["liveweer"][0]["time"]     = true;
+    filter["liveweer"][0]["time"]     = false;
     filter["liveweer"][0]["temp"]     = true;   //-- actuele temperatuur in graden Celsius
     filter["liveweer"][0]["gtemp"]    = false;  //-- gevoeld temperatuur
     filter["liveweer"][0]["samenv"]   = true;   //-- samenvatting
@@ -74,7 +74,7 @@ void Weerlive::configureFilters()
     filter["liveweer"][0]["wrsch_gts"]= false;  //-- Timestamp van wrsch_g
     filter["liveweer"][0]["wrsch_gc"] = false;  //-- KNMI kleurcode voor de eerstkomende waarschuwing
     //---- week verwachting ---
-    for(int i = 0; i < 5; i++)
+    for(int i = 0; i < 4; i++)
     {
       filter["wk_verw"][i]["dag"]       = true;   //-- datum van deze dag
       filter["wk_verw"][i]["image"]     = true;   //-- afbeeldingsnaamafbeeldingsnaam
@@ -126,7 +126,7 @@ const char* Weerlive::request()
         payload = http.getString();
         if (httpCode == 429) 
         {
-          weerliveText = "httpCode [429]Too many requests";
+          weerliveText = "WeerliveClass: httpCode [429]Too many requests";
           #ifdef DEBUG
             Serial.println(weerliveText);
           #endif  // DEBUG
@@ -140,7 +140,7 @@ const char* Weerlive::request()
       DeserializationError error = deserializeJson(doc, payload, DeserializationOption::Filter(filter));
       if (error) 
       {
-        weerliveText = "JSON Deserialization failed: " + String(error.f_str());
+        weerliveText = "WeerliveClass: deserializeJson() failed: " + String(error.f_str());
         Serial.println(weerliveText);
         return weerliveText.c_str();
       }
@@ -162,59 +162,59 @@ const char* Weerlive::request()
           if (kv.key() == "plaats" && filter["liveweer"][0]["plaats"]) {
               weerliveText += kv.value().as<String>();
           } else if (kv.key() == "time" && filter["liveweer"][0]["time"]) {
-              weerliveText += ", " + kv.value().as<String>();
+              weerliveText += " " + kv.value().as<String>();
           } else if (kv.key() == "temp" && filter["liveweer"][0]["temp"]) {
               weerliveText += " " + kv.value().as<String>() + "°C";
           } else if (kv.key() == "gtemp" && filter["liveweer"][0]["gtemp"]) {
-              weerliveText += ", gevoelstemperatuur " + kv.value().as<String>() + "°C";
+              weerliveText += " gevoelstemperatuur " + kv.value().as<String>() + "°C";
           } else if (kv.key() == "samenv" && filter["liveweer"][0]["samenv"]) {
-              weerliveText += ", weersgesteldheid: " + kv.value().as<String>();
+              weerliveText += " " + kv.value().as<String>();
           } else if (kv.key() == "lv" && filter["liveweer"][0]["lv"]) {
-              weerliveText += ", luchtvochtigheid " + kv.value().as<String>() + "%";
+              weerliveText += " luchtvochtigheid " + kv.value().as<String>() + "%";
           } else if (kv.key() == "windr" && filter["liveweer"][0]["windr"]) {
-              weerliveText += ", windrichting " + kv.value().as<String>();
+              weerliveText += " windrichting " + kv.value().as<String>();
           } else if (kv.key() == "windrgr" && filter["liveweer"][0]["windrgr"]) {
-              weerliveText += ", windrgr " + kv.value().as<String>() + "°";
+              weerliveText += " windrichting " + kv.value().as<String>() + "°";
           } else if (kv.key() == "windms" && filter["liveweer"][0]["windms"]) {
-              weerliveText += ", wind " + kv.value().as<String>() + " m/s";
+              weerliveText += " wind " + kv.value().as<String>() + " m/s";
           } else if (kv.key() == "windbft" && filter["liveweer"][0]["windbft"]) {
-              weerliveText += ", wind " + kv.value().as<String>() + " bft";
+              weerliveText += " wind " + kv.value().as<String>() + " bft";
           } else if (kv.key() == "windknp" && filter["liveweer"][0]["windknp"]) {
-              weerliveText += ", wind " + kv.value().as<String>() + " kts";
+              weerliveText += " wind " + kv.value().as<String>() + " kts";
           } else if (kv.key() == "windkmh" && filter["liveweer"][0]["windkmh"]) {
-              weerliveText += ", wind " + kv.value().as<String>() + " km/h";
+              weerliveText += " wind " + kv.value().as<String>() + " km/h";
           } else if (kv.key() == "luchtd" && filter["liveweer"][0]["luchtd"]) {
-              weerliveText += ", luchtdruk " + kv.value().as<String>() + " hPa";
+              weerliveText += " luchtdruk " + kv.value().as<String>() + " hPa";
           } else if (kv.key() == "ldmmhg" && filter["liveweer"][0]["ldmmhg"]) {
-              weerliveText += ", luchtdruk " + kv.value().as<String>() + " mmHg";
+              weerliveText += " luchtdruk " + kv.value().as<String>() + " mmHg";
           } else if (kv.key() == "dauwp" && filter["liveweer"][0]["dauwp"]) {
-              weerliveText += ", dauwpunt " + kv.value().as<String>() + "°C";
+              weerliveText += " dauwpunt " + kv.value().as<String>() + "°C";
           } else if (kv.key() == "zicht" && filter["liveweer"][0]["zicht"]) {
-              weerliveText += ", zicht " + kv.value().as<String>() +" m";
+              weerliveText += " zicht " + kv.value().as<String>() +" m";
           } else if (kv.key() == "gr" && filter["liveweer"][0]["gr"]) {
-              weerliveText += ", globale (zonne)straling " + kv.value().as<String>() + " Watt/M2";
+              weerliveText += " globale (zonne)straling " + kv.value().as<String>() + " Watt/M2";
           } else if (kv.key() == "verw" && filter["liveweer"][0]["verw"]) {
-              weerliveText += ", dagverwachting: " + kv.value().as<String>();
+              weerliveText += " dagverwachting: " + kv.value().as<String>();
           } else if (kv.key() == "sup" && filter["liveweer"][0]["sup"]) {
-              weerliveText += ", zon op " + kv.value().as<String>();
+              weerliveText += " zon op " + kv.value().as<String>();
           } else if (kv.key() == "sunder" && filter["liveweer"][0]["sunder"]) {
-              weerliveText += ", zon onder " + kv.value().as<String>();
+              weerliveText += " zon onder " + kv.value().as<String>();
           } else if (kv.key() == "image" && filter["liveweer"][0]["image"]) {
-              weerliveText += ", " + kv.value().as<String>();
+              weerliveText += " " + kv.value().as<String>();
           } else if (kv.key() == "alarm" && filter["liveweer"][0]["alarm"]) {
               alarmInd = kv.value().as<String>().toInt();
           } else if (kv.key() == "lkop" && filter["liveweer"][0]["lkop"] && (alarmInd == 1)) {
-              weerliveText += ", waarschuwing: " + kv.value().as<String>();
+              weerliveText += " waarschuwing: " + kv.value().as<String>();
           } else if (kv.key() == "ltekst" && filter["liveweer"][0]["ltekst"] && (alarmInd == 1)) { 
-              weerliveText += ", waarschuwing: " + kv.value().as<String>();
+              weerliveText += " waarschuwing: " + kv.value().as<String>();
           } else if (kv.key() == "wrschklr" && filter["liveweer"][0]["wrschklr"]) {
-              weerliveText += ", KNMI kleurcode " + kv.value().as<String>();
+              weerliveText += " KNMI kleurcode " + kv.value().as<String>();
           } else if (kv.key() == "wrsch_g" && filter["liveweer"][0]["wrsch_g"] && (alarmInd == 1)) { 
-              weerliveText += ", waarschuwing:" + kv.value().as<String>();
+              weerliveText += " waarschuwing:" + kv.value().as<String>();
           } else if (kv.key() == "wrsch_gts" && filter["liveweer"][0]["wrsch_gts"] && (alarmInd == 1)) {
-              weerliveText += ", Timestamp van waarschuwing " + kv.value().as<String>();
+              weerliveText += " Timestamp van waarschuwing " + kv.value().as<String>();
           } else if (kv.key() == "wrsch_gc" && filter["liveweer"][0]["wrsch_gc"] && (alarmInd == 1)) {
-              weerliveText += ", kleurcode eerstkomende waarschuwing " + kv.value().as<String>();
+              weerliveText += " kleurcode eerstkomende waarschuwing " + kv.value().as<String>();
           } 
           else 
           {
