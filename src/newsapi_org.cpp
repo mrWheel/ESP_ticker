@@ -78,7 +78,7 @@ bool getNewsapiData()
       if (newsapiClient.find("HTTP/1.1"))
       {
         newsapiStatus = newsapiClient.parseInt(); // parse status code
-        Serial.printf("Statuscode: [%d] ", newsapiStatus); 
+        Serial.printf("newsApi Statuscode: [%d] ", newsapiStatus); 
         if (newsapiStatus != 200)
         {
           Serial.println(" ERROR!");

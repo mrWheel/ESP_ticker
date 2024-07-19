@@ -19,20 +19,21 @@
 class Weerlive 
 {
   public:
-      Weerlive(WiFiClient& client);
+      Weerlive(WiFiClient& weerliveClient);
       void setup(const char* key, const char* city);
       const char* request();
 
   private:
-      WiFiClient& client;
+      WiFiClient& thisClient;
       String apiUrl;
       static const char* apiHost;
       //-- if the payload string is to large you will get a deserial error
-      StaticJsonDocument<7000> doc;
+      StaticJsonDocument<8000> doc;
       //-- if you select to many fields you will get a deserial error
       StaticJsonDocument<800> filter;
-      String payload;
+      //--aaw- String payload;
       String weerliveText;
+      char jsonResponse[2000];
       int alarmInd = -1;
       const char* dateToDayName(const char* date_str);
 

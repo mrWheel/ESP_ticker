@@ -383,6 +383,18 @@ void setup()
   inFX = 0;
   outFX= 0;
 
+  snprintf(actMessage, NEWS_SIZE, "ESP_ticker by Willem Aandewiel                       ");
+  utf8Ascii(actMessage);
+  P.displayScroll(actMessage, PA_LEFT, PA_SCROLL_LEFT, (MAX_SPEED - settingTextSpeed));
+  valueIntensity = calculateIntensity(); // read analog input pin 0
+  P.setIntensity(valueIntensity);
+  P.displayClear();
+  P.displaySuspend(false);
+  P.displayScroll(actMessage, PA_LEFT, PA_NO_EFFECT, 25);
+  P.setTextEffect(PA_SCROLL_LEFT, PA_NO_EFFECT);
+
+  do { yield(); } while( !P.displayAnimate() );
+
   for (int i=0; i<=settingNewsMaxMsg; i++)
   {
     writeFileById("NWS", i, "");
@@ -403,13 +415,14 @@ void loop()
   
   if ((millis() > weerTimer) && (strlen(settingWeerLiveAUTH) > 5))
   {
-    weerTimer = millis() + (settingWeerLiveInterval * (60 * 1000)); // Interval in Minutes!
+    //--aaw- weerTimer = millis() + (settingWeerLiveInterval * (60 * 1000)); // Interval in Minutes!
+    weerTimer = millis() + (1 * (60 * 1000)); // Interval in Minutes!
     if (settingWeerLiveInterval > 0)
     {
       const char* weatherInfo = weerlive.request();
       Serial.println(weatherInfo);
       snprintf(lastWeerMessage, WEER_SIZE, "%s", weatherInfo);
-      Serial.printf("ticker Weer[%s]\r\n", lastWeerMessage);
+      Serial.printf("ticker Weer\n%s\r\n", lastWeerMessage);
       TelnetStream.printf("ticker Weer[%s]\r\n", lastWeerMessage);
     }
   }
@@ -482,8 +495,8 @@ void loop()
                 {
                   snprintf(actMessage, WEER_SIZE, "** %s **", lastWeerMessage);
                   snprintf(onTickerMessage, 120, "%s", actMessage);
-                  Serial.printf("WeerLive \t[%s]\r\n", actMessage);
-                  TelnetStream.printf("WeerLive \t[%s]\r\n", actMessage);
+                  Serial.printf("WeerLive [%s]\r\n", actMessage);
+                  TelnetStream.printf("WeerLive [%s]\r\n", actMessage);
                   utf8Ascii(actMessage);
                 }
                 else  nextLocalBericht();

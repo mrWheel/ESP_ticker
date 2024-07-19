@@ -195,7 +195,7 @@ void sendDeviceSettings()
   sendJsonSettingObj("maxIntensity",      settingMaxIntensity,     "i",   0,   15);
   sendJsonSettingObj("weerliveAUTH",      settingWeerLiveAUTH,     "s", WEER_AUTH_SIZE -1);
   sendJsonSettingObj("weerliveLocation",  settingWeerLiveLocation, "s", WEER_LIVE_LOC_SIZE -1);
-  sendJsonSettingObj("weerliveInterval",  settingWeerLiveInterval, "i",  15,  120);
+  sendJsonSettingObj("weerliveInterval",  settingWeerLiveInterval, "i",  2,  120);
   sendJsonSettingObj("newsapiAUTH",       settingNewsAUTH,         "s", NEWS_AUTH_SIZE -1);
   sendJsonSettingObj("newsapiMaxMsg",     settingNewsMaxMsg,       "i",   1,   20);
   sendJsonSettingObj("newsapiInterval",   settingNewsInterval,     "i",  15,  120);

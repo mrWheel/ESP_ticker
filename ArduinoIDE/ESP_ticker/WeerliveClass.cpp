@@ -9,11 +9,12 @@
 
 #include "WeerliveClass.h"
 
-const char* Weerlive::apiHost = "http://weerlive.nl/api/weerlive_api_v2.php";
+//--aaw- const char* Weerlive::apiHost = "http://weerlive.nl/api/weerlive_api_v2.php";
+const char* Weerlive::apiHost = "weerlive.nl";
 
 const char* dayNames[] = {"Zondag", "Maandag", "Dinsdag", "Woensdag", "Donderdag", "Vrijdag", "Zaterdag"};
 
-Weerlive::Weerlive(WiFiClient& client) : client(client), apiUrl("") {}
+Weerlive::Weerlive(WiFiClient& thisClient) : thisClient(thisClient), apiUrl("") {}
 
 /**
  * Initializes the Weerlive class by setting up the API URL with the provided key and city,
@@ -26,10 +27,15 @@ Weerlive::Weerlive(WiFiClient& client) : client(client), apiUrl("") {}
  */
 void Weerlive::setup(const char* key, const char* city) 
 {
-    apiUrl = String(apiHost) + "?key=" + key + "&locatie=" + city;
+  char tmp[100];
     Serial.begin(115200);
-    delay(500);
+    while(!Serial) { delay(10); }
+    Serial.flush();
     Serial.println("\nWeerlive setup");
+    //--aaw- apiUrl = String(apiHost) + "?key=" + key + "&locatie=" + city;
+    snprintf(tmp, sizeof(tmp), "/api/weerlive_api_v2.php?key=%s&locatie=%s", key, city);
+    apiUrl = String(tmp);
+    Serial.printf("setup(): apiUrl = [%s]\n", apiUrl.c_str());
     configureFilters();
 
 } //  setup()
@@ -46,7 +52,7 @@ void Weerlive::setup(const char* key, const char* city)
 void Weerlive::configureFilters() 
 {
     filter["liveweer"][0]["plaats"]   = true;
-    filter["liveweer"][0]["time"]     = true;
+    filter["liveweer"][0]["time"]     = false;
     filter["liveweer"][0]["temp"]     = true;   //-- actuele temperatuur in graden Celsius
     filter["liveweer"][0]["gtemp"]    = false;  //-- gevoeld temperatuur
     filter["liveweer"][0]["samenv"]   = true;   //-- samenvatting
@@ -74,7 +80,7 @@ void Weerlive::configureFilters()
     filter["liveweer"][0]["wrsch_gts"]= false;  //-- Timestamp van wrsch_g
     filter["liveweer"][0]["wrsch_gc"] = false;  //-- KNMI kleurcode voor de eerstkomende waarschuwing
     //---- week verwachting ---
-    for(int i = 0; i < 5; i++)
+    for(int i = 0; i < 4; i++)
     {
       filter["wk_verw"][i]["dag"]       = true;   //-- datum van deze dag
       filter["wk_verw"][i]["image"]     = true;   //-- afbeeldingsnaamafbeeldingsnaam
@@ -101,6 +107,10 @@ void Weerlive::configureFilters()
  */
 const char* Weerlive::request() 
 {
+  int httpCode = 200;
+  int weerliveStatus = 0;
+  bool gotData = false;
+
     if (apiUrl.isEmpty()) 
     {
         weerliveText = "API URL not set";
@@ -108,47 +118,150 @@ const char* Weerlive::request()
         return weerliveText.c_str();
     }
 
-    Serial.println("Weerlive request");
+    Serial.printf("\nWeerlive request [%s]\n", apiHost);
+    Serial.printf("Free Heap: [%d] bytes\n", ESP.getFreeHeap()); 
+    delay(2000);
     #ifdef DEBUG
       Serial.println(apiUrl);
     #endif  // DEBUG
-    HTTPClient http;
-    http.begin(client, apiUrl);
-    int httpCode = http.GET();
+    //HTTPClient http;
+    //--aaw- WiFiClient weerliveClient;
+    thisClient.setTimeout(2000);
+    Serial.printf("\nNext: connect(%s, %d)\n\n", apiHost, 80);
+    //--aaw- http.begin(client, apiUrl);
+    if (!thisClient.connect(apiHost, 80)) 
+    {
+      Serial.printf("connection to [%s] failed\n", apiHost);
+      //sprintf(weerliveText, "connection to %s failed", apiHost);
+      thisClient.flush();
+      thisClient.stop();
+      return "Error";
+    }
 
-    if (httpCode > 0) 
+    Serial.printf("connected to [%s]\n", apiHost);
+    delay(1000);
+    // This will send the request to the server
+    Serial.print(String("GET ") + apiUrl + " HTTP/1.1\r\n" +
+                 "Host: " + apiHost + "\r\n" + 
+                 "Connection: close\r\n\r\n");
+    thisClient.print(String("GET ") + apiUrl + " HTTP/1.1\r\n" +
+                 "Host: " + apiHost + "\r\n" + 
+                 "Connection: close\r\n\r\n");
+    delay(10);
+  
+
+  while ((thisClient.connected() || thisClient.available()) && !gotData)
+  {
+    yield();
+    while(thisClient.available() && !gotData)
+    {
+      //--- skip to find HTTP/1.1
+      //--- then parse response code
+      if (thisClient.find("HTTP/1.1"))
+      {
+        weerliveStatus = thisClient.parseInt(); // parse status code
+        Serial.printf("Statuscode: [%d] ", weerliveStatus); 
+        if (weerliveStatus != 200)
+        {
+          Serial.println(" ERROR!");
+          thisClient.flush();
+          thisClient.stop();
+          return String(weerliveStatus).c_str();  
+        }
+        Serial.println(" OK!");
+      }
+      else
+      {
+        Serial.println("Error reading weerLive.. -> bailout!");
+        thisClient.flush();
+        thisClient.stop();
+        return "bailout";
+      }
+      //--- skip headers
+      if (thisClient.find("\r\n\r\n"))
+      {
+        thisClient.find("{");
+        int charsRead = 0;
+        charsRead = thisClient.readBytesUntil('\0',  jsonResponse+1, sizeof(jsonResponse)-1);
+        jsonResponse[0] = '{';
+        #ifdef DEBUG
+          Serial.printf("charsRead[%d]\n", charsRead);
+        #endif  // DEBUG
+        jsonResponse[charsRead-1] = '\0';
+        jsonResponse[charsRead]   = '\0';
+        #ifdef DEBUG
+          Serial.printf("got weerdata [%d] bytes\n===================\n%s\n========================\n\n", strlen(jsonResponse), jsonResponse);
+
+          Serial.printf("[0] is [%c], charsRead is [", jsonResponse[0]);
+          Serial.print(jsonResponse[charsRead], HEX);
+          Serial.println("]");
+          Serial.printf("strlen(jsonResponse)[%d] >= sizeof(jsonResponse)[%d]\n", strlen(jsonResponse), sizeof(jsonResponse));
+        #endif  // DEBUG
+        if (strlen(jsonResponse) >= (sizeof(jsonResponse)-2))
+        {
+          int p = charsRead;
+          for(p = (charsRead-4); p >= 0; p--)
+          {
+            #ifdef DEBUG
+              Serial.printf("Pos[%d] is [%c]\n", p, jsonResponse[p]);
+            #endif  // DEBUG
+            if (jsonResponse[p] == '}') break;
+          }
+          #ifdef DEBUG
+            Serial.printf("Found '}' on pos[%d]\n", p);
+            Serial.println((p-40));
+            for(int x=p-40; jsonResponse[x] != 0; x++) Serial.print(jsonResponse[x]);
+            Serial.println();
+          #endif  // DEBUG
+          charsRead = p;
+          jsonResponse[charsRead] = '}';
+          jsonResponse[charsRead+1] = ']';
+          jsonResponse[charsRead+2] = '}';
+          jsonResponse[charsRead+3] = '\0';
+          jsonResponse[charsRead+4] = '\0';
+        }
+        gotData = true;
+        #ifdef DEBUG
+          Serial.printf("got weerdata [%d] bytes\n===================\n%s\n========================\n\n", strlen(jsonResponse), jsonResponse);
+        #endif  // DEBUG
+      }
+    } // while available ..
+    
+  } // connected ..
+
+  thisClient.flush();
+  thisClient.stop();
+
+    if (weerliveStatus == 200) 
     {
       #ifdef DEBUG
-        Serial.printf("[HTTP] GET... code: %d\n", httpCode);
-        Serial.print("HTTP Response code: ");
-        Serial.println(httpCode);
+        Serial.printf("\njsonResponse ==[%d]===\n%s\n=============\n\n", strlen(jsonResponse), jsonResponse);
       #endif  // DEBUG
-        payload = http.getString();
-        if (httpCode == 429) 
-        {
-          weerliveText = "httpCode [429]Too many requests";
-          #ifdef DEBUG
-            Serial.println(weerliveText);
-          #endif  // DEBUG
-          return weerliveText.c_str();
-        }
+      if (strlen(jsonResponse) == 0)
+      {
+        Serial.println(" ... Bailout!!\n");
+        return weerliveText.c_str();
+      }
 
-      #ifdef DEBUG
-        Serial.println(payload);
-      #endif  // DEBUG
+      Serial.printf("Before deserializeJson(): Free Heap: [%d] bytes\n", ESP.getFreeHeap()); 
 
-      DeserializationError error = deserializeJson(doc, payload, DeserializationOption::Filter(filter));
+      DeserializationError error = deserializeJson(doc, jsonResponse, DeserializationOption::Filter(filter));
+      
       if (error) 
       {
-        weerliveText = "JSON Deserialization failed: " + String(error.f_str());
+        weerliveText = "WeerliveClass: deserializeJson() failed: " + String(error.f_str());
         Serial.println(weerliveText);
+        Serial.printf("Free Heap: [%d] bytes\n", ESP.getFreeHeap()); 
+        //Serial.printf("\njsonResponse: [%s]\n\n", jsonResponse.c_str());
         return weerliveText.c_str();
       }
 
       weerliveText = "";
 
       Serial.println("\nProcessliveweer ......  \n");
+      Serial.printf("Before liveweerArray: Free Heap [%d] bytes\n", ESP.getFreeHeap()); 
       JsonArray liveweerArray = doc["liveweer"];
+      Serial.printf("After liveweerArray: Free Heap [%d] bytes\n", ESP.getFreeHeap()); 
       alarmInd = -1;
       for (JsonObject weather : liveweerArray) 
       {
@@ -159,62 +272,62 @@ const char* Weerlive::request()
             Serial.print(": ");
             Serial.println(kv.value().as<String>());
           #endif  // DEBUG
-          if (kv.key() == "plaats" && filter["liveweer"][0]["plaats"]) {
+          if (kv.key() == "plaats") {
               weerliveText += kv.value().as<String>();
-          } else if (kv.key() == "time" && filter["liveweer"][0]["time"]) {
-              weerliveText += ", " + kv.value().as<String>();
-          } else if (kv.key() == "temp" && filter["liveweer"][0]["temp"]) {
+          } else if (kv.key() == "time") {
+              weerliveText += " " + kv.value().as<String>();
+          } else if (kv.key() == "temp") {
               weerliveText += " " + kv.value().as<String>() + "°C";
-          } else if (kv.key() == "gtemp" && filter["liveweer"][0]["gtemp"]) {
-              weerliveText += ", gevoelstemperatuur " + kv.value().as<String>() + "°C";
-          } else if (kv.key() == "samenv" && filter["liveweer"][0]["samenv"]) {
-              weerliveText += ", weersgesteldheid: " + kv.value().as<String>();
-          } else if (kv.key() == "lv" && filter["liveweer"][0]["lv"]) {
-              weerliveText += ", luchtvochtigheid " + kv.value().as<String>() + "%";
-          } else if (kv.key() == "windr" && filter["liveweer"][0]["windr"]) {
-              weerliveText += ", windrichting " + kv.value().as<String>();
-          } else if (kv.key() == "windrgr" && filter["liveweer"][0]["windrgr"]) {
-              weerliveText += ", windrgr " + kv.value().as<String>() + "°";
-          } else if (kv.key() == "windms" && filter["liveweer"][0]["windms"]) {
-              weerliveText += ", wind " + kv.value().as<String>() + " m/s";
-          } else if (kv.key() == "windbft" && filter["liveweer"][0]["windbft"]) {
-              weerliveText += ", wind " + kv.value().as<String>() + " bft";
-          } else if (kv.key() == "windknp" && filter["liveweer"][0]["windknp"]) {
-              weerliveText += ", wind " + kv.value().as<String>() + " kts";
-          } else if (kv.key() == "windkmh" && filter["liveweer"][0]["windkmh"]) {
-              weerliveText += ", wind " + kv.value().as<String>() + " km/h";
-          } else if (kv.key() == "luchtd" && filter["liveweer"][0]["luchtd"]) {
-              weerliveText += ", luchtdruk " + kv.value().as<String>() + " hPa";
-          } else if (kv.key() == "ldmmhg" && filter["liveweer"][0]["ldmmhg"]) {
-              weerliveText += ", luchtdruk " + kv.value().as<String>() + " mmHg";
-          } else if (kv.key() == "dauwp" && filter["liveweer"][0]["dauwp"]) {
-              weerliveText += ", dauwpunt " + kv.value().as<String>() + "°C";
-          } else if (kv.key() == "zicht" && filter["liveweer"][0]["zicht"]) {
-              weerliveText += ", zicht " + kv.value().as<String>() +" m";
-          } else if (kv.key() == "gr" && filter["liveweer"][0]["gr"]) {
-              weerliveText += ", globale (zonne)straling " + kv.value().as<String>() + " Watt/M2";
-          } else if (kv.key() == "verw" && filter["liveweer"][0]["verw"]) {
-              weerliveText += ", dagverwachting: " + kv.value().as<String>();
-          } else if (kv.key() == "sup" && filter["liveweer"][0]["sup"]) {
-              weerliveText += ", zon op " + kv.value().as<String>();
-          } else if (kv.key() == "sunder" && filter["liveweer"][0]["sunder"]) {
-              weerliveText += ", zon onder " + kv.value().as<String>();
-          } else if (kv.key() == "image" && filter["liveweer"][0]["image"]) {
-              weerliveText += ", " + kv.value().as<String>();
-          } else if (kv.key() == "alarm" && filter["liveweer"][0]["alarm"]) {
+          } else if (kv.key() == "gtemp") {
+              weerliveText += " gevoelstemperatuur " + kv.value().as<String>() + "°C";
+          } else if (kv.key() == "samenv") {
+              weerliveText += " " + kv.value().as<String>();
+          } else if (kv.key() == "lv") {
+              weerliveText += " luchtvochtigheid " + kv.value().as<String>() + "%";
+          } else if (kv.key() == "windr") {
+              weerliveText += " windrichting " + kv.value().as<String>();
+          } else if (kv.key() == "windrgr") {
+              weerliveText += " windrichting " + kv.value().as<String>() + "°";
+          } else if (kv.key() == "windms") {
+              weerliveText += " wind " + kv.value().as<String>() + " m/s";
+          } else if (kv.key() == "windbft") {
+              weerliveText += " wind " + kv.value().as<String>() + " bft";
+          } else if (kv.key() == "windknp") {
+              weerliveText += " wind " + kv.value().as<String>() + " kts";
+          } else if (kv.key() == "windkmh") {
+              weerliveText += " wind " + kv.value().as<String>() + " km/h";
+          } else if (kv.key() == "luchtd") {
+              weerliveText += " luchtdruk " + kv.value().as<String>() + " hPa";
+          } else if (kv.key() == "ldmmhg") {
+              weerliveText += " luchtdruk " + kv.value().as<String>() + " mmHg";
+          } else if (kv.key() == "dauwp") {
+              weerliveText += " dauwpunt " + kv.value().as<String>() + "°C";
+          } else if (kv.key() == "zicht") {
+              weerliveText += " zicht " + kv.value().as<String>() +" m";
+          } else if (kv.key() == "gr") {
+              weerliveText += " globale (zonne)straling " + kv.value().as<String>() + " Watt/M2";
+          } else if (kv.key() == "verw") {
+              weerliveText += " dagverwachting: " + kv.value().as<String>();
+          } else if (kv.key() == "sup") {
+              weerliveText += " zon op " + kv.value().as<String>();
+          } else if (kv.key() == "sunder") {
+              weerliveText += " zon onder " + kv.value().as<String>();
+          } else if (kv.key() == "image") {
+              weerliveText += " " + kv.value().as<String>();
+          } else if (kv.key() == "alarm") {
               alarmInd = kv.value().as<String>().toInt();
-          } else if (kv.key() == "lkop" && filter["liveweer"][0]["lkop"] && (alarmInd == 1)) {
-              weerliveText += ", waarschuwing: " + kv.value().as<String>();
-          } else if (kv.key() == "ltekst" && filter["liveweer"][0]["ltekst"] && (alarmInd == 1)) { 
-              weerliveText += ", waarschuwing: " + kv.value().as<String>();
-          } else if (kv.key() == "wrschklr" && filter["liveweer"][0]["wrschklr"]) {
-              weerliveText += ", KNMI kleurcode " + kv.value().as<String>();
-          } else if (kv.key() == "wrsch_g" && filter["liveweer"][0]["wrsch_g"] && (alarmInd == 1)) { 
-              weerliveText += ", waarschuwing:" + kv.value().as<String>();
-          } else if (kv.key() == "wrsch_gts" && filter["liveweer"][0]["wrsch_gts"] && (alarmInd == 1)) {
-              weerliveText += ", Timestamp van waarschuwing " + kv.value().as<String>();
-          } else if (kv.key() == "wrsch_gc" && filter["liveweer"][0]["wrsch_gc"] && (alarmInd == 1)) {
-              weerliveText += ", kleurcode eerstkomende waarschuwing " + kv.value().as<String>();
+          } else if (kv.key() == "lkop" && (alarmInd == 1)) {
+              weerliveText += " waarschuwing: " + kv.value().as<String>();
+          } else if (kv.key() == "ltekst" && (alarmInd == 1)) { 
+              weerliveText += " waarschuwing: " + kv.value().as<String>();
+          } else if (kv.key() == "wrschklr") {
+              weerliveText += " KNMI kleurcode " + kv.value().as<String>();
+          } else if (kv.key() == "wrsch_g"&& (alarmInd == 1)) { 
+              weerliveText += " waarschuwing:" + kv.value().as<String>();
+          } else if (kv.key() == "wrsch_gts" && (alarmInd == 1)) {
+              weerliveText += " Timestamp van waarschuwing " + kv.value().as<String>();
+          } else if (kv.key() == "wrsch_gc" && (alarmInd == 1)) {
+              weerliveText += " kleurcode eerstkomende waarschuwing " + kv.value().as<String>();
           } 
           else 
           {
@@ -222,10 +335,13 @@ const char* Weerlive::request()
           }
         }
       }
+      serializeJsonPretty(liveweerArray, Serial);
 
       Serial.println("\nProcess wk_verw ......  \n");
+      Serial.printf("Before wk_verwArray: Free Heap [%d] bytes\n", ESP.getFreeHeap()); 
       // Process the wk_verw array
       JsonArray wk_verwArray = doc["wk_verw"];
+      Serial.printf("After wk_verwArray: Free Heap [%d] bytes\n\n", ESP.getFreeHeap()); 
       for (JsonVariant v : wk_verwArray) 
       {
         JsonObject obj = v.as<JsonObject>();
@@ -239,27 +355,27 @@ const char* Weerlive::request()
           if (kv.key() == "dag" && filter["wk_verw"][0]["dag"]) {
               //weerliveText += " ["+ kv.value().as<String>() +"]";
               weerliveText += ", "+ String(dateToDayName(kv.value().as<String>().c_str()));
-          } else if (kv.key() == "image" && filter["wk_verw"][0]["image"]) {
+          } else if (kv.key() == "image" ) {
               weerliveText += " " + kv.value().as<String>();
-          } else if (kv.key() == "max_temp" && filter["wk_verw"][0]["max_temp"]) {
+          } else if (kv.key() == "max_temp" ) {
               weerliveText += " max " + kv.value().as<String>() + "°C";
-          } else if (kv.key() == "min_temp" && filter["wk_verw"][0]["min_temp"]) {
+          } else if (kv.key() == "min_temp" ) { 
               weerliveText += " min " + kv.value().as<String>() + "°C";
-          } else if (kv.key() == "windbft" && filter["wk_verw"][0]["windbft"]) {
+          } else if (kv.key() == "windbft") { 
               weerliveText += " wind " + kv.value().as<String>() + " bft";
-          } else if (kv.key() == "windkmh" && filter["wk_verw"][0]["windkmh"]) {
+          } else if (kv.key() == "windkmh") { 
               weerliveText += " wind " + kv.value().as<String>() + " km/h";
-          } else if (kv.key() == "windms" && filter["wk_verw"][0]["windms"]) {
+          } else if (kv.key() == "windms") { 
               weerliveText += " wind " + kv.value().as<String>() + " m/s";
-          } else if (kv.key() == "windknp" && filter["wk_weer"][0]["windknp"]) {
+          } else if (kv.key() == "windknp") { 
               weerliveText += " wind " + kv.value().as<String>() + " kts";
-          } else if (kv.key() == "windrgr" && filter["wk_verw"][0]["windrgr"]) {
+          } else if (kv.key() == "windrgr") { 
               weerliveText += " windrichting " + kv.value().as<String>() + "°";
-          } else if (kv.key() == "windr" && filter["wk_verw"][0]["windr"]) {
+          } else if (kv.key() == "windr") { 
               weerliveText += " windrichting " + kv.value().as<String>();
-          } else if (kv.key() == "neersl_perc_dag" && filter["wk_verw"][0]["neersl_perc_dag"]) {
+          } else if (kv.key() == "neersl_perc_dag") { 
               weerliveText += " neerslag kans " + kv.value().as<String>() + "%";
-          } else if (kv.key() == "zond_perc_dag" && filter["wk_verw"][0]["zond_perc_dag"]) {
+          } else if (kv.key() == "zond_perc_dag") { 
               weerliveText += " zon kans " + kv.value().as<String>() + "%";
           } 
           else 
@@ -274,12 +390,25 @@ const char* Weerlive::request()
     } 
     else 
     {
-      weerliveText = "Error [" + String(httpCode) + "] on HTTP request";
+      weerliveText = "Error [" + String(weerliveStatus) + "] on HTTP request";
       Serial.println(weerliveText);
+      #ifdef DEBUG
+        Serial.printf("[HTTP] GET... code: %d\n", weerliveStatus);
+      #endif  // DEBUG
+        if (weerliveStatus == 429) 
+        {
+          weerliveText = "WeerliveClass: status [429] Too many requests";
+          #ifdef DEBUG
+            Serial.println(weerliveText);
+          #endif  // DEBUG
+          return weerliveText.c_str();
+        }
     }
 
-    http.end();
+    //--aaw- http.end();
     return weerliveText.c_str();
+
+
 } //  request()
 
 /**

@@ -11,7 +11,7 @@
 #define  _ALLDEFINES_H
 
 #define _HOSTNAME   "ESPticker"
-#define _FW_VERSION "v1.8.0 (17-07-2024)"
+#define _FW_VERSION "v1.8.0 (19-07-2024)"
 
 
 #define USE_UPDATE_SERVER
@@ -33,7 +33,7 @@
 #define HOSTNAME_SIZE        40
 #define LCL_SIZE            512
 #define NEWS_SIZE           512
-#define WEER_SIZE          1500
+#define WEER_SIZE          1200
 #define JSON_BUFF_MAX       255
 #define JSON_RESPONSE_SIZE 2048
 #define MAX_NO_NO_WORDS      20
