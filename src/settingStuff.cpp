@@ -162,7 +162,7 @@ void readSettings(bool show)
   else
   {
     if (settingWeerLiveInterval > 120)  settingWeerLiveInterval =  120;  // minuten!
-    if (settingWeerLiveInterval <  15)  settingWeerLiveInterval =   15;
+    if (settingWeerLiveInterval <   2)  settingWeerLiveInterval =    2;
   }
   if (settingNewsMaxMsg > 20)         settingNewsMaxMsg       =   20;
   if (settingNewsMaxMsg <  1)         settingNewsMaxMsg       =    1;
@@ -235,7 +235,7 @@ void updateSetting(const char *field, const char *newValue)
   writeSettings(false);
 
   if (settingWeerLiveInterval == 0)      memset(tempMessage, 0, LCL_SIZE);
-  else if (settingWeerLiveInterval < 15) settingWeerLiveInterval = 15;
+  else if (settingWeerLiveInterval < 2)  settingWeerLiveInterval = 2;
   if (settingNewsInterval == 0)          removeNewsData();
   else if (settingNewsInterval < 15)     settingNewsInterval = 15;
   //--- rebuild noWords array --
