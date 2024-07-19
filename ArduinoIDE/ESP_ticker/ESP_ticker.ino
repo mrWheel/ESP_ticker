@@ -383,7 +383,7 @@ void setup()
   inFX = 0;
   outFX= 0;
 
-  snprintf(actMessage, NEWS_SIZE, "ESP_ticker by Willem Aandewiel                       ");
+  snprintf(actMessage, NEWS_SIZE, "ESP_ticker by Willem Aandewiel              Wait ...     ");
   utf8Ascii(actMessage);
   P.displayScroll(actMessage, PA_LEFT, PA_SCROLL_LEFT, (MAX_SPEED - settingTextSpeed));
   valueIntensity = calculateIntensity(); // read analog input pin 0
@@ -415,8 +415,7 @@ void loop()
   
   if ((millis() > weerTimer) && (strlen(settingWeerLiveAUTH) > 5))
   {
-    //--aaw- weerTimer = millis() + (settingWeerLiveInterval * (60 * 1000)); // Interval in Minutes!
-    weerTimer = millis() + (1 * (60 * 1000)); // Interval in Minutes!
+    weerTimer = millis() + (settingWeerLiveInterval * (60 * 1000)); // Interval in Minutes!
     if (settingWeerLiveInterval > 0)
     {
       const char* weatherInfo = weerlive.request();
