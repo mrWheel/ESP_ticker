@@ -1,17 +1,17 @@
 /*
-***************************************************************************  
+***************************************************************************
 **  Program : sendIndexPage
 **
 **  Copyright (c) 2021 .. 2024 Willem Aandewiel
 **
-**  TERMS OF USE: MIT License. See bottom of file.                                                            
-***************************************************************************      
+**  TERMS OF USE: MIT License. See bottom of file.
+***************************************************************************
 */
 
 #include "sendIndexPage.h"
 
 static const char indexPage[] =
-R"(
+  R"(
 <!DOCTYPE html>
 <html charset="UTF-8">
   <head>

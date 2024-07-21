@@ -1,11 +1,11 @@
 /*
-***************************************************************************  
+***************************************************************************
 **  Program : newsapi_org
 **
 **  Copyright (c) 2021 .. 2024 Willem Aandewiel
 **
-**  TERMS OF USE: MIT License. See bottom of file.                                                            
-***************************************************************************      
+**  TERMS OF USE: MIT License. See bottom of file.
+***************************************************************************
 */
 
 #include "newsapi_org.h"
@@ -14,9 +14,17 @@
 
 
 //----------------------------------------------------------------------
-bool getNewsapiData() 
+/**
+ * Retrieves news data from newsapi.org and processes it accordingly.
+ *
+ * @return true if the news data retrieval and processing was successful,
+ *         false otherwise
+ *
+ * @throws None
+ */
+bool getNewsapiData()
 {
-  const char* newsapiHost    = "newsapi.org";
+  const char *newsapiHost    = "newsapi.org";
   const int   httpPort       = 80;
   int         newsapiStatus  = 0;
   char        newsMessage[NEWS_SIZE] = {};
@@ -24,7 +32,7 @@ bool getNewsapiData()
   int32_t     maxWait;
   char        jsonResponse[JSON_RESPONSE_SIZE] = {};
   char        val[51] = "";
-  
+
   WiFiClient newsapiClient;
 
   Serial.println();
@@ -34,18 +42,15 @@ bool getNewsapiData()
   String url = "/v2/top-headlines?country=nl&apiKey=";
   url += settingNewsAUTH;
 
+  Serial.println("\r\n=================================================");
   Serial.printf("Requesting URL: %s/v2/top-headlines?country=nl&apiKey=secret\r\n", newsapiHost);
+  Serial.println("=================================================");
   Serial.flush();
-  //Serial.println("\r\n=======================================");
-  //Serial.printFlush();
-  //Serial.print(newsapiHost);
-  //Serial.println(url);
-  //Serial.println("=======================================");
-  
-  if (!newsapiClient.connect(newsapiHost, httpPort)) 
+
+  if (!newsapiClient.connect(newsapiHost, httpPort))
   {
-    Serial.println("connection failed");
     sprintf(tempMessage, "connection to %s failed", newsapiHost);
+    Serial.println(tempMessage);
     //-- empty newsMessage store --
     for(int i=0; i<=settingNewsMaxMsg; i++)
     {
@@ -53,19 +58,23 @@ bool getNewsapiData()
       if (i==1) writeFileById("NWS", i, "There is No News ....");
       else      writeFileById("NWS", i, "");
     }
-    
+
     newsapiClient.flush();
     newsapiClient.stop();
     return false;
   }
 
   // This will send the request to the server
-  newsapiClient.print(String("GET ") + url + " HTTP/1.1\r\n" +
-               "Host: " + newsapiHost + "\r\n" + 
-               "User-Agent: ESP-ticker\r\n" + 
+  Serial.print(String("GET ") + url + " HTTP/1.1\r\n" +
+               "Host: " + newsapiHost + "\r\n" +
+               "User-Agent: ESP-ticker\r\n" +
                "Connection: close\r\n\r\n");
+  newsapiClient.print(String("GET ") + url + " HTTP/1.1\r\n" +
+                      "Host: " + newsapiHost + "\r\n" +
+                      "User-Agent: ESP-ticker\r\n" +
+                      "Connection: close\r\n\r\n");
   delay(10);
-  
+
   newsapiClient.setTimeout(5000);
   while (newsapiClient.connected() || newsapiClient.available())
   {
@@ -78,7 +87,7 @@ bool getNewsapiData()
       if (newsapiClient.find("HTTP/1.1"))
       {
         newsapiStatus = newsapiClient.parseInt(); // parse status code
-        Serial.printf("newsApi Statuscode: [%d] ", newsapiStatus); 
+        Serial.printf("newsApi Statuscode: [%d] ", newsapiStatus);
         if (newsapiStatus != 200)
         {
           Serial.println(" ERROR!");
@@ -93,11 +102,11 @@ bool getNewsapiData()
           for(int i=0; i<=settingNewsMaxMsg; i++)
           {
             //sprintf(newsMessage, "");
-            if (i==1) 
-                  writeFileById("NWS", i, "There is No News ....");
-            else if (i==1 && newsapiStatus == 429)      
-                  writeFileById("NWS", i, "You have made too many news requests recently . . please try again later");
-            else  
+            if (i==1)
+              writeFileById("NWS", i, "There is No News ....");
+            else if (i==1 && newsapiStatus == 429)
+              writeFileById("NWS", i, "You have made too many news requests recently . . please try again later");
+            else
             {
               writeFileById("NWS", i, "");
             }
@@ -105,18 +114,18 @@ bool getNewsapiData()
           newsapiClient.flush();
           newsapiClient.stop();
 
-          return false;  
+          return false;
         }
         Serial.println(" OK!");
       }
-      else 
+      else
       {
         Serial.println("Error reading newsapi.org.. -> bailout!");
         for(int i=0; i<=settingNewsMaxMsg; i++)
         {
           //sprintf(newsMessage, "");
           if (i==1) writeFileById("NWS", i, "There is No News ....");
-          else 
+          else
           {
             writeFileById("NWS", i, "");
           }
@@ -136,9 +145,9 @@ bool getNewsapiData()
         {
           char cN = newsapiClient.read();
           if (cN >= 32 && cN <= 126) newsMessage[msgIdx++] = cN;
-          //newsMessage[msgIdx++] = (char)newsapiClient.read();
         }
         newsMessage[msgIdx] = '\0';
+        //-- what happens here?? I don't know anymore :-()
         if (msgIdx > 30)  newsMessage[msgIdx - 16] = 0;
         Serial.printf("\t[%2d] %s\r\n", msgNr, newsMessage);
         if (!hasNoNoWord(newsMessage) && strlen(newsMessage) > 15)
@@ -151,7 +160,7 @@ bool getNewsapiData()
         }
       } // while find(title)
     } // while available ..
-    
+
   } // connected ..
 
   newsapiClient.flush();
@@ -164,6 +173,11 @@ bool getNewsapiData()
 
 
 //----------------------------------------------------------------------
+/**
+ * Removes news data from LittleFS for a given range of news messages.
+ *
+ * @return void
+ */
 void removeNewsData()
 {
   char nwsName[32];
@@ -197,6 +211,6 @@ void removeNewsData()
 * CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT
 * OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR
 * THE USE OR OTHER DEALINGS IN THE SOFTWARE.
-* 
+*
 ****************************************************************************
 */

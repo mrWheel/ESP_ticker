@@ -1,44 +1,61 @@
-/* 
-***************************************************************************  
+/*
+***************************************************************************
 **  Program  : littlefsStuff, part of ESP_ticker
 **
 **  Copyright (c) 2021 .. 2024 Willem Aandewiel
 **
-**  TERMS OF USE: MIT License. See bottom of file.                                                            
-***************************************************************************      
+**  TERMS OF USE: MIT License. See bottom of file.
+***************************************************************************
 */
 
 #include "littlefsStuff.h"
 
 //====================================================================
+/**
+ * Reads the last status from the "/sysStatus.csv" file and prints
+ * the values.
+ *
+ * @throws None
+ */
 void readLastStatus()
 {
   char buffer[50] = "";
   char dummy[50] = "";
-  
+
   File _file = LittleFS.open("/sysStatus.csv", "r");
   if (!_file)
   {
     Serial.println("read(): No /sysStatus.csv found ..");
   }
-  if(_file.available()) {
+  if(_file.available())
+  {
     int l = _file.readBytesUntil('\n', buffer, sizeof(buffer));
     buffer[l] = 0;
     Serial.printf("read lastUpdate[%s]\r\n", buffer);
     sscanf(buffer, "%[^;]; %[^;]; %u; %[^;]", cDate, cTime, &nrReboots, dummy);
     Serial.printf("values timestamp[%s %s], nrReboots[%u], dummy[%s]\r\n"
-                                                    , cDate
-                                                    , cTime
-                                                    , nrReboots
-                                                    , dummy);
+                  , cDate
+                  , cTime
+                  , nrReboots
+                  , dummy);
     yield();
   }
   _file.close();
-  
+
 }  // readLastStatus()
 
 
 //====================================================================
+/**
+ * Writes the last status information to the "/sysStatus.csv" file
+ * including date, time, number of reboots, and meta data.
+ *
+ * @param None
+ *
+ * @return None
+ *
+ * @throws None
+ */
 void writeLastStatus()
 {
   if (ESP.getFreeHeap() < 8500) // to prevent firmware from crashing!
@@ -48,10 +65,10 @@ void writeLastStatus()
   }
   char buffer[50] = "";
   snprintf(buffer, sizeof(buffer), "%04d-%02d-%02d; %02d:%02d:%02d; %010u; %s;\n"
-                                          , localtime(&now)->tm_year+1900, localtime(&now)->tm_mon+1, localtime(&now)->tm_mday
-                                          , localtime(&now)->tm_hour, localtime(&now)->tm_min, localtime(&now)->tm_sec
-                                          , nrReboots
-                                          , "meta data");
+           , localtime(&now)->tm_year+1900, localtime(&now)->tm_mon+1, localtime(&now)->tm_mday
+           , localtime(&now)->tm_hour, localtime(&now)->tm_min, localtime(&now)->tm_sec
+           , nrReboots
+           , "meta data");
   Serial.printf("writeLastStatus() => %s\r\n", buffer);
 
   File _file = LittleFS.open("/sysStatus.csv", "w");
@@ -62,23 +79,33 @@ void writeLastStatus()
   _file.print(buffer);
   _file.flush();
   _file.close();
-  
+
 } // writeLastStatus()
 
 
 //------------------------------------------------------------------------
-bool readFileById(const char* fType, uint8_t mId)
+/**
+ * Reads a file from LittleFS by its type and ID.
+ *
+ * @param fType The type of the file.
+ * @param mId The ID of the file.
+ *
+ * @return True if the file is read successfully, false otherwise.
+ *
+ * @throws None
+ */
+bool readFileById(const char *fType, uint8_t mId)
 {
   String percChar   = "%%";
   String backSlash  = "\\";
   String rTmp;
   char fName[50] = "";
-  
+
   sprintf(fName, "/newsFiles/%s-%03d", fType, mId);
 
   Serial.printf("read [%s] ", fName);
-  
-  if (!LittleFS.exists(fName)) 
+
+  if (!LittleFS.exists(fName))
   {
     Serial.println("Does not exist!");
     return false;
@@ -86,7 +113,7 @@ bool readFileById(const char* fType, uint8_t mId)
 
   File f = LittleFS.open(fName, "r");
 
-  while(f.available()) 
+  while(f.available())
   {
     rTmp = f.readStringUntil('\n');
     //Serial.printf("rTmp(in)  [%s]\r\n", rTmp.c_str());
@@ -101,7 +128,7 @@ bool readFileById(const char* fType, uint8_t mId)
   rTmp.replace("@5@", backSlash);
   rTmp.replace("@6@", percChar);
   //Serial.printf("rTmp(out) [%s]\r\n", rTmp.c_str());
-    
+
   snprintf(fileMessage, LCL_SIZE, rTmp.c_str());
   if (strlen(fileMessage) == 0)
   {
@@ -117,11 +144,22 @@ bool readFileById(const char* fType, uint8_t mId)
   }
 
   return true;
-  
+
 } // readFileById()
 
 //------------------------------------------------------------------------
-bool writeFileById(const char* fType, uint8_t mId, const char *msg)
+/**
+ * Writes a message to a file specified by file type and message ID.
+ *
+ * @param fType The type of the file
+ * @param mId The ID of the message
+ * @param msg The message to write to the file
+ *
+ * @return true if the message is successfully written to the file, false otherwise
+ *
+ * @throws None
+ */
+bool writeFileById(const char *fType, uint8_t mId, const char *msg)
 {
   String rTmp;
   char fmsg[LCL_SIZE] = "";
@@ -139,7 +177,7 @@ bool writeFileById(const char* fType, uint8_t mId, const char *msg)
 
   Serial.println("LittleFS.open()...");
   File file = LittleFS.open(fName, "w");
-  if (!file) 
+  if (!file)
   {
     Serial.printf("open(%s, 'w') FAILED!!! --> Bailout\r\n", fName);
     return false;
@@ -155,15 +193,23 @@ bool writeFileById(const char* fType, uint8_t mId, const char *msg)
 
   Serial.println("Exit writeFileById()!");
   return true;
-  
+
 } // writeFileById()
 
 
 //=======================================================================
+/**
+ * Updates a message in the LittleFS filesystem.
+ *
+ * @param field The field of the message to update.
+ * @param newValue The new value of the message.
+ *
+ * @throws None
+ */
 void updateMessage(const char *field, const char *newValue)
 {
   int8_t msgId = String(field).toInt();
-  
+
   Serial.printf("-> field[%s], newValue[%s]\r\n", field, newValue);
 
   if (msgId < 0 || msgId > settingLocalMaxMsg)
@@ -173,11 +219,20 @@ void updateMessage(const char *field, const char *newValue)
   }
 
   writeFileById("LCL", msgId, newValue);
-  
+
 } // updateMessage()
 
 
 //====================================================================
+/**
+ * Writes a log line to a file in the LittleFS filesystem.
+ *
+ * @param logLine The line to be written to the log.
+ *
+ * @return None
+ *
+ * @throws None
+ */
 void writeToLog(const char *logLine)
 {
   if (ESP.getFreeHeap() < 8500) // to prevent firmware from crashing!
@@ -187,9 +242,9 @@ void writeToLog(const char *logLine)
   }
   char buffer[150] = "";
   snprintf(buffer, sizeof(buffer), "%04d-%02d-%02d; %02d:%02d:%02d; %s;\n"
-                                          , localtime(&now)->tm_year+1900, localtime(&now)->tm_mon+1, localtime(&now)->tm_mday
-                                          , localtime(&now)->tm_hour, localtime(&now)->tm_min, localtime(&now)->tm_sec
-                                          , logLine);
+           , localtime(&now)->tm_year+1900, localtime(&now)->tm_mon+1, localtime(&now)->tm_mday
+           , localtime(&now)->tm_hour, localtime(&now)->tm_min, localtime(&now)->tm_sec
+           , logLine);
   Serial.printf("writeToLogs() => %s\r\n", buffer);
   File _file = LittleFS.open("/sysLog.csv", "a");
   if (!_file)
@@ -199,7 +254,7 @@ void writeToLog(const char *logLine)
   _file.print(buffer);
   _file.flush();
   _file.close();
-  
+
 } // writeLastStatus()
 
 
@@ -224,6 +279,6 @@ void writeToLog(const char *logLine)
 * CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT
 * OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR
 * THE USE OR OTHER DEALINGS IN THE SOFTWARE.
-* 
+*
 ****************************************************************************
-*/ 
+*/

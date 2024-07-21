@@ -33,7 +33,7 @@
 #define HOSTNAME_SIZE        40
 #define LCL_SIZE            512
 #define NEWS_SIZE           512
-#define WEER_SIZE          1200
+#define WEER_SIZE          2000
 #define JSON_BUFF_MAX       255
 #define JSON_RESPONSE_SIZE 2048
 #define MAX_NO_NO_WORDS      20

@@ -1,5 +1,5 @@
-/* 
-***************************************************************************  
+/*
+***************************************************************************
 **  Program : FSexplorer
 **  Version : 2.0   10-05-202
 **
@@ -7,7 +7,7 @@
 **  For more information visit: https://fipsok.de
 **  See also https://www.arduinoforum.de/arduino-Thread-LittleFS-DOWNLOAD-UPLOAD-DELETE-Esp8266-NodeMCU
 **
-***************************************************************************      
+***************************************************************************
   Copyright (c) 2018 Jens Fleischer. All rights reserved.
 
   This file is free software; you can redistribute it and/or
@@ -20,7 +20,7 @@
   Lesser General Public License for more details.
 *******************************************************************
 **      Usage:
-**      
+**
 **      setup()
 **      {
 **        setupFSexplorer();
@@ -30,7 +30,7 @@
 **        httpServer.on("/index.html",sendIndexPage);
 **        httpServer.begin();
 **      }
-**      
+**
 **      loop()
 **      {
 **        httpServer.handleClient();
@@ -137,30 +137,23 @@ void APIlistFiles()             // Senden aller Daten an den Client
   while (dir.next() && (fileNr < MAX_FILES_IN_LIST))  
   {
     dirMap[fileNr].Name[0] = '\0';
-  //strncat(dirMap[fileNr].Name, dir.fileName().substring(1).c_str(), 29); // remove leading '/'
     strncat(dirMap[fileNr].Name, dir.fileName().c_str(), 29); 
     dirMap[fileNr].Size = dir.fileSize();
-    //--- Skip files in newsFiles map
-    //-aaw-if ((dir.fileName().indexOf("/newsFiles") == -1) && (dir.fileSize() > 0))
-    //{
-      fileNr++;
-    //}
+    fileNr++;
   }
   Serial.printf("fileNr[%d], Max[%d]\r\n", fileNr, MAX_FILES_IN_LIST);
 
-  // -- bubble sort dirMap op .Name--
+  //-- bubble sort dirMap op .Name --
   for (int8_t y = 0; y < fileNr; y++) {
     yield();
-    for (int8_t x = y + 1; x < fileNr; x++)  {
-      //Serial.printf("y[%d], x[%d] => seq[y][%s] / seq[x][%s] ", y, x, dirMap[y].Name, dirMap[x].Name);
+    for (int8_t x = y + 1; x < fileNr; x++)  
+    {
       if (compare(String(dirMap[x].Name), String(dirMap[y].Name)))  
       {
-        //Serial.print(" !switch!");
         fileMeta temp = dirMap[y];
         dirMap[y] = dirMap[x];
         dirMap[x] = temp;
       } /* end if */
-      //Serial.println();
     } /* end for */
   } /* end for */
   
@@ -168,8 +161,8 @@ void APIlistFiles()             // Senden aller Daten an den Client
   {
     fileNr = MAX_FILES_IN_LIST;
     dirMap[fileNr].Name[0] = '\0';
-    //--- if you change this message you also have to 
-    //--- change FSexplorer.html
+    //-- if you change this message you also have to 
+    //-- change FSexplorer.html
     strncat(dirMap[fileNr].Name, "More files not listed ..", 29); 
     dirMap[fileNr].Size = 0;
     fileNr++;
@@ -181,29 +174,34 @@ void APIlistFiles()             // Senden aller Daten an den Client
     Serial.printf("[%3d] >> [%s]\r\n", f, dirMap[f].Name);
     if (temp != "[") temp += ",";
     temp += R"({"name":")" + String(dirMap[f].Name) + R"(","size":")" + formatBytes(dirMap[f].Size) + R"("})";
-  }
+}
 
-  LittleFS.info(LittleFSinfo);
-  temp += R"(,{"usedBytes":")" + formatBytes(LittleFSinfo.usedBytes * 1.05) + R"(",)" +       // Berechnet den verwendeten Speicherplatz + 5% Sicherheitsaufschlag
-          R"("totalBytes":")" + formatBytes(LittleFSinfo.totalBytes) + R"(","freeBytes":")" + // Zeigt die Größe des Speichers
-          (LittleFSinfo.totalBytes - (LittleFSinfo.usedBytes * 1.05)) + R"("}])";               // Berechnet den freien Speicherplatz + 5% Sicherheitsaufschlag
+LittleFS.info(LittleFSinfo);
+//-- Berechnet den verwendeten Speicherplatz + 5% Sicherheitsaufschlag
+temp += R"(,{"usedBytes":")" + formatBytes(LittleFSinfo.usedBytes * 1.05) + R"(",)" +
+        //-- Zeigt die Größe des Speichers
+        R"("totalBytes":")" + formatBytes(LittleFSinfo.totalBytes) + R"(","freeBytes":")" +
+        //-- Berechnet den freien Speicherplatz + 5% Sicherheitsaufschlag
+        (LittleFSinfo.totalBytes - (LittleFSinfo.usedBytes * 1.05)) + R"("}])";
 
-  httpServer.send(200, "application/json", temp);
-  
+httpServer.send(200, "application/json", temp);
+
 } // APIlistFiles()
 
 
 //=====================================================================================
-bool handleFile(String&& path) 
+bool handleFile(String &&path)
 {
-  if (httpServer.hasArg("delete")) 
+  if (httpServer.hasArg("delete"))
   {
     Serial.printf("Delete -> [%s]\n\r",  httpServer.arg("delete").c_str());
-    LittleFS.remove(httpServer.arg("delete"));    // Datei löschen
+    //-- Datei löschen
+    LittleFS.remove(httpServer.arg("delete"));
     httpServer.sendContent(Header);
     return true;
   }
-  if (!LittleFS.exists("/FSexplorer.html")) httpServer.send(200, "text/html", Helper); //Upload the FSexplorer.html
+  //-- Upload the FSexplorer.html
+  if (!LittleFS.exists("/FSexplorer.html")) httpServer.send(200, "text/html", Helper);
   if (path.endsWith("/")) path += "index.html";
   return LittleFS.exists(path) ? ({File f = LittleFS.open(path, "r"); httpServer.streamFile(f, contentType(path)); f.close(); true;}) : false;
 
@@ -211,49 +209,51 @@ bool handleFile(String&& path)
 
 
 //=====================================================================================
-void handleFileUpload() 
+void handleFileUpload()
 {
   static File fsUploadFile;
-  HTTPUpload& upload = httpServer.upload();
-  if (upload.status == UPLOAD_FILE_START) 
+  HTTPUpload &upload = httpServer.upload();
+  if (upload.status == UPLOAD_FILE_START)
   {
-    if (upload.filename.length() > 30) 
+    //-- Dateinamen auf 30 Zeichen kürzen
+    if (upload.filename.length() > 30)
     {
-      upload.filename = upload.filename.substring(upload.filename.length() - 30, upload.filename.length());  // Dateinamen auf 30 Zeichen kürzen
+      upload.filename = upload.filename.substring(upload.filename.length() - 30, upload.filename.length());
     }
     Serial.println("FileUpload Name: " + upload.filename);
     fsUploadFile = LittleFS.open("/" + httpServer.urlDecode(upload.filename), "w");
-  } 
-  else if (upload.status == UPLOAD_FILE_WRITE) 
+  }
+  else if (upload.status == UPLOAD_FILE_WRITE)
   {
     Serial.println("FileUpload Data: " + (String)upload.currentSize);
     if (fsUploadFile)
       fsUploadFile.write(upload.buf, upload.currentSize);
-  } 
-  else if (upload.status == UPLOAD_FILE_END) 
+  }
+  else if (upload.status == UPLOAD_FILE_END)
   {
     if (fsUploadFile)
       fsUploadFile.close();
     Serial.println("FileUpload Size: " + (String)upload.totalSize);
     httpServer.sendContent(Header);
   }
-  
-} // handleFileUpload() 
+
+} // handleFileUpload()
 
 
 //=====================================================================================
-void formatLittleFS() 
-{       //Formatiert den Speicher
+void formatLittleFS()
+{
+  //-- Formatiert den Speicher
   if (!LittleFS.exists("/!format")) return;
   Serial.println(F("Format LittleFS"));
   LittleFS.format();
   httpServer.sendContent(Header);
-  
+
 } // formatLittleFS()
 
 //=====================================================================================
-const String &contentType(String& filename) 
-{       
+const String &contentType(String &filename)
+{
   if (filename.endsWith(".htm") || filename.endsWith(".html")) filename = "text/html";
   else if (filename.endsWith(".css")) filename = "text/css";
   else if (filename.endsWith(".js")) filename = "application/javascript";
@@ -268,17 +268,17 @@ const String &contentType(String& filename)
   else if (filename.endsWith(".gz")) filename = "application/x-gzip";
   else filename = "text/plain";
   return filename;
-  
+
 } // &contentType()
 
 //=====================================================================================
-bool freeSpace(uint16_t const& printsize) 
-{    
+bool freeSpace(uint16_t const &printsize)
+{
   FSInfo LittleFSinfo;
   LittleFS.info(LittleFSinfo);
   Serial.println(formatBytes(LittleFSinfo.totalBytes - (LittleFSinfo.usedBytes * 1.05)) + " im Spiffs frei");
   return (LittleFSinfo.totalBytes - (LittleFSinfo.usedBytes * 1.05) > printsize) ? true : false;
-  
+
 } // freeSpace()
 
 
@@ -287,7 +287,7 @@ void updateFirmware()
 {
   Serial.println(F("Redirect to updateIndex .."));
   doRedirect("wait ... ", 1, "/updateIndex", false);
-      
+
 } // updateFirmware()
 
 //=====================================================================================
@@ -295,50 +295,50 @@ void reBootESP()
 {
   Serial.println(F("Redirect and ReBoot .."));
   doRedirect("Reboot ESP - lichtKrant ..", 60, "/", true);
-      
+
 } // reBootESP()
 
 //=====================================================================================
-void doRedirect(const char *msg, int wait, const char* URL, bool reboot)
+void doRedirect(const char *msg, int wait, const char *URL, bool reboot)
 {
-  String redirectHTML = 
-  "<!DOCTYPE HTML><html lang='en-US'>"
-  "<head>"
-  "<meta charset='UTF-8'>"
-  "<style type='text/css'>"
-  "body {background-color: lightblue;}"
-  "</style>"
-  "<title>Redirect to Main Program</title>"
-  "</head>"
-  "<body><h1>FSexplorer</h1>"
-  "<h3>"+String(msg)+"</h3>"
-  "<br><div style='width: 500px; position: relative; font-size: 25px;'>"
-  "  <div style='float: left;'>Redirect over &nbsp;</div>"
-  "  <div style='float: left;' id='counter'>"+String(wait)+"</div>"
-  "  <div style='float: left;'>&nbsp; seconden ...</div>"
-  "  <div style='float: right;'>&nbsp;</div>"
-  "</div>"
-  "<!-- Note: don't tell people to `click` the link, just tell them that it is a link. -->"
-  "<br><br><hr>If you are not redirected automatically, click this <a href='/'>Main Program</a>."
-  "  <script>"
-  "      setInterval(function() {"
-  "          var div = document.querySelector('#counter');"
-  "          var count = div.textContent * 1 - 1;"
-  "          div.textContent = count;"
-  "          if (count <= 0) {"
-  "              window.location.replace('"+String(URL)+"'); "
-  "          } "
-  "      }, 1000); "
-  "  </script> "
-  "</body></html>\r\n";
-  
+  String redirectHTML =
+    "<!DOCTYPE HTML><html lang='en-US'>"
+    "<head>"
+    "<meta charset='UTF-8'>"
+    "<style type='text/css'>"
+    "body {background-color: lightblue;}"
+    "</style>"
+    "<title>Redirect to Main Program</title>"
+    "</head>"
+    "<body><h1>FSexplorer</h1>"
+    "<h3>"+String(msg)+"</h3>"
+    "<br><div style='width: 500px; position: relative; font-size: 25px;'>"
+    "  <div style='float: left;'>Redirect over &nbsp;</div>"
+    "  <div style='float: left;' id='counter'>"+String(wait)+"</div>"
+    "  <div style='float: left;'>&nbsp; seconden ...</div>"
+    "  <div style='float: right;'>&nbsp;</div>"
+    "</div>"
+    "<!-- Note: don't tell people to `click` the link, just tell them that it is a link. -->"
+    "<br><br><hr>If you are not redirected automatically, click this <a href='/'>Main Program</a>."
+    "  <script>"
+    "      setInterval(function() {"
+    "          var div = document.querySelector('#counter');"
+    "          var count = div.textContent * 1 - 1;"
+    "          div.textContent = count;"
+    "          if (count <= 0) {"
+    "              window.location.replace('"+String(URL)+"'); "
+    "          } "
+    "      }, 1000); "
+    "  </script> "
+    "</body></html>\r\n";
+
   Serial.println(msg);
   httpServer.send(200, "text/html", redirectHTML);
-  if (reboot) 
+  if (reboot)
   {
     delay(5000);
     ESP.restart();
     delay(5000);
   }
-  
+
 } // doRedirect()

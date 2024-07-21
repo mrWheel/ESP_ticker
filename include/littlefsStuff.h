@@ -6,15 +6,14 @@
 #include <LittleFS.h>
 #include <ctime>
 #include "allDefines.h"
-//#include "timeStuff.h"
 
-extern char cDate[];
-extern char cTime[];
+extern char     cDate[];
+extern char     cTime[];
 extern uint32_t nrReboots;
-extern char fileMessage[];
-extern char tempMessage[];
+extern char     fileMessage[];
+extern char     tempMessage[];
 extern uint8_t  settingLocalMaxMsg, settingTextSpeed, settingMaxIntensity;
-extern time_t now; 
+extern time_t   now; 
 
 
 void readLastStatus();
