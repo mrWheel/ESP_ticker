@@ -12,30 +12,29 @@
 
 #include <ESP8266WiFi.h>
 #include <WiFiClient.h>
-#include <ESP8266HTTPClient.h>              // http web access library
 #include <ArduinoJson.h>                    // JSON decoding library
 //#include <TimeLib.h>
 
 class Weerlive 
 {
   public:
-      Weerlive(WiFiClient& weerliveClient);
-      void setup(const char* key, const char* city);
-      const char* request();
+      Weerlive(WiFiClient &weerliveClient);
+      void setup(const char *key, const char *city);
+      const char *request();
 
   private:
-      WiFiClient& thisClient;
-      String apiUrl;
-      static const char* apiHost;
+      WiFiClient         &thisClient;
+      String              apiUrl;
+      static const char  *apiHost;
+      String              weerliveText;
+      char                jsonResponse[2000];
+      int                 alarmInd = -1;
+      const char        *dateToDayName(const char* date_str);
+
       //-- if the payload string is to large you will get a deserial error
       StaticJsonDocument<8000> doc;
       //-- if you select to many fields you will get a deserial error
       StaticJsonDocument<800> filter;
-      //--aaw- String payload;
-      String weerliveText;
-      char jsonResponse[2000];
-      int alarmInd = -1;
-      const char* dateToDayName(const char* date_str);
 
       void configureFilters();
 };

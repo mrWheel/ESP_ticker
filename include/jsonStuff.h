@@ -20,7 +20,6 @@ void sendJsonSettingObj(const char *cName, int iValue, const char *iType, int mi
 void sendJsonSettingObj(const char *cName, const char *cValue, const char *sType, int maxLen);
 
 // External global variables
-//extern char objSprtr[10];
 extern ESP8266WebServer httpServer;
 
 #endif // JSONSTUFF_H

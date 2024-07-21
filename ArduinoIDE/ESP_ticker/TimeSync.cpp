@@ -1,24 +1,54 @@
+/*
+**    With thanks to Michael
+*/
+
 #include "TimeSync.h"
 
 TimeSync::TimeSync() {}
 
-void TimeSync::setup(const char *timeZone) 
+/**
+ * Sets up the time synchronization with the specified timezone.
+ *
+ * @param timeZone The timezone to set.
+ *
+ * @return void
+ *
+ * @throws None
+ */
+void TimeSync::setup(const char *timeZone)
 {
-    configTime(0, 0, "pool.ntp.org", "time.nist.gov",  "time.google.com");
-    setenv("TZ", timeZone, 1);
-    tzset();
+  configTime(0, 0, "pool.ntp.org", "time.nist.gov",  "time.google.com");
+  setenv("TZ", timeZone, 1);
+  tzset();
 
-    Serial.printf("Timezone set to: %s\r\n", timeZone);
+  Serial.printf("Timezone set to: %s\r\n", timeZone);
 }
 
-bool TimeSync::isSynced() 
+/**
+ * Checks if the system time is synchronized.
+ *
+ * @return True if the system time is synchronized, false otherwise.
+ *
+ * @throws None
+ */
+bool TimeSync::isSynced()
 {
-    time_t now;
-    time(&now);
-    
-    return (bool)(localtime(&now)->tm_year > 120);
+  time_t now;
+  time(&now);
+
+  return (bool)(localtime(&now)->tm_year > 120);
 }
 
+/**
+ * Synchronizes the system time with the NTP service.
+ *
+ * @param maxTry The maximum number of attempts to synchronize the time.
+ *
+ * @return True if the system time is synchronized with the NTP service,
+ *         False otherwise.
+ *
+ * @throws None
+ */
 bool TimeSync::sync(uint16_t maxTry)
 {
   time_t now;
@@ -30,28 +60,38 @@ bool TimeSync::sync(uint16_t maxTry)
   {
     time(&now);
     delay(20);
-    if ((tries%10)==0) {Serial.print('.'); }
+    if ((tries%10)==0)
+    {
+      Serial.print('.');
+    }
     tries++;
   } while ((localtime(&now)->tm_year <= 120) && (tries < maxTry));
 
   if (localtime(&now)->tm_year > 120)
-        Serial.println(" Synchronized with NTP Service!");
-  else  Serial.println(" NOT (YET) SYNCED!");  
+    Serial.println(" Synchronized with NTP Service!");
+  else  Serial.println(" NOT (YET) SYNCED!");
 
   return localtime(&now)->tm_year > 120;
 
 }
 
-void TimeSync::logTime() 
+/**
+ * Logs the current time.
+ *
+ * @return void
+ *
+ * @throws None
+ */
+void TimeSync::logTime()
 {
-    time_t now;
-    time(&now);
-    struct tm timeinfo;
+  time_t now;
+  time(&now);
+  struct tm timeinfo;
 
-    if (localtime(&now)->tm_year <= 120)
-    {
-        Serial.println("Failed to obtain time");
-        return;
-    }
-    Serial.printf("%s", asctime(&timeinfo));
+  if (localtime(&now)->tm_year <= 120)
+  {
+    Serial.println("Failed to obtain time");
+    return;
+  }
+  Serial.printf("%s", asctime(&timeinfo));
 }

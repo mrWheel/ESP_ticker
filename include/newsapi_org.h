@@ -14,7 +14,6 @@ bool getNewsapiData();
 void removeNewsData();
 
 // External global variables
-//extern const char* newsapiHost[NEWS_HOST_SIZE];
 extern char      settingNewsAUTH[];
 extern char      settingNewsNoWords[];
 extern uint8_t   settingLocalMaxMsg, settingTextSpeed, settingMaxIntensity;

@@ -1,21 +1,31 @@
 /*
-***************************************************************************  
+***************************************************************************
 **  Program  : settingsStuff, part of ESP_ticker
 **
 **  Copyright (c) 2021 .. 2024 Willem Aandewiel
 **
-**  TERMS OF USE: MIT License. See bottom of file.                                                            
-***************************************************************************      
+**  TERMS OF USE: MIT License. See bottom of file.
+***************************************************************************
 */
 
 #include "settingStuff.h"
 
 //=======================================================================
-void writeSettings(bool show) 
+/**
+ * Writes the setting data to a file including various parameters such as
+ * Hostname, newsNoWords, localMaxMsg, textSpeed, LDRlowOffset,
+ * LDRhighOffset, maxIntensity, weerLiveAUTH, weerLiveLocatie,
+ * weerLiveInterval, newsAUTH, newsNoWords, newsMaxMsg, and newsInterval.
+ *
+ * @param show Flag indicating whether to display the written settings.
+ *
+ * @throws No specific error is mentioned.
+ */
+void writeSettings(bool show)
 {
   Serial.printf("Writing to [%s] ..\r\n", SETTINGS_FILE);
   File file = LittleFS.open(SETTINGS_FILE, "w"); // open for reading and writing
-  if (!file) 
+  if (!file)
   {
     Serial.printf("open(%s, 'w') FAILED!!! --> Bailout\r\n", SETTINGS_FILE);
     return;
@@ -24,59 +34,106 @@ void writeSettings(bool show)
 
   Serial.print(F("Start writing setting data "));
 
-  file.print("Hostname = ");          file.println(settingHostname);            Serial.print(F("."));
-  file.print("localMaxMsg = ");       file.println(settingLocalMaxMsg);         Serial.print(F("."));
-  file.print("textSpeed = ");         file.println(settingTextSpeed);           Serial.print(F("."));
-  file.print("maxIntensity = ");      file.println(settingMaxIntensity);        Serial.print(F("."));
-  file.print("LDRlowOffset = ");      file.println(settingLDRlowOffset);        Serial.print(F("."));
-  file.print("LDRhighOffset = ");     file.println(settingLDRhighOffset);       Serial.print(F("."));
-  file.print("weerLiveAUTH = ");      file.println(settingWeerLiveAUTH);        Serial.print(F("."));
-  file.print("weerLiveLocatie = ");   file.println(settingWeerLiveLocation);    Serial.print(F("."));
-  file.print("weerLiveInterval = ");  file.println(settingWeerLiveInterval);    Serial.print(F("."));
-  file.print("newsAUTH = ");          file.println(settingNewsAUTH);            Serial.print(F("."));
-  file.print("newsNoWords = ");       file.println(settingNewsNoWords);         Serial.print(F("."));
-  file.print("newsMaxMsg = ");        file.println(settingNewsMaxMsg);          Serial.print(F("."));
-  file.print("newsInterval = ");      file.println(settingNewsInterval);        Serial.print(F("."));
+  file.print("Hostname = ");
+  file.println(settingHostname);
+  Serial.print(F("."));
+  file.print("localMaxMsg = ");
+  file.println(settingLocalMaxMsg);
+  Serial.print(F("."));
+  file.print("textSpeed = ");
+  file.println(settingTextSpeed);
+  Serial.print(F("."));
+  file.print("maxIntensity = ");
+  file.println(settingMaxIntensity);
+  Serial.print(F("."));
+  file.print("LDRlowOffset = ");
+  file.println(settingLDRlowOffset);
+  Serial.print(F("."));
+  file.print("LDRhighOffset = ");
+  file.println(settingLDRhighOffset);
+  Serial.print(F("."));
+  file.print("weerLiveAUTH = ");
+  file.println(settingWeerLiveAUTH);
+  Serial.print(F("."));
+  file.print("weerLiveLocatie = ");
+  file.println(settingWeerLiveLocation);
+  Serial.print(F("."));
+  file.print("weerLiveInterval = ");
+  file.println(settingWeerLiveInterval);
+  Serial.print(F("."));
+  file.print("newsAUTH = ");
+  file.println(settingNewsAUTH);
+  Serial.print(F("."));
+  file.print("newsNoWords = ");
+  file.println(settingNewsNoWords);
+  Serial.print(F("."));
+  file.print("newsMaxMsg = ");
+  file.println(settingNewsMaxMsg);
+  Serial.print(F("."));
+  file.print("newsInterval = ");
+  file.println(settingNewsInterval);
+  Serial.print(F("."));
 
-  file.close();  
-  
+  file.close();
+
   Serial.println(F(" done"));
 
-  if (show) 
+  if (show)
   {
     Serial.println(F("Wrote this:"));
-    Serial.print(F("        Hostname = ")); Serial.println(settingHostname);
-    Serial.print(F("     newsNoWords = ")); Serial.println(settingNewsNoWords);
-    Serial.print(F("     localMaxMsg = ")); Serial.println(settingLocalMaxMsg);     
-    Serial.print(F("       textSpeed = ")); Serial.println(settingTextSpeed);     
-    Serial.print(F("    LDRlowOffset = ")); Serial.println(settingLDRlowOffset);     
-    Serial.print(F("   LDRhighOffset = ")); Serial.println(settingLDRhighOffset);     
-    Serial.print(F("    maxIntensity = ")); Serial.println(settingMaxIntensity);     
-    Serial.print(F("    weerLiveAUTH = ")); Serial.println(settingWeerLiveAUTH);     
-    Serial.print(F(" weerLiveLocatie = ")); Serial.println(settingWeerLiveLocation);     
-    Serial.print(F("weerLiveInterval = ")); Serial.println(settingWeerLiveInterval);     
-    Serial.print(F("        newsAUTH = ")); Serial.println(settingNewsAUTH);     
-    Serial.print(F("      newsMaxMsg = ")); Serial.println(settingNewsMaxMsg);    
-    Serial.print(F("    newsInterval = ")); Serial.println(settingNewsInterval);    
+    Serial.print(F("        Hostname = "));
+    Serial.println(settingHostname);
+    Serial.print(F("     newsNoWords = "));
+    Serial.println(settingNewsNoWords);
+    Serial.print(F("     localMaxMsg = "));
+    Serial.println(settingLocalMaxMsg);
+    Serial.print(F("       textSpeed = "));
+    Serial.println(settingTextSpeed);
+    Serial.print(F("    LDRlowOffset = "));
+    Serial.println(settingLDRlowOffset);
+    Serial.print(F("   LDRhighOffset = "));
+    Serial.println(settingLDRhighOffset);
+    Serial.print(F("    maxIntensity = "));
+    Serial.println(settingMaxIntensity);
+    Serial.print(F("    weerLiveAUTH = "));
+    Serial.println(settingWeerLiveAUTH);
+    Serial.print(F(" weerLiveLocatie = "));
+    Serial.println(settingWeerLiveLocation);
+    Serial.print(F("weerLiveInterval = "));
+    Serial.println(settingWeerLiveInterval);
+    Serial.print(F("        newsAUTH = "));
+    Serial.println(settingNewsAUTH);
+    Serial.print(F("      newsMaxMsg = "));
+    Serial.println(settingNewsMaxMsg);
+    Serial.print(F("    newsInterval = "));
+    Serial.println(settingNewsInterval);
 
   } // Verbose
-  
+
 } // writeSettings()
 
 
 //=======================================================================
-void readSettings(bool show) 
+/**
+ * Reads and processes settings from a file, updates the global variables
+ * accordingly, and optionally displays the settings.
+ *
+ * @param show a boolean indicating whether to display the settings
+ *
+ * @throws None
+ */
+void readSettings(bool show)
 {
   String sTmp;
   String words[10];
   char cTmp[LCL_SIZE], cVal[101], cKey[101];
-  
+
   File file;
-  
+
   Serial.printf(" %s ..\r\n", SETTINGS_FILE);
 
   snprintf(settingHostname,    HOSTNAME_SIZE, "%s", _HOSTNAME);
-  snprintf(settingNewsNoWords, LCL_SIZE,"Voetbal, show, UEFA, KNVB");
+  snprintf(settingNewsNoWords, LCL_SIZE, "Voetbal, show, UEFA, KNVB");
   settingLocalMaxMsg        =   5;
   settingTextSpeed          =  25;
   settingLDRlowOffset       =  70;
@@ -89,16 +146,16 @@ void readSettings(bool show)
   settingNewsMaxMsg         =   4;
   settingNewsInterval       =   0;
 
-  if (!LittleFS.exists(SETTINGS_FILE)) 
+  if (!LittleFS.exists(SETTINGS_FILE))
   {
     Serial.println(F(" .. file not found! --> created file!"));
     writeSettings(show);
   }
 
-  for (int T = 0; T < 2; T++) 
+  for (int T = 0; T < 2; T++)
   {
     file = LittleFS.open(SETTINGS_FILE, "r");
-    if (!file) 
+    if (!file)
     {
       if (T == 0) Serial.printf(" .. something went wrong opening [%s]\r\n", SETTINGS_FILE);
       else        Serial.print(T);
@@ -107,20 +164,16 @@ void readSettings(bool show)
   } // try T times ..
 
   Serial.println(F("Reading settings:\r"));
-  while(file.available()) 
+  while(file.available())
   {
     sTmp = file.readStringUntil('\n');
     snprintf(cTmp, sizeof(cTmp), "%s", sTmp.c_str());
-    //strTrim(cTmp, sizeof(cTmp), '\r');
     strTrimCntr(cTmp, sizeof(cTmp));
-    //Serial.printf("cTmp[%s] (%d)\r\n", cTmp, strlen(cTmp));
     int sEq = strIndex(cTmp, "=");
     strCopy(cKey, 100, cTmp, 0, sEq -1);
     strCopy(cVal, 100, cTmp, sEq +1, strlen(cTmp));
-    //Serial.printf("cKey[%s], cVal[%s]\r\n", cKey, cVal);
     strTrim(cKey, sizeof(cKey), ' ');
     strTrim(cVal, sizeof(cVal), ' ');
-    //Serial.printf("cKey[%s], cVal[%s]\r\n", cKey, cVal);
 
     //strToLower(cKey);
     if (stricmp(cKey, "hostname") == 0)         strCopy(settingHostname,         HOSTNAME_SIZE, cVal);
@@ -138,8 +191,8 @@ void readSettings(bool show)
     if (stricmp(cKey, "newsInterval") == 0)     settingNewsInterval     = atoi(cVal);
 
   } // while available()
-  
-  file.close();  
+
+  file.close();
 
   //--- this will take some time to settle in
   //--- probably need a reboot before that to happen :-(
@@ -155,7 +208,7 @@ void readSettings(bool show)
   if (settingMaxIntensity > 15)       settingMaxIntensity     =   15;
   if (settingMaxIntensity <  1)       settingMaxIntensity     =    1;
   if (strlen(settingWeerLiveLocation) <  1)  sprintf(settingWeerLiveLocation, "Amsterdam");
-  if (settingWeerLiveInterval ==  0) 
+  if (settingWeerLiveInterval ==  0)
   {
     settingWeerLiveInterval =    0;  // geen weerberichten
   }
@@ -167,7 +220,7 @@ void readSettings(bool show)
   if (settingNewsMaxMsg > 20)         settingNewsMaxMsg       =   20;
   if (settingNewsMaxMsg <  1)         settingNewsMaxMsg       =    1;
   if (settingNewsInterval > 120)      settingNewsInterval     =  120;
-  if (settingNewsInterval ==  0) 
+  if (settingNewsInterval ==  0)
   {
     settingNewsInterval  =    0; // geen nieuwsberichten
   }
@@ -179,7 +232,7 @@ void readSettings(bool show)
   Serial.println(F(" .. done\r"));
 
   if (!show) return;
-  
+
   Serial.println(F("\r\n==== read Settings ===================================================\r"));
   Serial.printf("                 Hostname : %s\r\n",  settingHostname);
   Serial.printf("           local Max. Msg : %d\r\n",  settingLocalMaxMsg);
@@ -194,20 +247,29 @@ void readSettings(bool show)
   Serial.printf("      newsapi.org NoWords : %s\r\n",  settingNewsNoWords);
   Serial.printf("     newsapi.org Max. Msg : %d\r\n",  settingNewsMaxMsg);
   Serial.printf("     newsapi.org Interval : %d\r\n",  settingNewsInterval);
-  
+
   Serial.println(F("-\r"));
 
 } // readSettings()
 
 
 //=======================================================================
+/**
+ * Updates a setting based on the provided field and new value.
+ *
+ * @param field The field of the setting to update.
+ * @param newValue The new value of the setting.
+ *
+ * @throws None
+ */
 void updateSetting(const char *field, const char *newValue)
 {
   Serial.printf("-> field[%s], newValue[%s]\r\n", field, newValue);
 
-  if (!stricmp(field, "Hostname")) {
-    strCopy(settingHostname, HOSTNAME_SIZE, newValue); 
-    if (strlen(settingHostname) < 1) strCopy(settingHostname, HOSTNAME_SIZE, _HOSTNAME); 
+  if (!stricmp(field, "Hostname"))
+  {
+    strCopy(settingHostname, HOSTNAME_SIZE, newValue);
+    if (strlen(settingHostname) < 1) strCopy(settingHostname, HOSTNAME_SIZE, _HOSTNAME);
     char *dotPntr = strchr(settingHostname, '.') ;
     if (dotPntr != NULL)
     {
@@ -217,18 +279,18 @@ void updateSetting(const char *field, const char *newValue)
     Serial.println();
     Serial.printf("Need reboot before new %s.local will be available!\r\n\n", settingHostname);
   }
-  if (!stricmp(field, "localMaxMsg"))      settingLocalMaxMsg   = String(newValue).toInt();  
-  if (!stricmp(field, "textSpeed"))        settingTextSpeed     = String(newValue).toInt();  
-  if (!stricmp(field, "LDRlowOffset"))     settingLDRlowOffset  = String(newValue).toInt();  
-  if (!stricmp(field, "LDRhighOffset"))    settingLDRhighOffset = String(newValue).toInt();  
-  if (!stricmp(field, "maxIntensity"))     settingMaxIntensity  = String(newValue).toInt();  
+  if (!stricmp(field, "localMaxMsg"))      settingLocalMaxMsg   = String(newValue).toInt();
+  if (!stricmp(field, "textSpeed"))        settingTextSpeed     = String(newValue).toInt();
+  if (!stricmp(field, "LDRlowOffset"))     settingLDRlowOffset  = String(newValue).toInt();
+  if (!stricmp(field, "LDRhighOffset"))    settingLDRhighOffset = String(newValue).toInt();
+  if (!stricmp(field, "maxIntensity"))     settingMaxIntensity  = String(newValue).toInt();
 
-  if (!stricmp(field, "weerLiveAUTH"))     strCopy(settingWeerLiveAUTH, WEER_AUTH_SIZE, newValue);   
+  if (!stricmp(field, "weerLiveAUTH"))     strCopy(settingWeerLiveAUTH, WEER_AUTH_SIZE, newValue);
   if (!stricmp(field, "weerLiveLocation")) strCopy(settingWeerLiveLocation, WEER_LIVE_LOC_SIZE, newValue);
-  if (!stricmp(field, "weerLiveInterval")) settingWeerLiveInterval  = String(newValue).toInt();  
-  
-  if (!stricmp(field, "newsapiAUTH"))      strCopy(settingNewsAUTH, NEWS_AUTH_SIZE, newValue);   
-  if (!stricmp(field, "newsNoWords"))      strCopy(settingNewsNoWords, LCL_SIZE, newValue);   
+  if (!stricmp(field, "weerLiveInterval")) settingWeerLiveInterval  = String(newValue).toInt();
+
+  if (!stricmp(field, "newsapiAUTH"))      strCopy(settingNewsAUTH, NEWS_AUTH_SIZE, newValue);
+  if (!stricmp(field, "newsNoWords"))      strCopy(settingNewsNoWords, LCL_SIZE, newValue);
   if (!stricmp(field, "newsapiMaxMsg"))    settingNewsMaxMsg   = String(newValue).toInt();
   if (!stricmp(field, "newsapiInterval"))  settingNewsInterval = String(newValue).toInt();
 
@@ -240,7 +302,7 @@ void updateSetting(const char *field, const char *newValue)
   else if (settingNewsInterval < 15)     settingNewsInterval = 15;
   //--- rebuild noWords array --
   splitNewsNoWords(settingNewsNoWords);
-  
+
 } // updateSetting()
 
 
@@ -264,6 +326,6 @@ void updateSetting(const char *field, const char *newValue)
 * CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT
 * OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR
 * THE USE OR OTHER DEALINGS IN THE SOFTWARE.
-* 
+*
 ****************************************************************************
 */

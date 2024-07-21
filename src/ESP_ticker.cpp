@@ -1,13 +1,13 @@
 /*
-***************************************************************************  
+***************************************************************************
 **  Program  : ESP_ticker (lichtkrant)
 **
-**  See "allDefines.h" for _FW_VERSION 
-** 
+**  See "allDefines.h" for _FW_VERSION
+**
 **  Copyright (c) 2021 .. 2024 Willem Aandewiel
 **
-**  TERMS OF USE: MIT License. See bottom of file.                                                            
-***************************************************************************      
+**  TERMS OF USE: MIT License. See bottom of file.
+***************************************************************************
 */
 
 
@@ -33,32 +33,32 @@ MD_Parola P = MD_Parola(HARDWARE_TYPE, CS_PIN, MAX_DEVICES);
 // Scrolling parameters
 uint8_t  inFX, outFX;
 textEffect_t  effect[] =
-  {
-    PA_PRINT,
+{
+  PA_PRINT,
   //PA_SCAN_HORIZ,
-    PA_SCROLL_LEFT,
-    PA_WIPE,
-    PA_SCROLL_UP_LEFT,
-    PA_SCROLL_UP,
-    PA_OPENING_CURSOR,
-    PA_GROW_UP,
-    PA_MESH,
-    PA_SCROLL_UP_RIGHT,
+  PA_SCROLL_LEFT,
+  PA_WIPE,
+  PA_SCROLL_UP_LEFT,
+  PA_SCROLL_UP,
+  PA_OPENING_CURSOR,
+  PA_GROW_UP,
+  PA_MESH,
+  PA_SCROLL_UP_RIGHT,
   //PA_BLINDS,
-    PA_CLOSING,
-    PA_RANDOM,
-    PA_GROW_DOWN,
-    PA_SCAN_VERT,
-    PA_SCROLL_DOWN_LEFT,
-    PA_WIPE_CURSOR,
+  PA_CLOSING,
+  PA_RANDOM,
+  PA_GROW_DOWN,
+  PA_SCAN_VERT,
+  PA_SCROLL_DOWN_LEFT,
+  PA_WIPE_CURSOR,
   //PA_DISSOLVE,
-    PA_OPENING,
-    PA_CLOSING_CURSOR,
-    PA_SCROLL_DOWN_RIGHT,
-    PA_SCROLL_RIGHT,
+  PA_OPENING,
+  PA_CLOSING_CURSOR,
+  PA_SCROLL_DOWN_RIGHT,
+  PA_SCROLL_RIGHT,
   //PA_SLICE,
-    PA_SCROLL_DOWN,
-  };
+  PA_SCROLL_DOWN,
+};
 
 
 //---------------------------------------------------------------------
@@ -72,7 +72,7 @@ int16_t calculateIntensity()
     delay(200);
   }
   a0In = a0In / 2;  //-- smooth things up a bit
-  
+
   Serial.printf("analogRead[%d], ", a0In);
   //---test if (a0In < settingLDRlowOffset) a0In = settingLDRlowOffset;
   Serial.printf(" LDRlowOffset[%d] LDRhighOffset[%d] ", settingLDRlowOffset, settingLDRhighOffset);
@@ -83,21 +83,7 @@ int16_t calculateIntensity()
 
   //--- map LDR to offset..1024 -> 0..settingMax
   int intensity = map(valueLDR, settingLDRlowOffset, settingLDRhighOffset,  0, settingMaxIntensity);
-  //Serial.printf("map(%d, %d, %d, 0, %d) => [%d]\r\n", valueLDR, settingLDRlowOffset, settingLDRhighOffset
-  //                                                      , 0                  , settingMaxIntensity);
 
-
-/*
-  if ( ((minute() % 15) == 0) && (lastMinute != minute()) ) 
-  {
-    lastHour = hour();
-    lastMinute = minute();
-    char line[50];
-    snprintf(line, sizeof(line), "valueLDR[%4d] intensity[%2d]", valueLDR, intensity);
-    writeToLog(line);
-  }
-*/
-  
   return intensity;
 
 } // calculateIntensity()
@@ -107,28 +93,30 @@ int16_t calculateIntensity()
 char *updateTime()
 {
   time(&now);
-  snprintf(timeMsg, 20, "%02d : %02d", localtime(&now)->tm_hour, localtime(&now)->tm_min); 
+  snprintf(timeMsg, 20, "%02d : %02d", localtime(&now)->tm_hour, localtime(&now)->tm_min);
   return timeMsg;
 
 } // updateTime()
 
 
 //---------------------------------------------------------------------
-bool getTheLocalTime(struct tm * info, uint32_t ms)
+bool getTheLocalTime(struct tm *info, uint32_t ms)
 {
-    //-- getLocalTime() is not implemented in the ArduinoIDE
-    //-- so this is a 'work around' function
-    uint32_t start = millis();
-    time_t now;
-    while((millis()-start) <= ms) {
-        time(&now);
-        localtime_r(&now, info);
-        if(info->tm_year > (2016 - 1900)){
-            return true;
-        }
-        delay(10);
+  //-- getLocalTime() is not implemented in the ArduinoIDE
+  //-- so this is a 'work around' function
+  uint32_t start = millis();
+  time_t now;
+  while((millis()-start) <= ms)
+  {
+    time(&now);
+    localtime_r(&now, info);
+    if(info->tm_year > (2016 - 1900))
+    {
+      return true;
     }
-    return false;
+    delay(10);
+  }
+  return false;
 
 } // getTheLocalTime()
 
@@ -143,7 +131,7 @@ void nextNieuwsBericht()
   {
     Serial.println("File not found!");
     newsMsgID++;
-    if (newsMsgID > settingNewsMaxMsg) 
+    if (newsMsgID > settingNewsMaxMsg)
     {
       newsMsgID = 0;
       breakOut  = true;
@@ -159,7 +147,7 @@ void nextNieuwsBericht()
     utf8Ascii(actMessage);
     P.displayScroll(actMessage, PA_LEFT, PA_SCROLL_LEFT, (MAX_SPEED - settingTextSpeed));
   }
-  
+
 } // nextNieuwsBericht()
 
 
@@ -167,9 +155,9 @@ void nextNieuwsBericht()
 void nextLocalBericht()
 {
   bool nothingThere = false;
-  
+
   localMsgID++;
-  if (localMsgID > settingLocalMaxMsg) 
+  if (localMsgID > settingLocalMaxMsg)
   {
     localMsgID    = 0;
     nothingThere  = true;
@@ -178,15 +166,15 @@ void nextLocalBericht()
   {
     Serial.printf("File [/newsFiles/LCL-%03d] not found!\r\n", localMsgID);
     localMsgID++;
-    if (localMsgID > settingLocalMaxMsg) 
+    if (localMsgID > settingLocalMaxMsg)
     {
       Serial.println("Back to LCL-000, exit while-loop");
       localMsgID = 0;
       continue;
     }
   }
-  if (nothingThere && (localMsgID == 0)) 
-  { 
+  if (nothingThere && (localMsgID == 0))
+  {
     nothingThere = true;
     getRevisionData(_FW_VERSION);
   }
@@ -197,7 +185,7 @@ void nextLocalBericht()
   TelnetStream.printf("localMsgID[%d] %s\r\n", localMsgID, actMessage);
   utf8Ascii(actMessage);
   P.displayScroll(actMessage, PA_LEFT, PA_SCROLL_LEFT, (MAX_SPEED - settingTextSpeed));
-    
+
   if ((millis() - revisionTimer) > 900000)
   {
     revisionTimer = millis();
@@ -216,29 +204,32 @@ void setup()
   lastReset     = ESP.getResetReason();
 
   startTelnet();
-  
+
   Serial.println("\r\n[MD_Parola WiFi Message Display]\r\n");
   Serial.printf("Booting....[%s]\r\n\r\n", String(_FW_VERSION).c_str());
   TelnetStream.printf("Booting....[%s]\r\n\r\n", String(_FW_VERSION).c_str());
 
   sprintf(actMessage, "[%s]  Booting . . . . . . . . .  ", String(_FW_VERSION).c_str());
- 
+
   P.begin();
   P.displayClear();
   P.displaySuspend(false);
   P.setIntensity(2);
   P.displayScroll(actMessage, PA_LEFT, PA_NO_EFFECT, 20);
   P.setTextEffect(PA_SCROLL_LEFT, PA_NO_EFFECT);
-  do { yield(); } while( !P.displayAnimate() );
+  do
+  {
+    yield();
+  } while( !P.displayAnimate() );
 
   actMessage[0]  = '\0';
-  
-//================ LittleFS ===========================================
-  if (LittleFS.begin()) 
+
+  //================ LittleFS ===========================================
+  if (LittleFS.begin())
   {
     Serial.println(F("LittleFS Mount succesfull\r"));
     LittleFSmounted = true;
-       
+
     readSettings(true);
     splitNewsNoWords(settingNewsNoWords);
 
@@ -262,10 +253,10 @@ void setup()
       }
       writeFileById("NWS", 1, "(c) 2021 Willem Aandewiel");
     }
-  } 
-  else 
-  { 
-    Serial.println(F("LittleFS Mount failed\r"));   // Serious problem with LittleFS 
+  }
+  else
+  {
+    Serial.println(F("LittleFS Mount failed\r"));   // Serious problem with LittleFS
     LittleFSmounted = false;
   }
   //==========================================================//
@@ -280,10 +271,15 @@ void setup()
   P.displaySuspend(false);
   P.displayScroll("connect to WiFi", PA_LEFT, PA_NO_EFFECT, 25);
   P.setTextEffect(PA_SCROLL_LEFT, PA_NO_EFFECT);
-  do { yield(); } while( !P.displayAnimate() );
+  do
+  {
+    yield();
+  } while( !P.displayAnimate() );
+
   // Connect to and initialise WiFi network
   digitalWrite(LED_BUILTIN, HIGH);
   startWiFi(_HOSTNAME, 240, &httpServer);  // timeout 4 minuten
+
   // Set up first message as the IP address
   sprintf(actMessage, "%03d.%03d.%d.%d", WiFi.localIP()[0], WiFi.localIP()[1], WiFi.localIP()[2], WiFi.localIP()[3]);
   Serial.printf("\nAssigned IP[%s]\r\n", actMessage);
@@ -291,16 +287,16 @@ void setup()
   P.displaySuspend(false);
   P.displayScroll(actMessage, PA_LEFT, PA_NO_EFFECT, 25);
   P.setTextEffect(PA_SCROLL_LEFT, PA_NO_EFFECT);
-  do { yield(); } while( !P.displayAnimate() );
+  do
+  {
+    yield();
+  } while( !P.displayAnimate() );
 
   digitalWrite(LED_BUILTIN, LOW);
 
   startMDNS(settingHostname);
-    
+
   Serial.println("Get time from NTP");
-  //P.displayScroll("    Get time from NTP", PA_LEFT, PA_NO_EFFECT, 25);
-  //P.setTextEffect(PA_SCROLL_LEFT, PA_NO_EFFECT);
-  //do { yield(); } while( !P.displayAnimate() );
   timeSync.setup();
   timeSync.sync(100);
   time(&now);
@@ -309,44 +305,37 @@ void setup()
     timeSynced = true;
     Serial.println("Time synchronized with NTP Service");
   }
-  else  
+  else
   {
     timeSynced = false;
     Serial.println("Could not synchronize time with NTP Service");
   }
 
   Serial.printf("\nAssigned IP[%s]\r\n", actMessage);
-  //P.displayClear();
-  //P.displayScroll(actMessage, PA_LEFT, PA_NO_EFFECT, 25);
-  //P.setTextEffect(PA_SCROLL_LEFT, PA_NO_EFFECT);
-  //do { yield(); } while( !P.displayAnimate() );
 
   time(&now);
   Serial.println("-------------------------------------------------------------------------------");
-  //if (localtime(&now)->tm_year <= 120)
-  if (!getTheLocalTime(&timeinfo, 10000)) 
+  if (!getTheLocalTime(&timeinfo, 10000))
   {
     Serial.println("Time       : Failed to obtain time!");
   }
   else
   {
     Serial.printf( "Time       : %04d-%02d-%02d %02d:%02d:%02d\r\n", localtime(&now)->tm_year+1900
-                                                                   , localtime(&now)->tm_mon+1
-                                                                   , localtime(&now)->tm_mday
-                                                                   , localtime(&now)->tm_hour
-                                                                   , localtime(&now)->tm_min
-                                                                   , localtime(&now)->tm_sec);
+                   , localtime(&now)->tm_mon+1
+                   , localtime(&now)->tm_mday
+                   , localtime(&now)->tm_hour
+                   , localtime(&now)->tm_min
+                   , localtime(&now)->tm_sec);
   }
 
   nrReboots++;
   writeLastStatus();
-  //writeToLog("=========REBOOT==========================");
 
   Serial.flush();
   snprintf(cMsg, sizeof(cMsg), "Last reset reason: [%s]", ESP.getResetReason().c_str());
   Serial.println(cMsg);
   TelnetStream.println(cMsg);
-  //writeToLog(cMsg);
 
   Serial.flush();
   Serial.print("\nGebruik 'telnet ");
@@ -357,12 +346,12 @@ void setup()
   weerlive.setup(settingWeerLiveAUTH, settingWeerLiveLocation);
   Serial.flush();
 
-//================ Start HTTP Server ================================
+  //================ Start HTTP Server ================================
   setupFSexplorer();
   httpServer.serveStatic("/FSexplorer.png",   LittleFS, "/FSexplorer.png");
   httpServer.on("/",          sendIndexPage);
   httpServer.on("/index",     sendIndexPage);
-  httpServer.on("/index.html",sendIndexPage);
+  httpServer.on("/index.html", sendIndexPage);
   httpServer.serveStatic("/index.css", LittleFS, "/index.css");
   httpServer.serveStatic("/index.js",  LittleFS, "/index.js");
   // all other api calls are catched in FSexplorer onNotFounD!
@@ -371,12 +360,15 @@ void setup()
 
   httpServer.begin();
   Serial.println("\nServer started\r\n");
-    
+
   valueIntensity = calculateIntensity(); // read analog input pin 0
 
   P.setIntensity(valueIntensity);
   newsMsgID = 0;
-  do { yield(); } while( !P.displayAnimate() );
+  do
+  {
+    yield();
+  } while( !P.displayAnimate() );
 
   P.setFont(ExtASCII);
 
@@ -393,32 +385,33 @@ void setup()
   P.displayScroll(actMessage, PA_LEFT, PA_NO_EFFECT, 25);
   P.setTextEffect(PA_SCROLL_LEFT, PA_NO_EFFECT);
 
-  do { yield(); } while( !P.displayAnimate() );
+  do
+  {
+    yield();
+  } while( !P.displayAnimate() );
 
+  //-- clear all NWS files --
   for (int i=0; i<=settingNewsMaxMsg; i++)
   {
     writeFileById("NWS", i, "");
-    //Serial.printf("readFileById(NWS, %d)\r\n", i);
-    //readFileById("NWS", i);
   }
-  
+
 } // setup()
 
 
 //=====================================================================
 void loop()
 {
-//handleNTP();
   httpServer.handleClient();
   MDNS.update();
   yield();
-  
+
   if ((millis() > weerTimer) && (strlen(settingWeerLiveAUTH) > 5))
   {
     weerTimer = millis() + (settingWeerLiveInterval * (60 * 1000)); // Interval in Minutes!
     if (settingWeerLiveInterval > 0)
     {
-      const char* weatherInfo = weerlive.request();
+      const char *weatherInfo = weerlive.request();
       Serial.println(weatherInfo);
       snprintf(lastWeerMessage, WEER_SIZE, "%s", weatherInfo);
       Serial.printf("ticker Weer\n%s\r\n", lastWeerMessage);
@@ -429,7 +422,7 @@ void loop()
   if ((millis() > newsapiTimer) && (strlen(settingNewsAUTH) > 5))
   {
     newsapiTimer = millis() + (settingNewsInterval * (60 * 1000)); // Interval in Minutes!
-    if (settingNewsInterval > 0) 
+    if (settingNewsInterval > 0)
     {
       if (!getNewsapiData())  //-- first try ...
       {
@@ -443,86 +436,91 @@ void loop()
     }
   }
 
-  if (P.displayAnimate()) // done with animation, ready for next message
+  //-- done with animation, ready for next message
+  if (P.displayAnimate())
   {
     yield();
     msgType++;
     Serial.printf("msgType[%d]\r\n", msgType);
     time(&now);
     if (localtime(&now)->tm_year > 120) timeSynced = true;
-    
+
     switch(msgType)
     {
-      case 1:   if (!(millis() > timeTimer))  return;
-                if (!timeSynced)              return;
-                inFX  = random(0, ARRAY_SIZE(effect));
-                outFX = random(0, ARRAY_SIZE(effect));
-                snprintf(actMessage, LCL_SIZE, weekDayName[localtime(&now)->tm_wday+1]);
-                snprintf(onTickerMessage, 120, "%s", actMessage);
-                //snprintf(actMessage, LCL_SIZE, weekDayName[1]);
-                P.displayClear();
-                P.displayText(actMessage, PA_CENTER, (MAX_SPEED - settingTextSpeed), 1000, effect[inFX], effect[outFX]);
-                Serial.printf("[1] %s\r\n", actMessage);
-                TelnetStream.printf("%s ", actMessage);
-                break;
-      case 2:   if (!(millis() > timeTimer))  return;
-                if (!timeSynced)              return;
-                timeTimer = millis() + 60000;
-                inFX  = random(0, ARRAY_SIZE(effect));
-                outFX = random(0, ARRAY_SIZE(effect));
-                sprintf(actMessage, "%s", updateTime());
-                snprintf(onTickerMessage, 120, "%s", actMessage);
-                P.displayText(actMessage, PA_CENTER, (MAX_SPEED - settingTextSpeed), 2000, effect[inFX], effect[outFX]);
-                Serial.printf("[2] %s\r\n", actMessage);
-                TelnetStream.printf("[%s]\r\n", actMessage);
-                break;
-      case 3:   nextLocalBericht();
-                P.setTextEffect(PA_SCROLL_LEFT, PA_NO_EFFECT);
-                break;          
-      case 6:   nextLocalBericht();
-                P.setTextEffect(PA_SCROLL_LEFT, PA_NO_EFFECT);
-                break;    
-      case 4:            
-      case 5:            
-      case 7:            
-      case 8:   if (settingNewsInterval > 0)
-                      nextNieuwsBericht();
-                else  nextLocalBericht();
-                P.setTextEffect(PA_SCROLL_LEFT, PA_NO_EFFECT);
-                break;
-      case 9:   if (settingWeerLiveInterval > 0)
-                {
-                  snprintf(actMessage, WEER_SIZE, "** %s **", lastWeerMessage);
-                  snprintf(onTickerMessage, 120, "%s", actMessage);
-                  Serial.printf("WeerLive [%s]\r\n", actMessage);
-                  TelnetStream.printf("WeerLive [%s]\r\n", actMessage);
-                  utf8Ascii(actMessage);
-                }
-                else  nextLocalBericht();
-                P.setTextEffect(PA_SCROLL_LEFT, PA_NO_EFFECT);
-                break;
-      case 10:  if (settingNewsInterval > 0)
-                      nextNieuwsBericht();
-                else  nextLocalBericht();
-                break;
-      default:  msgType = 0;
-                return;
-                
+      case 1:
+        if (!(millis() > timeTimer))  return;
+        if (!timeSynced)              return;
+        inFX  = random(0, ARRAY_SIZE(effect));
+        outFX = random(0, ARRAY_SIZE(effect));
+        snprintf(actMessage, LCL_SIZE, weekDayName[localtime(&now)->tm_wday+1]);
+        snprintf(onTickerMessage, 120, "%s", actMessage);
+        P.displayClear();
+        P.displayText(actMessage, PA_CENTER, (MAX_SPEED - settingTextSpeed), 1000, effect[inFX], effect[outFX]);
+        Serial.printf("[1] %s\r\n", actMessage);
+        TelnetStream.printf("%s ", actMessage);
+        break;
+      case 2:
+        if (!(millis() > timeTimer))  return;
+        if (!timeSynced)              return;
+        timeTimer = millis() + 60000;
+        inFX  = random(0, ARRAY_SIZE(effect));
+        outFX = random(0, ARRAY_SIZE(effect));
+        sprintf(actMessage, "%s", updateTime());
+        snprintf(onTickerMessage, 120, "%s", actMessage);
+        P.displayText(actMessage, PA_CENTER, (MAX_SPEED - settingTextSpeed), 2000, effect[inFX], effect[outFX]);
+        Serial.printf("[2] %s\r\n", actMessage);
+        TelnetStream.printf("[%s]\r\n", actMessage);
+        break;
+      case 3:
+        nextLocalBericht();
+        P.setTextEffect(PA_SCROLL_LEFT, PA_NO_EFFECT);
+        break;
+      case 6:
+        nextLocalBericht();
+        P.setTextEffect(PA_SCROLL_LEFT, PA_NO_EFFECT);
+        break;
+      case 4:
+      case 5:
+      case 7:
+      case 8:
+        if (settingNewsInterval > 0)
+          nextNieuwsBericht();
+        else  nextLocalBericht();
+        P.setTextEffect(PA_SCROLL_LEFT, PA_NO_EFFECT);
+        break;
+      case 9:
+        if (settingWeerLiveInterval > 0)
+        {
+          snprintf(actMessage, WEER_SIZE, "** %s **", lastWeerMessage);
+          snprintf(onTickerMessage, 120, "%s", actMessage);
+          Serial.printf("WeerLive [%s]\r\n", actMessage);
+          TelnetStream.printf("WeerLive [%s]\r\n", actMessage);
+          utf8Ascii(actMessage);
+        }
+        else  nextLocalBericht();
+        P.setTextEffect(PA_SCROLL_LEFT, PA_NO_EFFECT);
+        break;
+      case 10:
+        if (settingNewsInterval > 0)
+          nextNieuwsBericht();
+        else  nextLocalBericht();
+        break;
+      default:
+        msgType = 0;
+        return;
+
     } // switch()
 
-    //Serial.println(actMessage);
     valueIntensity = calculateIntensity(); // read analog input pin 0
     Serial.printf("Intensity set to [%d]\r\n", valueIntensity);
-    //TelnetStream.printf("Intensity set to [%d]\r\n", valueIntensity);
     P.setIntensity(valueIntensity);
-    // Tell Parola we have a new animation
+    //-- Tell Parola we have a new animation
     P.displayReset();
     Serial.println("End of displayAnimate()..");
-    //TelnetStream.println("End of displayAnimate()..");
-    
+
   } // dislayAnimate()
 
-  
+
 } // loop()
 
 
@@ -546,6 +544,6 @@ void loop()
 * CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT
 * OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR
 * THE USE OR OTHER DEALINGS IN THE SOFTWARE.
-* 
+*
 ****************************************************************************
 */
