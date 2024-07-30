@@ -1,6 +1,6 @@
 /*
 ***************************************************************************
-**  Program : networkStuff.h
+**  Program : networkStuff.cpp
 **
 **  Copyright (c) 2021 .. 2024 Willem Aandewiel
 **

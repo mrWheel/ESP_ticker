@@ -1,3 +1,12 @@
+############################################################################################################
+#
+#   convertor from platformIO to the ArduinoIDE
+#
+#   by Willem Aandewiel
+#
+#   Version 1.0 (23-07-2024)
+#
+############################################################################################################
 import os
 import shutil
 
@@ -30,7 +39,7 @@ def create_readme(dest_folder, lib_deps_text):
     with open(readme_path, 'w') as readme_file:
         readme_file.write("/*\n")
         readme_file.write("************************************************************************************\n")
-        readme_file.write("**  This is the README file for the ESP_ticker project.                           **\n")
+        readme_file.write("**  This is the README file for the <name your project>  project.                 **\n")
         readme_file.write("************************************************************************************\n")
         readme_file.write("**\n")
         readme_file.write("**  Arduino-IDE settings for ESP-12E (but actualy for ALL type of ESP8266 boards):\n")
