@@ -7,6 +7,61 @@ more information.
 
 To upload the data-map to LittleFS look <a href="https://arduino-esp8266.readthedocs.io/en/latest/filesystem.html#uploading-files-to-file-system" target="_blank">here</a> for more information (with `VSCode/PlatformIO`, simply click on the ‘PROJECT TASKS’ icon (the scary mask icon) and select `Upload Filesystem Image`).
 
+### weerlive configuration
+In the file `src/WeerliveClass.cpp` in the function `configereFilters()` you can select what you will see on your ESP_ticker.
+Don't change anything but the `true` or `false` keywords.
+
+```
+void Weerlive::configureFilters()
+{
+  filter["liveweer"][0]["plaats"]   = true;
+  filter["liveweer"][0]["time"]     = false;
+  filter["liveweer"][0]["temp"]     = true;   //-- actuele temperatuur in graden Celsius
+  filter["liveweer"][0]["gtemp"]    = false;  //-- gevoeld temperatuur
+  filter["liveweer"][0]["samenv"]   = true;   //-- samenvatting
+  filter["liveweer"][0]["lv"]       = true;   //-- relatieve luchtvochtigheid
+  filter["liveweer"][0]["windr"]    = true;   //-- windrichting
+  filter["liveweer"][0]["windrgr"]  = false;  //-- windrichting in graden
+  filter["liveweer"][0]["windms"]   = false;  //-- windkracht in m/s
+  filter["liveweer"][0]["windbft"]  = true;   //-- windkracht in bft
+  filter["liveweer"][0]["windknp"]  = false;  //-- windsnelheid in knoppen
+  filter["liveweer"][0]["windkmh"]  = false;  //-- windsnelheid in km/h
+  filter["liveweer"][0]["luchtd"]   = true;   //-- luchtdruk
+  filter["liveweer"][0]["ldmmhg"]   = false;  //-- luchtdruk in mmHg
+  filter["liveweer"][0]["dauwp"]    = true;   //-- dauwpunt
+  filter["liveweer"][0]["zicht"]    = false;  //-- zicht in meters
+  filter["liveweer"][0]["gr"]       = true;   //-- globale (zonne)straling in Watt/M2
+  filter["liveweer"][0]["verw"]     = false;  //-- korte dagverwachting
+  filter["liveweer"][0]["sup"]      = false;  //-- zon op
+  filter["liveweer"][0]["sunder"]   = true;   //-- zon onder
+  filter["liveweer"][0]["image"]    = true;   //-- afbeeldingsnaam
+  filter["liveweer"][0]["alarm"]    = true;   //-- Geldt er een weerwaarschuwing? 1 = ja, 0 = nee
+  filter["liveweer"][0]["lkop"]     = true;   //-- Weerwaarschuwing korte omschrijving
+  filter["liveweer"][0]["ltekst"]   = false;  //-- Langere beschrijving van de waarschuwing
+  filter["liveweer"][0]["wrschklr"] = false;  //-- KNMI kleurcode voor jouw regio
+  filter["liveweer"][0]["wrsch_g"]  = false;  //-- Moment waarop de eerstkomende KNMI-waarschuwing geldt
+  filter["liveweer"][0]["wrsch_gts"]= false;  //-- Timestamp van wrsch_g
+  filter["liveweer"][0]["wrsch_gc"] = false;  //-- KNMI kleurcode voor de eerstkomende waarschuwing
+  //---- week verwachting ---
+  for(int i = 0; i < 4; i++)
+  {
+    filter["wk_verw"][i]["dag"]       = true;   //-- datum van deze dag
+    filter["wk_verw"][i]["image"]     = true;   //-- afbeeldingsnaamafbeeldingsnaam
+    filter["wk_verw"][i]["max_temp"]  = true;   //-- maximum temperatuur voor de dag
+    filter["wk_verw"][i]["min_temp"]  = true;   //-- minimum temperatuur voor de dag
+    filter["wk_verw"][i]["windbft"]   = false;   //--  windkracht in Beaufort
+    filter["wk_verw"][i]["windkmh"]   = false;   //-- windkracht in km/h
+    filter["wk_verw"][i]["windms"]    = false;   //-- windkracht in m/s
+    filter["wk_verw"][i]["windknp"]   = false;   //-- windkracht in knopen
+    filter["wk_verw"][i]["windrgr"]   = false;   //-- windrichting in graden
+    filter["wk_verw"][i]["windr"]     = false;   //-- windrichting
+    filter["wk_verw"][i]["neersl_perc_dag"] = true;   //-- kans op neerslag per dag
+    filter["wk_verw"][i]["zond_perc_dag"]   = false;   //-- kans op zon per dag
+  }
+
+} //  configureFilters()
+```
+
 ## v1.8.0 (10-07-2024)
 
 I am excited to announce the release of version 1.8.0! This update brings significant improvements to enhance your development experience, especially with **Visual Studio Code** and **PlatformIO**. Here's what's new:
