@@ -6,7 +6,12 @@
 #include "allDefines.h"
 #include "helperStuff.h"
 #include "networkStuff.h"
-#include "newsapi_org.h"
+#ifdef NEWSAPI_ORG
+  #include "newsapi_org.h"
+#endif
+#ifdef MEDIASTACK
+  #include "mediastack.h"
+#endif
 
 // Function Prototypes
 void writeSettings(bool show);

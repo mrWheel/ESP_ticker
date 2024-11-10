@@ -11,7 +11,7 @@
 #define  _ALLDEFINES_H
 
 #define _HOSTNAME   "ESPticker"
-#define _FW_VERSION "v1.8.0 (19-07-2024)"
+#define _FW_VERSION "v1.9.0 (10-11-2024)"
 
 
 #define USE_UPDATE_SERVER
@@ -40,8 +40,6 @@
 #define NEWS_AUTH_SIZE       51
 #define WEER_AUTH_SIZE       51
 #define WEER_LIVE_LOC_SIZE   51
-
-
 
 #endif
 

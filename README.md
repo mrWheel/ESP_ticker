@@ -62,6 +62,14 @@ void Weerlive::configureFilters()
 } //  configureFilters()
 ```
 
+## v1.9.0 (10-11-2024)
+
+You now have two options to get news items on your ESP_ticker!
+* newsapi.org [but this source seems not to provide Dutch news anymore]
+* mediastack [only 100 requests per month - 3 per day :-( ]
+
+Select which one you want with build-flag in `platformio.ini`
+
 ## v1.8.0 (10-07-2024)
 
 I am excited to announce the release of version 1.8.0! This update brings significant improvements to enhance your development experience, especially with **Visual Studio Code** and **PlatformIO**. Here's what's new:
