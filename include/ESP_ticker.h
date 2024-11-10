@@ -10,7 +10,6 @@
 
 #include <Arduino.h>
 #include <ESP8266WiFi.h>
-//#include <ESP8266WebServer.h>
 #include <LittleFS.h>
 #include <TelnetStream.h>
 #include <MD_Parola.h>
@@ -24,13 +23,24 @@
 #include "helperStuff.h"
 #include "jsonStuff.h"
 #include "littlefsStuff.h"
-#include "newsapi_org.h"
 #include "restAPI.h"
 #include "sendIndexPage.h"
 #include "settingStuff.h"
 #include "WeerliveClass.h"
 #include "TimeSync.h"
 
+#if defined(NEWSAPI_ORG) && defined(MEDIASTACK)
+  #error "Only one of NEWSAPI_ORG or MEDIASTACK must be defined"
+#endif
+#if !defined(NEWSAPI_ORG) && !defined(MEDIASTACK)
+  #error "One of NEWSAPI_ORG or MEDIASTACK must be defined"
+#endif
+#ifdef NEWSAPI_ORG
+  #include "newsapi_org.h"
+#endif
+#ifdef MEDIASTACK
+  #include "mediastack.h"
+#endif
 
 WiFiClient weerliveClient;
 Weerlive weerlive(weerliveClient);

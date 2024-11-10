@@ -1,7 +1,7 @@
-#ifdef NEWSAPI_ORG
+#ifdef MEDIASTACK
 
-#ifndef NEWSAPI_ORG_H
-#define NEWSAPI_ORG_H
+#ifndef MEDIASTACK_H
+#define MEDIASTACK_H
 
 #include <Arduino.h>
 #include <WiFiClient.h>
@@ -33,5 +33,5 @@ extern char onTickerMessage[];
 extern char val[];
 extern WiFiClient newsapiClient;
 
-#endif // NEWSAPI_ORG_H
-#endif // NEWSAPI_ORG
+#endif // MEDIASTACK_H
+#endif // MEDIASTACK
